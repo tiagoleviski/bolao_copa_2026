@@ -23,3 +23,29 @@ def get_supabase_client() -> Client:
         
     return create_client(url, key)
 
+# src/database.py
+
+def listar_partidas_com_times():
+    supabase = get_supabase_client()
+    # Busca partidas trazendo os dados dos times (nome e bandeira) via Join
+    res = supabase.table("partidas").select(
+        "*, time_a:time_a_id(nome, bandeira_url), time_b:time_b_id(nome, bandeira_url)"
+    ).order("data_hora").execute()
+    return res.data
+
+def salvar_aposta(user_id, partida_id, gols_a, gols_b):
+    supabase = get_supabase_client()
+    data = {
+        "user_id": user_id,
+        "partida_id": partida_id,
+        "gols_time_a": gols_a,
+        "gols_time_b": gols_b
+    }
+    # upsert: insere novo ou atualiza se já existir (baseado no unique constraint)
+    supabase.table("apostas").upsert(data).execute()
+
+def buscar_apostas_usuario(user_id):
+    supabase = get_supabase_client()
+    res = supabase.table("apostas").select("*").eq("user_id", user_id).execute()
+    # Retorna um dicionário {partida_id: (gols_a, gols_b)} para busca rápida
+    return {a['partida_id']: (a['gols_time_a'], a['gols_time_b']) for a in res.data}
