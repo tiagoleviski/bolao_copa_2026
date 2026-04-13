@@ -1,7 +1,7 @@
 # app.py
 import streamlit as st
 from src.database import get_supabase_client
-from src.auth import registrar_usuario, logar_usuario, solicitar_recuperacao_senha, atualizar_senha
+from src.auth import registrar_usuario, logar_usuario, solicitar_recuperacao_senha, atualizar_senha, resetar_senha_com_codigo
 import pandas as pd
 
 # app.py (logo no início do código)
@@ -9,32 +9,33 @@ import pandas as pd
 # O Supabase coloca um token na URL quando o usuário vem do email
 # 1. TÉCNICA DE INTERCEPÇÃO: Verificar se o usuário veio do email de recuperação
 # O Supabase redireciona com parâmetros na URL
-query_params = st.query_params
+# app.py (dentro da lógica de reset_mode)
 
-if "type" in query_params and query_params["type"] == "recovery":
-    st.session_state.recovery_mode = True
-
-# 2. SE ESTIVER EM MODO DE RECUPERAÇÃO, MOSTRA APENAS ESSA TELA
-if st.session_state.get("recovery_mode", False):
-    st.title("🔐 Redefinir sua Senha")
-    st.info("Crie uma nova senha forte para acessar seu bolão.")
+if st.session_state.get("reset_mode"):
+    st.subheader("🔑 Recuperar Senha")
     
-    with st.form("new_password_form"):
-        nova_senha = st.text_input("Nova Senha", type="password")
-        confirmar_senha = st.text_input("Confirme a Nova Senha", type="password")
-        
-        if st.form_submit_button("Salvar Nova Senha"):
-            if nova_senha == confirmar_senha and len(nova_senha) >= 6:
-                sucesso, msg = atualizar_senha(nova_senha)
+    email_recup = st.text_input("Digite seu e-mail")
+    
+    if st.button("Enviar Código de Recuperação"):
+        sucesso, msg = solicitar_recuperacao_senha(email_recup)
+        if sucesso:
+            st.success("Verifique o código de 6 dígitos no seu e-mail.")
+            st.session_state.esperando_codigo = True
+        else:
+            st.error(msg)
+
+    if st.session_state.get("esperando_codigo"):
+        with st.form("form_final_reset"):
+            codigo = st.text_input("Código de 6 dígitos")
+            nova_senha = st.text_input("Nova Senha", type="password")
+            if st.form_submit_button("Confirmar Nova Senha"):
+                sucesso, msg = resetar_senha_com_codigo(email_recup, codigo, nova_senha)
                 if sucesso:
-                    st.success("Senha alterada! Agora você pode fazer login.")
-                    st.session_state.recovery_mode = False
-                    st.query_params.clear() # Limpa a URL
-                    st.button("Ir para o Login") # Força o usuário a clicar para atualizar
+                    st.success(msg)
+                    st.session_state.reset_mode = False
+                    st.session_state.esperando_codigo = False
                 else:
-                    st.error(f"Erro: {msg}")
-            else:
-                st.error("As senhas não coincidem ou são muito curtas (mín. 6 caracteres).")
+                    st.error(msg)
     
     st.stop() # PARA A EXECUÇÃO AQUI (Não mostra o resto do site)
 

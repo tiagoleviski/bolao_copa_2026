@@ -22,3 +22,4 @@ def get_supabase_client() -> Client:
         st.stop()
         
     return create_client(url, key)
+

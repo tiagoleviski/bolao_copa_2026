@@ -36,10 +36,15 @@ def logar_usuario(email, password):
 def solicitar_recuperacao_senha(email):
     supabase = get_supabase_client()
     try:
-        # O Supabase envia um email com um link de retorno para o seu site
-        # Importante: Se estiver rodando local, o link de retorno deve ser o localhost
-        supabase.auth.reset_password_for_email(email)
-        return True, "Email de recuperação enviado!"
+        # Aqui está o segredo: incluímos o ?type=recovery dentro da URL de redirecionamento
+        # O Supabase vai anexar o token dele DEPOIS disso.
+        url_retorno = "http://localhost:8501/?type=recovery"
+        
+        supabase.auth.reset_password_for_email(
+            email, 
+            options={"redirect_to": url_retorno}
+        )
+        return True, "Email enviado! Verifique sua caixa de entrada."
     except Exception as e:
         return False, str(e)
 
@@ -67,3 +72,19 @@ def atualizar_senha(nova_senha):
         return True, "Senha atualizada!"
     except Exception as e:
         return False, str(e)
+
+def resetar_senha_com_codigo(email, codigo, nova_senha):
+    supabase = get_supabase_client()
+    try:
+        # 1. Verifica o código (OTP). Isso cria a "Session" que estava faltando!
+        supabase.auth.verify_otp({
+            "email": email,
+            "token": codigo,
+            "type": "recovery"
+        })
+        
+        # 2. Agora que a sessão existe, atualizamos a senha
+        supabase.auth.update_user({"password": nova_senha})
+        return True, "Senha atualizada com sucesso!"
+    except Exception as e:
+        return False, f"Erro: {str(e)}"
