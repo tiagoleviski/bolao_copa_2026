@@ -33,19 +33,41 @@ def listar_partidas_com_times():
     ).order("data_hora").execute()
     return res.data
 
+# src/database.py
+
 def salvar_aposta(user_id, partida_id, gols_a, gols_b):
     supabase = get_supabase_client()
+    
     data = {
         "user_id": user_id,
         "partida_id": partida_id,
         "gols_time_a": gols_a,
         "gols_time_b": gols_b
     }
-    # upsert: insere novo ou atualiza se já existir (baseado no unique constraint)
-    supabase.table("apostas").upsert(data).execute()
+    
+    try:
+        # O segredo está no parâmetro on_conflict
+        # Ele deve listar as colunas que compõem a sua UNIQUE CONSTRAINT
+        supabase.table("apostas").upsert(
+            data, 
+            on_conflict="user_id,partida_id"
+        ).execute()
+        return True
+    except Exception as e:
+        print(f"Erro ao salvar: {e}")
+        return False
 
 def buscar_apostas_usuario(user_id):
     supabase = get_supabase_client()
     res = supabase.table("apostas").select("*").eq("user_id", user_id).execute()
     # Retorna um dicionário {partida_id: (gols_a, gols_b)} para busca rápida
     return {a['partida_id']: (a['gols_time_a'], a['gols_time_b']) for a in res.data}
+
+# src/database.py - Adicione esta função primeiro
+def atualizar_resultado_real(partida_id, gols_a, gols_b):
+    supabase = get_supabase_client()
+    supabase.table("partidas").update({
+        "gols_a": gols_a,
+        "gols_b": gols_b,
+        "status": "Finalizado"
+    }).eq("id", partida_id).execute()
