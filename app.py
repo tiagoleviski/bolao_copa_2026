@@ -28,6 +28,12 @@ def eh_admin():
 
 # --- PÁGINAS DO SISTEMA ---
 
+def salvar_se_completo(user_id, partida_id):
+    g_a = st.session_state.get(f"a_{partida_id}")
+    g_b = st.session_state.get(f"b_{partida_id}")
+    if g_a is not None and g_b is not None:
+        salvar_aposta(user_id, partida_id, g_a, g_b)
+
 def pagina_reset_senha():
     st.markdown("<h1 style='text-align: center;'>🔑 Recuperar Senha</h1>", unsafe_allow_html=True)
     _, col_meio, _ = st.columns([1, 1, 1])
@@ -85,34 +91,31 @@ def pagina_apostas():
                     dt = datetime.fromisoformat(p['data_hora'])
                     if dt.tzinfo is None: dt = dt.replace(tzinfo=fuso_utc)
                     h_jogo = dt.astimezone(fuso_rio)
-                    
+
                     aberto = (h_jogo - timedelta(hours=1) - agora).total_seconds() > 0
                     cor = "blue" if aberto else "red"
-                    
+
                     if aberto:
                         tr = h_jogo - timedelta(hours=1) - agora
                         status = f"⏳ Fecha em: {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m"
                     else: status = "🚫 Apostas Encerradas"
 
-                    st.markdown(f"📅 `{h_jogo.strftime('%d/%m %H:%M')}` | :{cor}[**{status}**]")
+                    val_a, val_b = apostas_existentes.get(p['id'], (None, None))
+                    aposta_status = "✅ Aposta Inserida" if p['id'] in apostas_existentes else "❌ Aposta Pendente"
+                    st.markdown(f"📅 `{h_jogo.strftime('%d/%m %H:%M')}` | :{cor}[**{status}**] | {aposta_status}")
                     col_a, pl_a, vs, pl_b, col_b = st.columns([2, 1, 0.5, 1, 2])
-                    val_a, val_b = apostas_existentes.get(p['id'], (0, 0))
 
                     with col_a:
                         st.image(p['time_a']['bandeira_url'], width=35)
                         st.write(f"**{p['time_a']['nome']}**")
                     with pl_a:
-                        g_a = st.number_input(" ", 0, 20, val_a, key=f"a_{p['id']}", label_visibility="collapsed", disabled=not aberto)
+                        st.number_input(" ", 0, 20, val_a, key=f"a_{p['id']}", label_visibility="collapsed", disabled=not aberto, on_change=salvar_se_completo, args=(user_id, p['id']))
                     with vs: st.markdown("<div style='text-align: center; padding-top:10px;'>×</div>", unsafe_allow_html=True)
                     with pl_b:
-                        g_b = st.number_input(" ", 0, 20, val_b, key=f"b_{p['id']}", label_visibility="collapsed", disabled=not aberto)
+                        st.number_input(" ", 0, 20, val_b, key=f"b_{p['id']}", label_visibility="collapsed", disabled=not aberto, on_change=salvar_se_completo, args=(user_id, p['id']))
                     with col_b:
                         st.image(p['time_b']['bandeira_url'], width=35)
                         st.write(f"**{p['time_b']['nome']}**")
-
-                    if aberto and st.button("Confirmar", key=f"btn_{p['id']}"):
-                        salvar_aposta(user_id, p['id'], g_a, g_b)
-                        st.toast("Palpite salvo!")
                     st.divider()
 
 def pagina_admin():

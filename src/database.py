@@ -14,11 +14,11 @@ def get_supabase_client() -> Client:
     O uso do @st.cache_resource evita que o Streamlit crie uma nova
     conexão toda vez que a página for recarregada.
     """
-    url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_KEY")
-    
+    url = st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL")
+    key = st.secrets.get("SUPABASE_KEY") or os.getenv("SUPABASE_KEY")
+
     if not url or not key:
-        st.error("Erro: SUPABASE_URL ou SUPABASE_KEY não encontradas no arquivo .env")
+        st.error("Erro: SUPABASE_URL ou SUPABASE_KEY não configuradas.")
         st.stop()
         
     return create_client(url, key)
@@ -71,3 +71,4 @@ def atualizar_resultado_real(partida_id, gols_a, gols_b):
         "gols_b": gols_b,
         "status": "Finalizado"
     }).eq("id", partida_id).execute()
+
