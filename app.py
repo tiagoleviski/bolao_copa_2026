@@ -3,7 +3,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, timezone
-from src.database import get_supabase_client, listar_partidas_com_times, salvar_aposta, buscar_apostas_usuario, atualizar_resultado_real
+from src.database import get_supabase_client, listar_partidas_com_times, salvar_aposta, buscar_apostas_usuario, atualizar_resultado_real, buscar_perfil_usuario
 from src.auth import registrar_usuario, logar_usuario, solicitar_recuperacao_senha, resetar_senha_com_codigo
 
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -174,7 +174,11 @@ elif not user:
 else:
     # INTERFACE LOGADA
     with st.sidebar:
-        st.write(f"👤 **{user.email}**")
+        perfil = buscar_perfil_usuario(user.id)
+        nome_exibido = perfil.get("nome_completo") if perfil else ""
+        if nome_exibido:
+            st.write(f"👤 **{nome_exibido}**")
+        st.write(f"✉️ {user.email}")
         menu = ["Meus Palpites", "Ranking"]
         if eh_admin(): menu.append("Área do Admin")
         escolha = st.radio("Navegação", menu)

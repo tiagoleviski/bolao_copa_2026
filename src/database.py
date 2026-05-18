@@ -25,6 +25,11 @@ def get_supabase_client() -> Client:
 
 # src/database.py
 
+def buscar_perfil_usuario(user_id):
+    supabase = get_supabase_client()
+    res = supabase.table("perfis").select("nome_completo, email").eq("id", user_id).single().execute()
+    return res.data
+
 def listar_partidas_com_times():
     supabase = get_supabase_client()
     # Busca partidas trazendo os dados dos times (nome e bandeira) via Join
