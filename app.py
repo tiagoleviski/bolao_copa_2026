@@ -75,19 +75,19 @@ def pagina_apostas():
     organizado = {}
     for p in partidas:
         g, r = p.get('grupo', 'Sem Grupo'), p.get('rodada', 0)
-        if g not in organizado: organizado[g] = {}
-        if r not in organizado[g]: organizado[g][r] = []
-        organizado[g][r].append(p)
+        if r not in organizado: organizado[r] = {}
+        if g not in organizado[r]: organizado[r][g] = []
+        organizado[r][g].append(p)
 
     formatar_rodada = {1: "1ª Rodada", 2: "2ª Rodada", 3: "3ª Rodada"}
-    for grupo in sorted(organizado.keys()):
-        st.header(f"📂 {grupo}")
-        rodadas_ids = sorted(organizado[grupo].keys())
-        abas = st.tabs([formatar_rodada.get(r, f"{r}ª Rodada") for r in rodadas_ids])
-        
-        for i, num_rodada in enumerate(rodadas_ids):
-            with abas[i]:
-                for p in organizado[grupo][num_rodada]:
+    rodadas_ids = sorted(organizado.keys())
+    abas = st.tabs([formatar_rodada.get(r, f"{r}ª Rodada") for r in rodadas_ids])
+
+    for i, num_rodada in enumerate(rodadas_ids):
+        with abas[i]:
+            for grupo in sorted(organizado[num_rodada].keys()):
+                st.header(f"📂 {grupo}")
+                for p in organizado[num_rodada][grupo]:
                     dt = datetime.fromisoformat(p['data_hora'])
                     if dt.tzinfo is None: dt = dt.replace(tzinfo=fuso_utc)
                     h_jogo = dt.astimezone(fuso_rio)
