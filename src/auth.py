@@ -8,15 +8,12 @@ def registrar_usuario(email, password, nome):
         auth_resp = supabase.auth.sign_up({
             "email": email,
             "password": password,
+            "options": {
+                "data": {"nome_completo": nome}
+            }
         })
-        
-        # Se o cadastro no Auth foi bem-sucedido, salvamos o nome na nossa tabela 'perfis'
+
         if auth_resp.user:
-            supabase.table("perfis").insert({
-                "id": auth_resp.user.id,
-                "nome_completo": nome,
-                "email": email
-            }).execute()
             return True, "Conta criada! Verifique seu email para confirmar."
     except Exception as e:
         return False, str(e)
