@@ -224,55 +224,68 @@ def pagina_apostas():
     for i, num_rodada in enumerate(rodadas_ids):
         with abas[i]:
             render_previsao_classificados(user_id, num_rodada, agora, fuso_rio, todos_paises, todas_previsoes)
-            for grupo in sorted(organizado[num_rodada].keys()):
-                if num_rodada <= 3:
-                    st.header(f"📂 {grupo}")
-                for p in organizado[num_rodada][grupo]:
-                    dt = datetime.fromisoformat(p['data_hora'])
-                    if dt.tzinfo is None: dt = dt.replace(tzinfo=fuso_utc)
-                    h_jogo = dt.astimezone(fuso_rio)
 
-                    time_a = p.get('time_a')
-                    time_b = p.get('time_b')
-                    times_definidos = time_a is not None and time_b is not None
-                    nome_a = time_a['nome'] if time_a else p.get('placeholder_time_a', 'A definir')
-                    nome_b = time_b['nome'] if time_b else p.get('placeholder_time_b', 'A definir')
-                    bandeira_a = time_a.get('bandeira_url') if time_a else None
-                    bandeira_b = time_b.get('bandeira_url') if time_b else None
+            if num_rodada == 9:
+                col_jogo, col_art = st.columns([3, 2])
+                ctx_jogo = col_jogo
+            else:
+                col_art = None
+                ctx_jogo = st.container()
 
-                    prazo_aberto = (h_jogo - timedelta(hours=1) - agora).total_seconds() > 0
-                    aberto = times_definidos and prazo_aberto
+            with ctx_jogo:
+                for grupo in sorted(organizado[num_rodada].keys()):
+                    if num_rodada <= 3:
+                        st.header(f"📂 {grupo}")
+                    for p in organizado[num_rodada][grupo]:
+                        dt = datetime.fromisoformat(p['data_hora'])
+                        if dt.tzinfo is None: dt = dt.replace(tzinfo=fuso_utc)
+                        h_jogo = dt.astimezone(fuso_rio)
 
-                    if prazo_aberto:
-                        tr = h_jogo - timedelta(hours=1) - agora
-                        cor = "blue"
-                        status = f"⏳ Fecha em: {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m"
-                    else:
-                        cor, status = "red", "🚫 Apostas Encerradas"
+                        time_a = p.get('time_a')
+                        time_b = p.get('time_b')
+                        times_definidos = time_a is not None and time_b is not None
+                        nome_a = time_a['nome'] if time_a else p.get('placeholder_time_a', 'A definir')
+                        nome_b = time_b['nome'] if time_b else p.get('placeholder_time_b', 'A definir')
+                        bandeira_a = time_a.get('bandeira_url') if time_a else None
+                        bandeira_b = time_b.get('bandeira_url') if time_b else None
 
-                    val_a, val_b = apostas_existentes.get(p['id'], (None, None))
-                    aposta_status = ""
-                    if times_definidos:
-                        aposta_status = " | ✅ Aposta Inserida" if p['id'] in apostas_existentes else " | ❌ Aposta Pendente"
+                        prazo_aberto = (h_jogo - timedelta(hours=1) - agora).total_seconds() > 0
+                        aberto = times_definidos and prazo_aberto
 
-                    st.markdown(f"📅 `{h_jogo.strftime('%d/%m %H:%M')}` | :{cor}[**{status}**]{aposta_status}")
-                    col_a, pl_a, vs, pl_b, col_b = st.columns([2, 1, 0.5, 1, 2])
+                        if prazo_aberto:
+                            tr = h_jogo - timedelta(hours=1) - agora
+                            cor = "blue"
+                            status = f"⏳ Fecha em: {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m"
+                        else:
+                            cor, status = "red", "🚫 Apostas Encerradas"
 
-                    with col_a:
-                        if bandeira_a:
-                            st.image(bandeira_a, width=35)
-                        st.write(f"**{nome_a}**")
-                    with pl_a:
-                        st.number_input(" ", 0, 20, val_a, key=f"a_{p['id']}", label_visibility="collapsed", disabled=not aberto, on_change=salvar_se_completo, args=(user_id, p['id']))
-                    with vs:
-                        st.markdown("<div style='text-align: center; padding-top:10px;'>×</div>", unsafe_allow_html=True)
-                    with pl_b:
-                        st.number_input(" ", 0, 20, val_b, key=f"b_{p['id']}", label_visibility="collapsed", disabled=not aberto, on_change=salvar_se_completo, args=(user_id, p['id']))
-                    with col_b:
-                        if bandeira_b:
-                            st.image(bandeira_b, width=35)
-                        st.write(f"**{nome_b}**")
-                    st.divider()
+                        val_a, val_b = apostas_existentes.get(p['id'], (None, None))
+                        aposta_status = ""
+                        if times_definidos:
+                            aposta_status = " | ✅ Aposta Inserida" if p['id'] in apostas_existentes else " | ❌ Aposta Pendente"
+
+                        st.markdown(f"📅 `{h_jogo.strftime('%d/%m %H:%M')}` | :{cor}[**{status}**]{aposta_status}")
+                        col_a, pl_a, vs, pl_b, col_b = st.columns([2, 1, 0.5, 1, 2])
+
+                        with col_a:
+                            if bandeira_a:
+                                st.image(bandeira_a, width=35)
+                            st.write(f"**{nome_a}**")
+                        with pl_a:
+                            st.number_input(" ", 0, 20, val_a, key=f"a_{p['id']}", label_visibility="collapsed", disabled=not aberto, on_change=salvar_se_completo, args=(user_id, p['id']))
+                        with vs:
+                            st.markdown("<div style='text-align: center; padding-top:10px;'>×</div>", unsafe_allow_html=True)
+                        with pl_b:
+                            st.number_input(" ", 0, 20, val_b, key=f"b_{p['id']}", label_visibility="collapsed", disabled=not aberto, on_change=salvar_se_completo, args=(user_id, p['id']))
+                        with col_b:
+                            if bandeira_b:
+                                st.image(bandeira_b, width=35)
+                            st.write(f"**{nome_b}**")
+                        st.divider()
+
+            if col_art is not None:
+                with col_art:
+                    render_artilheiro(user_id, agora, fuso_rio)
 
 def pagina_admin():
     st.title("🛡️ Área do Administrador")
@@ -286,49 +299,47 @@ def pagina_admin():
                 atualizar_resultado_real(p['id'], g_a, g_b)
                 st.success("Placar oficial registrado!")
 
-def pagina_artilheiro():
-    st.title("⚽ Artilheiro da Copa")
-    user_id = st.session_state.user.id
-    fuso_rio = timezone(timedelta(hours=-3))
-    agora = datetime.now(fuso_rio)
+def render_artilheiro(user_id, agora, fuso_rio):
     abertas = agora < PRAZO_PREVISOES.astimezone(fuso_rio)
     prazo_brt = PRAZO_PREVISOES.astimezone(fuso_rio)
 
+    st.subheader("⚽ Artilheiro")
+
     if abertas:
         tr = prazo_brt - agora
-        st.caption(f"⏳ Previsões fecham em {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m — {prazo_brt.strftime('%d/%m às %H:%M')} BRT")
+        st.caption(f"⏳ Fecha em {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m")
     else:
-        st.caption("🔒 Previsões encerradas.")
+        st.caption("🔒 Previsão encerrada.")
 
     jogadores = buscar_jogadores()
-    jogador_atual_id = buscar_aposta_artilheiro(user_id)
+    if not jogadores:
+        st.info("⚠️ Lista de jogadores não encontrada. Execute o SQL de inserção no Supabase.")
+        return
 
+    jogador_atual_id = buscar_aposta_artilheiro(user_id)
     id_por_nome = {f"{j['nome']} ({j['selecao']})": j['id'] for j in jogadores}
     nome_por_id = {j['id']: f"{j['nome']} ({j['selecao']})" for j in jogadores}
     opcoes = ["— selecione —"] + sorted(id_por_nome.keys())
-
     selecionado_atual = nome_por_id.get(jogador_atual_id)
     idx = opcoes.index(selecionado_atual) if selecionado_atual in opcoes else 0
 
-    st.subheader("Quem será o artilheiro da Copa do Mundo 2026?")
-
-    def _auto_salvar_artilheiro(uid=user_id, id_map=id_por_nome):
+    def _auto_salvar(uid=user_id, id_map=id_por_nome):
         valor = st.session_state.get(f"sel_artilheiro_{uid}", "— selecione —")
         if valor != "— selecione —":
             salvar_aposta_artilheiro(uid, id_map[valor])
 
     st.selectbox(
-        "Selecione o jogador:",
+        "Artilheiro:",
         options=opcoes,
         index=idx,
         disabled=not abertas,
         key=f"sel_artilheiro_{user_id}",
-        on_change=_auto_salvar_artilheiro,
+        on_change=_auto_salvar,
         label_visibility="collapsed",
     )
 
-    if jogador_atual_id:
-        st.success(f"✅ Sua aposta: **{nome_por_id[jogador_atual_id]}**")
+    if jogador_atual_id and jogador_atual_id in nome_por_id:
+        st.success(f"✅ **{nome_por_id[jogador_atual_id]}**")
 
 
 # --- FLUXO PRINCIPAL ---
@@ -380,7 +391,7 @@ else:
         if nome_exibido:
             st.write(f"👤 **{nome_exibido}**")
         st.write(f"✉️ {user.email}")
-        menu = ["Meus Palpites", "Artilheiro", "Ranking"]
+        menu = ["Meus Palpites", "Ranking"]
         if eh_admin(): menu.append("Área do Admin")
         escolha = st.radio("Navegação", menu)
         
@@ -390,8 +401,6 @@ else:
 
     if escolha == "Meus Palpites":
         pagina_apostas()
-    elif escolha == "Artilheiro":
-        pagina_artilheiro()
     elif escolha == "Área do Admin" and eh_admin():
         pagina_admin()
     elif escolha == "Ranking":
