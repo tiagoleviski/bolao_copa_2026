@@ -219,20 +219,14 @@ def pagina_apostas():
         7: "Semifinal", 8: "Disputa do 3º Lugar", 9: "Final"
     }
     rodadas_ids = sorted(organizado.keys())
-    abas = st.tabs([formatar_rodada.get(r, f"{r}ª Rodada") for r in rodadas_ids])
+    labels_abas = [formatar_rodada.get(r, f"{r}ª Rodada") for r in rodadas_ids] + ["⚽ Artilheiro"]
+    abas = st.tabs(labels_abas)
 
     for i, num_rodada in enumerate(rodadas_ids):
         with abas[i]:
             render_previsao_classificados(user_id, num_rodada, agora, fuso_rio, todos_paises, todas_previsoes)
 
-            if num_rodada == 9:
-                col_jogo, col_art = st.columns([3, 2])
-                ctx_jogo = col_jogo
-            else:
-                col_art = None
-                ctx_jogo = st.container()
-
-            with ctx_jogo:
+            with st.container():
                 for grupo in sorted(organizado[num_rodada].keys()):
                     if num_rodada <= 3:
                         st.header(f"📂 {grupo}")
@@ -283,9 +277,8 @@ def pagina_apostas():
                             st.write(f"**{nome_b}**")
                         st.divider()
 
-            if col_art is not None:
-                with col_art:
-                    render_artilheiro(user_id, agora, fuso_rio)
+    with abas[-1]:
+        render_artilheiro(user_id, agora, fuso_rio)
 
 def pagina_admin():
     st.title("🛡️ Área do Administrador")
