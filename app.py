@@ -83,6 +83,7 @@ def render_previsao_classificados(user_id, num_rodada, agora, fuso_rio, todos_pa
         4: ('Segunda Fase',     32, None),
         5: ('Oitavas de Final', 16, 'Segunda Fase'),
         6: ('Quartas de Final',  8, 'Oitavas de Final'),
+        7: ('Semifinal',         4, 'Quartas de Final'),
     }
 
     if num_rodada in config_fases:
@@ -94,7 +95,7 @@ def render_previsao_classificados(user_id, num_rodada, agora, fuso_rio, todos_pa
             ids_prev = todas_previsoes.get(fase_anterior, set())
             paises_elegiveis = sorted([p for p in todos_paises if p['id'] in ids_prev], key=lambda x: x['nome'])
             if not paises_elegiveis:
-                st.info(f"⚠️ Selecione primeiro os times classificados na aba anterior.")
+                st.info("⚠️ Selecione primeiro os times classificados na aba anterior.")
                 st.divider()
                 return
         else:
@@ -132,50 +133,64 @@ def render_previsao_classificados(user_id, num_rodada, agora, fuso_rio, todos_pa
         st.divider()
 
     elif num_rodada in (8, 9):
-        quartas_ids = todas_previsoes.get('Quartas de Final', set())
-        quartas_paises = sorted([p for p in todos_paises if p['id'] in quartas_ids], key=lambda x: x['nome'])
-        quartas_nomes = [p['nome'] for p in quartas_paises]
-        id_por_nome_q = {p['nome']: p['id'] for p in quartas_paises}
-        opcoes = ["— selecione —"] + quartas_nomes
+        semi_ids = todas_previsoes.get('Semifinal', set())
+        semi_paises = sorted([p for p in todos_paises if p['id'] in semi_ids], key=lambda x: x['nome'])
+        semi_nomes = [p['nome'] for p in semi_paises]
+        id_por_nome_s = {p['nome']: p['id'] for p in semi_paises}
 
         if num_rodada == 9:
             st.subheader("🏆 Previsão da Final")
             pos_a, pos_b = 'Campeão', 'Vice-Campeão'
             label_a, label_b = "🥇 Campeão", "🥈 Vice-Campeão"
-            btn_key, btn_label = "btn_prev_final", "💾 Salvar previsão da final"
         else:
             st.subheader("🥉 Previsão da Disputa pelo 3º Lugar")
             pos_a, pos_b = '3º Lugar', '4º Lugar'
             label_a, label_b = "🥉 3º Lugar", "4️⃣ 4º Lugar"
-            btn_key, btn_label = "btn_prev_terceiro", "💾 Salvar previsão do 3º lugar"
 
         st.caption(texto_countdown())
 
-        if not quartas_paises:
-            st.info("⚠️ Selecione primeiro os times classificados nas Quartas de Final.")
+        if not semi_paises:
+            st.info("⚠️ Selecione primeiro os 4 semifinalistas na aba Semifinal.")
             st.divider()
             return
 
-        nome_a = next((p['nome'] for p in quartas_paises if p['id'] in todas_previsoes.get(pos_a, set())), None)
-        nome_b = next((p['nome'] for p in quartas_paises if p['id'] in todas_previsoes.get(pos_b, set())), None)
-        idx_a = opcoes.index(nome_a) if nome_a in opcoes else 0
-        idx_b = opcoes.index(nome_b) if nome_b in opcoes else 0
+        # Nomes já selecionados em cada uma das 4 posições
+        todas_pos = ['Campeão', 'Vice-Campeão', '3º Lugar', '4º Lugar']
+        pos_selecionado = {
+            pos: next((p['nome'] for p in semi_paises if p['id'] in todas_previsoes.get(pos, set())), None)
+            for pos in todas_pos
+        }
+
+        def opcoes_para(posicao):
+            excluidos = {v for k, v in pos_selecionado.items() if k != posicao and v is not None}
+            return ["— selecione —"] + [n for n in semi_nomes if n not in excluidos]
+
+        def _auto_salvar_pos(uid=user_id, pos=pos_a, id_map=id_por_nome_s):
+            key = f"sel_{pos}_{uid}"
+            valor = st.session_state.get(key, "— selecione —")
+            pais_id = id_map.get(valor) if valor != "— selecione —" else None
+            salvar_posicao_especifica(uid, pais_id, pos)
+
+        def _auto_salvar_pos_b(uid=user_id, pos=pos_b, id_map=id_por_nome_s):
+            key = f"sel_{pos}_{uid}"
+            valor = st.session_state.get(key, "— selecione —")
+            pais_id = id_map.get(valor) if valor != "— selecione —" else None
+            salvar_posicao_especifica(uid, pais_id, pos)
+
+        opcoes_a = opcoes_para(pos_a)
+        opcoes_b = opcoes_para(pos_b)
+        nome_a = pos_selecionado[pos_a]
+        nome_b = pos_selecionado[pos_b]
+        idx_a = opcoes_a.index(nome_a) if nome_a in opcoes_a else 0
+        idx_b = opcoes_b.index(nome_b) if nome_b in opcoes_b else 0
 
         col1, col2 = st.columns(2)
         with col1:
-            sel_a = st.selectbox(label_a, opcoes, index=idx_a, disabled=not abertas, key=f"sel_{pos_a}_{user_id}", format_func=lambda x: x)
+            st.selectbox(label_a, opcoes_a, index=idx_a, disabled=not abertas,
+                         key=f"sel_{pos_a}_{user_id}", on_change=_auto_salvar_pos)
         with col2:
-            sel_b = st.selectbox(label_b, opcoes, index=idx_b, disabled=not abertas, key=f"sel_{pos_b}_{user_id}", format_func=lambda x: x)
-
-        if abertas:
-            if st.button(btn_label, key=btn_key):
-                if sel_a != "— selecione —" and sel_a == sel_b:
-                    st.error("Os dois times não podem ser iguais!")
-                else:
-                    salvar_posicao_especifica(user_id, id_por_nome_q.get(sel_a), pos_a)
-                    salvar_posicao_especifica(user_id, id_por_nome_q.get(sel_b), pos_b)
-                    st.success("✅ Previsão salva!")
-                    st.rerun()
+            st.selectbox(label_b, opcoes_b, index=idx_b, disabled=not abertas,
+                         key=f"sel_{pos_b}_{user_id}", on_change=_auto_salvar_pos_b)
         st.divider()
 
 

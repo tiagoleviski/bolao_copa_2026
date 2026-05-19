@@ -78,7 +78,7 @@ def atualizar_resultado_real(partida_id, gols_a, gols_b):
     }).eq("id", partida_id).execute()
 
 _FASES_PREVISAO_ORDEM = [
-    'Segunda Fase', 'Oitavas de Final', 'Quartas de Final',
+    'Segunda Fase', 'Oitavas de Final', 'Quartas de Final', 'Semifinal',
     'Campeão', 'Vice-Campeão', '3º Lugar', '4º Lugar'
 ]
 
