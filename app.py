@@ -305,6 +305,9 @@ def render_artilheiro(user_id, agora, fuso_rio):
         st.caption("🔒 Previsão encerrada.")
 
     jogadores = buscar_jogadores()
+    st.write(f"DEBUG: buscar_jogadores retornou {len(jogadores) if jogadores is not None else 'None'} itens")
+    if jogadores:
+        st.write(f"DEBUG primeiro item: {jogadores[0]}")
     if not jogadores:
         st.info("⚠️ Lista de jogadores não encontrada. Execute o SQL de inserção no Supabase.")
         return
