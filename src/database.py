@@ -128,6 +128,7 @@ def salvar_posicao_especifica(user_id, pais_id, posicao):
             {"user_id": uid, "pais_id": pais_id, "fase": posicao}
         ).execute()
 
+@st.cache_data(ttl=3600)
 def buscar_jogadores():
     supabase = get_supabase_client()
     res = supabase.table("jogadores").select("id, nome, selecao").order("nome").execute()
