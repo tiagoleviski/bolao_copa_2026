@@ -103,23 +103,25 @@ def render_previsao_classificados(user_id, num_rodada, agora, fuso_rio, todos_pa
         selecionados_ids = todas_previsoes.get(fase_nome, set())
         nomes_elegiveis = [p['nome'] for p in paises_elegiveis]
         nomes_selecionados = [p['nome'] for p in paises_elegiveis if p['id'] in selecionados_ids]
-        n = len(nomes_selecionados)
+        widget_key = f"prev_{fase_nome}_{user_id}"
+        n = len(st.session_state.get(widget_key, nomes_selecionados))
         cor = "green" if n == limite else "orange"
         st.markdown(f":{cor}[**{n} / {limite} times selecionados**]")
 
         if abertas:
-            novos = st.multiselect(
+            def _auto_salvar(uid=user_id, fase=fase_nome, id_map=id_por_nome):
+                novos_nomes = st.session_state.get(f"prev_{fase}_{uid}", [])
+                salvar_previsoes_fase(uid, [id_map[nm] for nm in novos_nomes if nm in id_map], fase)
+
+            st.multiselect(
                 "Times classificados:",
                 options=nomes_elegiveis,
                 default=nomes_selecionados,
                 max_selections=limite,
-                key=f"prev_{fase_nome}_{user_id}",
+                key=widget_key,
                 label_visibility="collapsed",
+                on_change=_auto_salvar,
             )
-            if st.button("💾 Salvar previsão de classificados", key=f"btn_prev_{fase_nome}"):
-                salvar_previsoes_fase(user_id, [id_por_nome[n] for n in novos], fase_nome)
-                st.success("✅ Previsão salva!")
-                st.rerun()
         else:
             if nomes_selecionados:
                 cols = st.columns(4)
