@@ -6,7 +6,8 @@ from datetime import datetime, timedelta, timezone
 from src.database import (get_supabase_client, listar_partidas_com_times, salvar_aposta,
                           buscar_apostas_usuario, atualizar_resultado_real, buscar_perfil_usuario,
                           buscar_todos_paises, buscar_todas_previsoes,
-                          salvar_previsoes_fase, salvar_posicao_especifica)
+                          salvar_previsoes_fase, salvar_posicao_especifica,
+                          buscar_jogadores, buscar_aposta_artilheiro, salvar_aposta_artilheiro)
 from src.auth import registrar_usuario, logar_usuario, solicitar_recuperacao_senha, resetar_senha_com_codigo
 
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -285,6 +286,51 @@ def pagina_admin():
                 atualizar_resultado_real(p['id'], g_a, g_b)
                 st.success("Placar oficial registrado!")
 
+def pagina_artilheiro():
+    st.title("⚽ Artilheiro da Copa")
+    user_id = st.session_state.user.id
+    fuso_rio = timezone(timedelta(hours=-3))
+    agora = datetime.now(fuso_rio)
+    abertas = agora < PRAZO_PREVISOES.astimezone(fuso_rio)
+    prazo_brt = PRAZO_PREVISOES.astimezone(fuso_rio)
+
+    if abertas:
+        tr = prazo_brt - agora
+        st.caption(f"⏳ Previsões fecham em {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m — {prazo_brt.strftime('%d/%m às %H:%M')} BRT")
+    else:
+        st.caption("🔒 Previsões encerradas.")
+
+    jogadores = buscar_jogadores()
+    jogador_atual_id = buscar_aposta_artilheiro(user_id)
+
+    id_por_nome = {f"{j['nome']} ({j['selecao']})": j['id'] for j in jogadores}
+    nome_por_id = {j['id']: f"{j['nome']} ({j['selecao']})" for j in jogadores}
+    opcoes = ["— selecione —"] + sorted(id_por_nome.keys())
+
+    selecionado_atual = nome_por_id.get(jogador_atual_id)
+    idx = opcoes.index(selecionado_atual) if selecionado_atual in opcoes else 0
+
+    st.subheader("Quem será o artilheiro da Copa do Mundo 2026?")
+
+    def _auto_salvar_artilheiro(uid=user_id, id_map=id_por_nome):
+        valor = st.session_state.get(f"sel_artilheiro_{uid}", "— selecione —")
+        if valor != "— selecione —":
+            salvar_aposta_artilheiro(uid, id_map[valor])
+
+    st.selectbox(
+        "Selecione o jogador:",
+        options=opcoes,
+        index=idx,
+        disabled=not abertas,
+        key=f"sel_artilheiro_{user_id}",
+        on_change=_auto_salvar_artilheiro,
+        label_visibility="collapsed",
+    )
+
+    if jogador_atual_id:
+        st.success(f"✅ Sua aposta: **{nome_por_id[jogador_atual_id]}**")
+
+
 # --- FLUXO PRINCIPAL ---
 
 user = st.session_state.get("user")
@@ -334,7 +380,7 @@ else:
         if nome_exibido:
             st.write(f"👤 **{nome_exibido}**")
         st.write(f"✉️ {user.email}")
-        menu = ["Meus Palpites", "Ranking"]
+        menu = ["Meus Palpites", "Artilheiro", "Ranking"]
         if eh_admin(): menu.append("Área do Admin")
         escolha = st.radio("Navegação", menu)
         
@@ -344,6 +390,8 @@ else:
 
     if escolha == "Meus Palpites":
         pagina_apostas()
+    elif escolha == "Artilheiro":
+        pagina_artilheiro()
     elif escolha == "Área do Admin" and eh_admin():
         pagina_admin()
     elif escolha == "Ranking":

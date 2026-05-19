@@ -128,3 +128,21 @@ def salvar_posicao_especifica(user_id, pais_id, posicao):
             {"user_id": uid, "pais_id": pais_id, "fase": posicao}
         ).execute()
 
+@st.cache_data(ttl=3600)
+def buscar_jogadores():
+    supabase = get_supabase_client()
+    res = supabase.table("jogadores").select("id, nome, selecao").order("nome").execute()
+    return res.data
+
+def buscar_aposta_artilheiro(user_id):
+    supabase = get_supabase_client()
+    res = supabase.table("apostas_artilheiro").select("jogador_id").eq("user_id", str(user_id)).execute()
+    return res.data[0]['jogador_id'] if res.data else None
+
+def salvar_aposta_artilheiro(user_id, jogador_id):
+    supabase = get_supabase_client()
+    supabase.table("apostas_artilheiro").upsert(
+        {"user_id": str(user_id), "jogador_id": jogador_id},
+        on_conflict="user_id"
+    ).execute()
+
