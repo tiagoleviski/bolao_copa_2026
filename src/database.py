@@ -77,3 +77,54 @@ def atualizar_resultado_real(partida_id, gols_a, gols_b):
         "status": "Finalizado"
     }).eq("id", partida_id).execute()
 
+_FASES_PREVISAO_ORDEM = [
+    'Segunda Fase', 'Oitavas de Final', 'Quartas de Final',
+    'Campeão', 'Vice-Campeão', '3º Lugar', '4º Lugar'
+]
+
+@st.cache_data(ttl=3600)
+def buscar_todos_paises():
+    supabase = get_supabase_client()
+    res = supabase.table("paises").select("id, nome, bandeira_url").order("nome").execute()
+    return res.data
+
+def buscar_todas_previsoes(user_id):
+    supabase = get_supabase_client()
+    res = supabase.table("previsoes_classificacao").select("pais_id, fase").eq("user_id", str(user_id)).execute()
+    resultado = {}
+    for r in res.data:
+        resultado.setdefault(r['fase'], set()).add(r['pais_id'])
+    return resultado
+
+def salvar_previsoes_fase(user_id, pais_ids_novos, fase):
+    supabase = get_supabase_client()
+    uid = str(user_id)
+    atuais = buscar_todas_previsoes(user_id).get(fase, set())
+    novos = set(pais_ids_novos)
+    adicionados = novos - atuais
+    removidos = atuais - novos
+    if adicionados:
+        supabase.table("previsoes_classificacao").insert([
+            {"user_id": uid, "pais_id": pid, "fase": fase} for pid in adicionados
+        ]).execute()
+    if removidos:
+        supabase.table("previsoes_classificacao").delete()\
+            .eq("user_id", uid).in_("pais_id", list(removidos)).eq("fase", fase).execute()
+        try:
+            idx = _FASES_PREVISAO_ORDEM.index(fase)
+            fases_sub = _FASES_PREVISAO_ORDEM[idx + 1:]
+        except ValueError:
+            fases_sub = []
+        for f in fases_sub:
+            supabase.table("previsoes_classificacao").delete()\
+                .eq("user_id", uid).in_("pais_id", list(removidos)).eq("fase", f).execute()
+
+def salvar_posicao_especifica(user_id, pais_id, posicao):
+    supabase = get_supabase_client()
+    uid = str(user_id)
+    supabase.table("previsoes_classificacao").delete().eq("user_id", uid).eq("fase", posicao).execute()
+    if pais_id:
+        supabase.table("previsoes_classificacao").insert(
+            {"user_id": uid, "pais_id": pais_id, "fase": posicao}
+        ).execute()
+

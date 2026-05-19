@@ -3,7 +3,10 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, timezone
-from src.database import get_supabase_client, listar_partidas_com_times, salvar_aposta, buscar_apostas_usuario, atualizar_resultado_real, buscar_perfil_usuario
+from src.database import (get_supabase_client, listar_partidas_com_times, salvar_aposta,
+                          buscar_apostas_usuario, atualizar_resultado_real, buscar_perfil_usuario,
+                          buscar_todos_paises, buscar_todas_previsoes,
+                          salvar_previsoes_fase, salvar_posicao_especifica)
 from src.auth import registrar_usuario, logar_usuario, solicitar_recuperacao_senha, resetar_senha_com_codigo
 
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -18,6 +21,7 @@ if "esperando_codigo" not in st.session_state:
     st.session_state.esperando_codigo = False
 
 ADMIN_EMAILS = ["tiagoleviski@gmail.com"]
+PRAZO_PREVISOES = datetime(2026, 6, 10, 19, 0, 0, tzinfo=timezone.utc)  # 10/06 às 16:00 BRT
 
 # --- FUNÇÕES DE APOIO ---
 def eh_admin():
@@ -63,6 +67,116 @@ def pagina_reset_senha():
             st.session_state.reset_mode = False
             st.rerun()
 
+def render_previsao_classificados(user_id, num_rodada, agora, fuso_rio, todos_paises, todas_previsoes):
+    abertas = agora < PRAZO_PREVISOES.astimezone(fuso_rio)
+    prazo_brt = PRAZO_PREVISOES.astimezone(fuso_rio)
+
+    def texto_countdown():
+        if abertas:
+            tr = prazo_brt - agora
+            return f"⏳ Previsões fecham em {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m — {prazo_brt.strftime('%d/%m às %H:%M')} BRT"
+        return "🔒 Previsões encerradas."
+
+    id_por_nome = {p['nome']: p['id'] for p in todos_paises}
+
+    config_fases = {
+        4: ('Segunda Fase',     32, None),
+        5: ('Oitavas de Final', 16, 'Segunda Fase'),
+        6: ('Quartas de Final',  8, 'Oitavas de Final'),
+    }
+
+    if num_rodada in config_fases:
+        fase_nome, limite, fase_anterior = config_fases[num_rodada]
+        st.subheader(f"🏅 Quem avança para a {fase_nome}?")
+        st.caption(texto_countdown())
+
+        if fase_anterior:
+            ids_prev = todas_previsoes.get(fase_anterior, set())
+            paises_elegiveis = sorted([p for p in todos_paises if p['id'] in ids_prev], key=lambda x: x['nome'])
+            if not paises_elegiveis:
+                st.info(f"⚠️ Selecione primeiro os times classificados na aba anterior.")
+                st.divider()
+                return
+        else:
+            paises_elegiveis = sorted(todos_paises, key=lambda x: x['nome'])
+
+        selecionados_ids = todas_previsoes.get(fase_nome, set())
+        nomes_elegiveis = [p['nome'] for p in paises_elegiveis]
+        nomes_selecionados = [p['nome'] for p in paises_elegiveis if p['id'] in selecionados_ids]
+        n = len(nomes_selecionados)
+        cor = "green" if n == limite else "orange"
+        st.markdown(f":{cor}[**{n} / {limite} times selecionados**]")
+
+        if abertas:
+            novos = st.multiselect(
+                "Times classificados:",
+                options=nomes_elegiveis,
+                default=nomes_selecionados,
+                max_selections=limite,
+                key=f"prev_{fase_nome}_{user_id}",
+                label_visibility="collapsed",
+            )
+            if st.button("💾 Salvar previsão de classificados", key=f"btn_prev_{fase_nome}"):
+                salvar_previsoes_fase(user_id, [id_por_nome[n] for n in novos], fase_nome)
+                st.success("✅ Previsão salva!")
+                st.rerun()
+        else:
+            if nomes_selecionados:
+                cols = st.columns(4)
+                for j, nome in enumerate(nomes_selecionados):
+                    cols[j % 4].write(f"✅ {nome}")
+            else:
+                st.info("Nenhuma previsão registrada.")
+        st.divider()
+
+    elif num_rodada in (8, 9):
+        quartas_ids = todas_previsoes.get('Quartas de Final', set())
+        quartas_paises = sorted([p for p in todos_paises if p['id'] in quartas_ids], key=lambda x: x['nome'])
+        quartas_nomes = [p['nome'] for p in quartas_paises]
+        id_por_nome_q = {p['nome']: p['id'] for p in quartas_paises}
+        opcoes = ["— selecione —"] + quartas_nomes
+
+        if num_rodada == 9:
+            st.subheader("🏆 Previsão da Final")
+            pos_a, pos_b = 'Campeão', 'Vice-Campeão'
+            label_a, label_b = "🥇 Campeão", "🥈 Vice-Campeão"
+            btn_key, btn_label = "btn_prev_final", "💾 Salvar previsão da final"
+        else:
+            st.subheader("🥉 Previsão da Disputa pelo 3º Lugar")
+            pos_a, pos_b = '3º Lugar', '4º Lugar'
+            label_a, label_b = "🥉 3º Lugar", "4️⃣ 4º Lugar"
+            btn_key, btn_label = "btn_prev_terceiro", "💾 Salvar previsão do 3º lugar"
+
+        st.caption(texto_countdown())
+
+        if not quartas_paises:
+            st.info("⚠️ Selecione primeiro os times classificados nas Quartas de Final.")
+            st.divider()
+            return
+
+        nome_a = next((p['nome'] for p in quartas_paises if p['id'] in todas_previsoes.get(pos_a, set())), None)
+        nome_b = next((p['nome'] for p in quartas_paises if p['id'] in todas_previsoes.get(pos_b, set())), None)
+        idx_a = opcoes.index(nome_a) if nome_a in opcoes else 0
+        idx_b = opcoes.index(nome_b) if nome_b in opcoes else 0
+
+        col1, col2 = st.columns(2)
+        with col1:
+            sel_a = st.selectbox(label_a, opcoes, index=idx_a, disabled=not abertas, key=f"sel_{pos_a}_{user_id}", format_func=lambda x: x)
+        with col2:
+            sel_b = st.selectbox(label_b, opcoes, index=idx_b, disabled=not abertas, key=f"sel_{pos_b}_{user_id}", format_func=lambda x: x)
+
+        if abertas:
+            if st.button(btn_label, key=btn_key):
+                if sel_a != "— selecione —" and sel_a == sel_b:
+                    st.error("Os dois times não podem ser iguais!")
+                else:
+                    salvar_posicao_especifica(user_id, id_por_nome_q.get(sel_a), pos_a)
+                    salvar_posicao_especifica(user_id, id_por_nome_q.get(sel_b), pos_b)
+                    st.success("✅ Previsão salva!")
+                    st.rerun()
+        st.divider()
+
+
 def pagina_apostas():
     st.title("🏆 Meus Palpites")
     user_id = st.session_state.user.id
@@ -71,6 +185,8 @@ def pagina_apostas():
 
     partidas = listar_partidas_com_times()
     apostas_existentes = buscar_apostas_usuario(user_id)
+    todos_paises = buscar_todos_paises()
+    todas_previsoes = buscar_todas_previsoes(user_id)
 
     organizado = {}
     for p in partidas:
@@ -89,6 +205,7 @@ def pagina_apostas():
 
     for i, num_rodada in enumerate(rodadas_ids):
         with abas[i]:
+            render_previsao_classificados(user_id, num_rodada, agora, fuso_rio, todos_paises, todas_previsoes)
             for grupo in sorted(organizado[num_rodada].keys()):
                 if num_rodada <= 3:
                     st.header(f"📂 {grupo}")
