@@ -68,10 +68,10 @@ def pagina_apostas():
     user_id = st.session_state.user.id
     fuso_utc, fuso_rio = timezone.utc, timezone(timedelta(hours=-3))
     agora = datetime.now(fuso_rio)
-    
-    partidas = listar_partidas_com_times() 
+
+    partidas = listar_partidas_com_times()
     apostas_existentes = buscar_apostas_usuario(user_id)
-    
+
     organizado = {}
     for p in partidas:
         g, r = p.get('grupo', 'Sem Grupo'), p.get('rodada', 0)
@@ -79,43 +79,65 @@ def pagina_apostas():
         if g not in organizado[r]: organizado[r][g] = []
         organizado[r][g].append(p)
 
-    formatar_rodada = {1: "1ª Rodada", 2: "2ª Rodada", 3: "3ª Rodada"}
+    formatar_rodada = {
+        1: "1ª Rodada", 2: "2ª Rodada", 3: "3ª Rodada",
+        4: "Segunda Fase", 5: "Oitavas de Final", 6: "Quartas de Final",
+        7: "Semifinal", 8: "Disputa do 3º Lugar", 9: "Final"
+    }
     rodadas_ids = sorted(organizado.keys())
     abas = st.tabs([formatar_rodada.get(r, f"{r}ª Rodada") for r in rodadas_ids])
 
     for i, num_rodada in enumerate(rodadas_ids):
         with abas[i]:
             for grupo in sorted(organizado[num_rodada].keys()):
-                st.header(f"📂 {grupo}")
+                if num_rodada <= 3:
+                    st.header(f"📂 {grupo}")
                 for p in organizado[num_rodada][grupo]:
                     dt = datetime.fromisoformat(p['data_hora'])
                     if dt.tzinfo is None: dt = dt.replace(tzinfo=fuso_utc)
                     h_jogo = dt.astimezone(fuso_rio)
 
-                    aberto = (h_jogo - timedelta(hours=1) - agora).total_seconds() > 0
-                    cor = "blue" if aberto else "red"
+                    time_a = p.get('time_a')
+                    time_b = p.get('time_b')
+                    times_definidos = time_a is not None and time_b is not None
+                    nome_a = time_a['nome'] if time_a else p.get('placeholder_time_a', 'A definir')
+                    nome_b = time_b['nome'] if time_b else p.get('placeholder_time_b', 'A definir')
+                    bandeira_a = time_a.get('bandeira_url') if time_a else None
+                    bandeira_b = time_b.get('bandeira_url') if time_b else None
 
-                    if aberto:
+                    aberto = times_definidos and (h_jogo - timedelta(hours=1) - agora).total_seconds() > 0
+
+                    if not times_definidos:
+                        cor, status = "orange", "⏳ Times a definir"
+                    elif aberto:
                         tr = h_jogo - timedelta(hours=1) - agora
+                        cor = "blue"
                         status = f"⏳ Fecha em: {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m"
-                    else: status = "🚫 Apostas Encerradas"
+                    else:
+                        cor, status = "red", "🚫 Apostas Encerradas"
 
                     val_a, val_b = apostas_existentes.get(p['id'], (None, None))
-                    aposta_status = "✅ Aposta Inserida" if p['id'] in apostas_existentes else "❌ Aposta Pendente"
-                    st.markdown(f"📅 `{h_jogo.strftime('%d/%m %H:%M')}` | :{cor}[**{status}**] | {aposta_status}")
+                    aposta_status = ""
+                    if times_definidos:
+                        aposta_status = " | ✅ Aposta Inserida" if p['id'] in apostas_existentes else " | ❌ Aposta Pendente"
+
+                    st.markdown(f"📅 `{h_jogo.strftime('%d/%m %H:%M')}` | :{cor}[**{status}**]{aposta_status}")
                     col_a, pl_a, vs, pl_b, col_b = st.columns([2, 1, 0.5, 1, 2])
 
                     with col_a:
-                        st.image(p['time_a']['bandeira_url'], width=35)
-                        st.write(f"**{p['time_a']['nome']}**")
+                        if bandeira_a:
+                            st.image(bandeira_a, width=35)
+                        st.write(f"**{nome_a}**")
                     with pl_a:
                         st.number_input(" ", 0, 20, val_a, key=f"a_{p['id']}", label_visibility="collapsed", disabled=not aberto, on_change=salvar_se_completo, args=(user_id, p['id']))
-                    with vs: st.markdown("<div style='text-align: center; padding-top:10px;'>×</div>", unsafe_allow_html=True)
+                    with vs:
+                        st.markdown("<div style='text-align: center; padding-top:10px;'>×</div>", unsafe_allow_html=True)
                     with pl_b:
                         st.number_input(" ", 0, 20, val_b, key=f"b_{p['id']}", label_visibility="collapsed", disabled=not aberto, on_change=salvar_se_completo, args=(user_id, p['id']))
                     with col_b:
-                        st.image(p['time_b']['bandeira_url'], width=35)
-                        st.write(f"**{p['time_b']['nome']}**")
+                        if bandeira_b:
+                            st.image(bandeira_b, width=35)
+                        st.write(f"**{nome_b}**")
                     st.divider()
 
 def pagina_admin():
