@@ -105,11 +105,10 @@ def pagina_apostas():
                     bandeira_a = time_a.get('bandeira_url') if time_a else None
                     bandeira_b = time_b.get('bandeira_url') if time_b else None
 
-                    aberto = times_definidos and (h_jogo - timedelta(hours=1) - agora).total_seconds() > 0
+                    prazo_aberto = (h_jogo - timedelta(hours=1) - agora).total_seconds() > 0
+                    aberto = times_definidos and prazo_aberto
 
-                    if not times_definidos:
-                        cor, status = "orange", "⏳ Times a definir"
-                    elif aberto:
+                    if prazo_aberto:
                         tr = h_jogo - timedelta(hours=1) - agora
                         cor = "blue"
                         status = f"⏳ Fecha em: {tr.days}d {tr.seconds//3600:02d}h {(tr.seconds//60)%60:02d}m"
