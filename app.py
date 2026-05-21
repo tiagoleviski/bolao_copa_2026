@@ -21,7 +21,7 @@ if "reset_mode" not in st.session_state:
 if "esperando_codigo" not in st.session_state:
     st.session_state.esperando_codigo = False
 
-ADMIN_EMAILS = ["tiagoleviski@gmail.com"]
+ADMIN_EMAILS = ["tiagoleviski@gmail.com", "pedroans.angeli@hotmail.com"]
 PRAZO_PREVISOES = datetime(2026, 6, 10, 19, 0, 0, tzinfo=timezone.utc)  # 10/06 às 16:00 BRT
 
 # --- FUNÇÕES DE APOIO ---
