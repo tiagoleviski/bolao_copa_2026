@@ -27,8 +27,8 @@ def get_supabase_client() -> Client:
 
 def buscar_perfil_usuario(user_id):
     supabase = get_supabase_client()
-    res = supabase.table("perfis").select("nome_completo, email").eq("id", user_id).single().execute()
-    return res.data
+    res = supabase.table("perfis").select("nome_completo, email").eq("id", user_id).maybe_single().execute()
+    return res.data or {}
 
 def listar_partidas_com_times():
     supabase = get_supabase_client()
