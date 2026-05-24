@@ -63,3 +63,15 @@ export function useAlterarRole() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "usuarios"] }),
   });
 }
+
+export function useSyncResultados() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiClient.post("/admin/sync-resultados", {}),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "partidas"] });
+      qc.invalidateQueries({ queryKey: ["grupos"] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
+  });
+}

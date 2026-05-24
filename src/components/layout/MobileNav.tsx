@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { href: "/palpites", label: "Palpites", icon: "⚽" },
   { href: "/previsoes", label: "Previsões", icon: "🏆" },
   { href: "/artilheiro", label: "Artilheiro", icon: "👟" },
+  { href: "/grupos", label: "Grupos", icon: "📋" },
   { href: "/ranking", label: "Ranking", icon: "📊" },
 ];
 

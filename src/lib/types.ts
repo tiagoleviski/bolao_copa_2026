@@ -80,3 +80,26 @@ export type FaseClassificacao =
   | "Vice-Campeão"
   | "3º Lugar"
   | "4º Lugar";
+
+export interface ClassificacaoEquipe {
+  pais_id: number;
+  nome: string;
+  bandeira_url: string;
+  grupo: string;
+  posicao: number;
+  jogos: number;
+  vitorias: number;
+  empates: number;
+  derrotas: number;
+  gols_pro: number;
+  gols_contra: number;
+  saldo_gols: number;
+  pontos: number;
+}
+
+export interface ClassificacaoGrupo {
+  grupo: string;
+  equipes: ClassificacaoEquipe[];
+}
+
+export type ClassificacaoGrupos = ClassificacaoGrupo[];

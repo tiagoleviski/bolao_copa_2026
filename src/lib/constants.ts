@@ -56,6 +56,23 @@ export const PONTUACAO = {
   ARTILHEIRO: 15,
 };
 
+export const GRUPOS = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+];
+export const PARTIDAS_POR_GRUPO = 6;
+export const TOTAL_PARTIDAS_GRUPOS = 72;
+
 export const RODADA_LABELS: Record<number, string> = {
   1: "1ª Rodada",
   2: "2ª Rodada",
