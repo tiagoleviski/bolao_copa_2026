@@ -20,7 +20,6 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
   const aberta = apostaAberta(partida.data_hora);
   const [golsA, setGolsA] = useState(aposta?.gols_time_a ?? "");
   const [golsB, setGolsB] = useState(aposta?.gols_time_b ?? "");
-  const [salvo, setSalvo] = useState(aposta !== null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const nomeA = partida.time_a?.nome ?? partida.placeholder_time_a ?? "?";
@@ -48,7 +47,6 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
           golsTimeB: Number(novoB),
         },
         {
-          onSuccess: () => setSalvo(true),
           onError: (err) => toast.error(err.message),
         },
       );
@@ -81,12 +79,6 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
           )}
           {!finalizado && aberta && (
             <CountdownBadge dataHoraJogo={partida.data_hora} />
-          )}
-          {salvo && !salvarAposta.isPending && (
-            <span className="text-xs text-green-400">✓ Salvo</span>
-          )}
-          {salvarAposta.isPending && (
-            <span className="text-xs text-muted-foreground">Salvando...</span>
           )}
         </div>
       </div>
