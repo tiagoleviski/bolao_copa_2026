@@ -1,40 +1,22 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { RODADA_LABELS } from "@/lib/constants";
+"use client";
+
+import { useAdminPartidas } from "@/hooks/useAdmin";
 import { ResultadoForm } from "@/components/admin/ResultadoForm";
+import { RODADA_LABELS } from "@/lib/constants";
 import type { Partida } from "@/lib/types";
 
-export default async function AdminPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function AdminPage() {
+  const { data: partidas, isPending } = useAdminPartidas();
 
-  const { data: perfil } = await supabase
-    .from("perfis")
-    .select("role")
-    .eq("id", user!.id)
-    .maybeSingle();
-
-  if (perfil?.role !== "admin") {
-    redirect("/palpites");
-  }
-
-  const { data: partidas } = await supabase
-    .from("partidas")
-    .select(
-      "*, time_a:time_a_id(id,nome,bandeira_url), time_b:time_b_id(id,nome,bandeira_url)",
-    )
-    .order("data_hora");
+  if (isPending) return null;
 
   const porRodada = new Map<number, Partida[]>();
   for (const p of partidas ?? []) {
     const rodada = p.rodada ?? 1;
     const lista = porRodada.get(rodada) ?? [];
-    lista.push(p as Partida);
+    lista.push(p);
     porRodada.set(rodada, lista);
   }
-
   const rodadas = Array.from(porRodada.keys()).sort((a, b) => a - b);
 
   return (

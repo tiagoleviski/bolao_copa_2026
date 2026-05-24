@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { salvarAposta } from "@/actions/apostas";
+import { useSalvarAposta } from "@/hooks/usePalpites";
 import { apostaAberta, formatarData, formatarHora } from "@/lib/time";
 import { CountdownBadge } from "./CountdownBadge";
 import { FlagImage } from "@/components/shared/FlagImage";
@@ -15,11 +15,11 @@ interface PartidaCardProps {
 }
 
 export function PartidaCard({ partida, aposta }: PartidaCardProps) {
+  const salvarAposta = useSalvarAposta();
   const aberta = apostaAberta(partida.data_hora);
   const [golsA, setGolsA] = useState(aposta?.gols_time_a ?? "");
   const [golsB, setGolsB] = useState(aposta?.gols_time_b ?? "");
   const [salvo, setSalvo] = useState(aposta !== null);
-  const [isPending, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const nomeA = partida.time_a?.nome ?? partida.placeholder_time_a ?? "?";
@@ -40,18 +40,17 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
     if (novoA === "" || novoB === "") return;
 
     debounceRef.current = setTimeout(() => {
-      startTransition(async () => {
-        const result = await salvarAposta(
-          partida.id,
-          Number(novoA),
-          Number(novoB),
-        );
-        if (result.error) {
-          toast.error(result.error);
-        } else {
-          setSalvo(true);
-        }
-      });
+      salvarAposta.mutate(
+        {
+          partidaId: partida.id,
+          golsTimeA: Number(novoA),
+          golsTimeB: Number(novoB),
+        },
+        {
+          onSuccess: () => setSalvo(true),
+          onError: (err) => toast.error(err.message),
+        },
+      );
     }, 600);
   }
 
@@ -77,10 +76,10 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
           {!finalizado && aberta && (
             <CountdownBadge dataHoraJogo={partida.data_hora} />
           )}
-          {salvo && !isPending && (
+          {salvo && !salvarAposta.isPending && (
             <span className="text-xs text-green-400">✓ Salvo</span>
           )}
-          {isPending && (
+          {salvarAposta.isPending && (
             <span className="text-xs text-muted-foreground">Salvando...</span>
           )}
         </div>

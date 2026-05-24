@@ -1,7 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
-import { FASES_CONFIG, FASES_ORDEM, PRAZO_PREVISOES } from "@/lib/constants";
+"use client";
+
+import { usePrevisoes } from "@/hooks/usePrevisoes";
 import { FasePanel } from "@/components/previsoes/FasePanel";
 import { PosicaoFinalSelect } from "@/components/previsoes/PosicaoFinalSelect";
+import { FASES_CONFIG, FASES_ORDEM, PRAZO_PREVISOES } from "@/lib/constants";
 import type { FaseClassificacao, Pais } from "@/lib/types";
 
 const FASES_MULTISELECT: FaseClassificacao[] = [
@@ -18,38 +20,28 @@ const FASES_POSICAO: FaseClassificacao[] = [
   "4º Lugar",
 ];
 
-export default async function PrevisoesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function PrevisoesPage() {
+  const { data, isPending } = usePrevisoes();
 
-  const [{ data: paises }, { data: previsoes }] = await Promise.all([
-    supabase.from("paises").select("*").order("nome"),
-    supabase
-      .from("previsoes_classificacao")
-      .select("*")
-      .eq("user_id", user!.id),
-  ]);
+  if (isPending) return null;
 
+  const { paises, previsoes } = data!;
   const prazoEncerrado = new Date() > PRAZO_PREVISOES;
 
-  // Build set of selected countries per phase
   const selecionadosPorFase = new Map<FaseClassificacao, number[]>();
   for (const fase of FASES_ORDEM) {
     selecionadosPorFase.set(
       fase,
-      (previsoes ?? []).filter((p) => p.fase === fase).map((p) => p.pais_id),
+      previsoes.filter((p) => p.fase === fase).map((p) => p.pais_id),
     );
   }
 
-  // For each phase, eligible countries = those selected in the previous phase
   function elegiveisParaFase(fase: FaseClassificacao): Pais[] {
     const idx = FASES_ORDEM.indexOf(fase);
-    if (idx === 0) return paises ?? [];
+    if (idx === 0) return paises;
     const faseAnterior = FASES_ORDEM[idx - 1];
     const idsAnterior = selecionadosPorFase.get(faseAnterior) ?? [];
-    return (paises ?? []).filter((p) => idsAnterior.includes(p.id));
+    return paises.filter((p) => idsAnterior.includes(p.id));
   }
 
   return (

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { salvarPrevisaoFase } from "@/actions/previsoes";
+import { useSalvarPrevisaoFase } from "@/hooks/usePrevisoes";
 import { FlagImage } from "@/components/shared/FlagImage";
 import type { FaseClassificacao, Pais } from "@/lib/types";
 
@@ -25,7 +25,7 @@ export function FasePanel({
 }: FasePanelProps) {
   const [selecionados, setSelecionados] =
     useState<number[]>(initialSelecionados);
-  const [isPending, startTransition] = useTransition();
+  const salvarFase = useSalvarPrevisaoFase();
 
   function toggle(paisId: number) {
     if (prazoEncerrado) return;
@@ -44,14 +44,15 @@ export function FasePanel({
     }
 
     setSelecionados(novos);
-
-    startTransition(async () => {
-      const result = await salvarPrevisaoFase(fase, novos);
-      if (result.error) {
-        toast.error(result.error);
-        setSelecionados(initialSelecionados);
-      }
-    });
+    salvarFase.mutate(
+      { fase, paisIds: novos },
+      {
+        onError: (err) => {
+          toast.error(err.message);
+          setSelecionados(initialSelecionados);
+        },
+      },
+    );
   }
 
   return (
@@ -70,7 +71,7 @@ export function FasePanel({
             <button
               key={pais.id}
               onClick={() => toggle(pais.id)}
-              disabled={prazoEncerrado || isPending}
+              disabled={prazoEncerrado || salvarFase.isPending}
               className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all border
                 ${
                   selecionado

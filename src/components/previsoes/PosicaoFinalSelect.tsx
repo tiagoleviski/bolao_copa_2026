@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { salvarPosicaoEspecifica } from "@/actions/previsoes";
+import { useSalvarPosicaoEspecifica } from "@/hooks/usePrevisoes";
 import { FlagImage } from "@/components/shared/FlagImage";
 import type { FaseClassificacao, Pais } from "@/lib/types";
 
@@ -24,20 +24,21 @@ export function PosicaoFinalSelect({
   const [selecionado, setSelecionado] = useState<number | null>(
     initialSelecionado,
   );
-  const [isPending, startTransition] = useTransition();
+  const salvarPosicao = useSalvarPosicaoEspecifica();
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     if (prazoEncerrado) return;
     const paisId = e.target.value ? Number(e.target.value) : null;
     setSelecionado(paisId);
-
-    startTransition(async () => {
-      const result = await salvarPosicaoEspecifica(fase, paisId);
-      if (result.error) {
-        toast.error(result.error);
-        setSelecionado(initialSelecionado);
-      }
-    });
+    salvarPosicao.mutate(
+      { fase, paisId },
+      {
+        onError: (err) => {
+          toast.error(err.message);
+          setSelecionado(initialSelecionado);
+        },
+      },
+    );
   }
 
   const paisSelecionado = opcoes.find((p) => p.id === selecionado);
@@ -46,7 +47,7 @@ export function PosicaoFinalSelect({
     <div className="glass rounded-xl p-4 space-y-2">
       <div className="flex items-center justify-between">
         <h3 className={`font-display text-xl ${cor}`}>{fase.toUpperCase()}</h3>
-        {isPending && (
+        {salvarPosicao.isPending && (
           <span className="text-xs text-muted-foreground">Salvando...</span>
         )}
       </div>
@@ -62,7 +63,7 @@ export function PosicaoFinalSelect({
         <select
           value={selecionado ?? ""}
           onChange={handleChange}
-          disabled={prazoEncerrado || isPending}
+          disabled={prazoEncerrado || salvarPosicao.isPending}
           className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-foreground
             focus:border-purple-500 focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
         >

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { salvarApostaArtilheiro } from "@/actions/artilheiro";
+import { useSalvarApostaArtilheiro } from "@/hooks/useArtilheiro";
 import { FlagImage } from "@/components/shared/FlagImage";
 import type { Jogador, Pais } from "@/lib/types";
 
@@ -21,7 +21,7 @@ export function ArtilheiroSelect({
 }: ArtilheiroSelectProps) {
   const [selecionado, setSelecionado] = useState<number | null>(jogadorAtualId);
   const [busca, setBusca] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const salvarArtilheiro = useSalvarApostaArtilheiro();
 
   const filtrados = jogadores.filter(
     (j) =>
@@ -32,16 +32,16 @@ export function ArtilheiroSelect({
   function handleSelect(jogadorId: number) {
     if (prazoEncerrado) return;
     setSelecionado(jogadorId);
-
-    startTransition(async () => {
-      const result = await salvarApostaArtilheiro(jogadorId);
-      if (result.error) {
-        toast.error(result.error);
-        setSelecionado(jogadorAtualId);
-      } else {
-        toast.success("Aposta no artilheiro salva!");
-      }
-    });
+    salvarArtilheiro.mutate(
+      { jogadorId },
+      {
+        onSuccess: () => toast.success("Aposta no artilheiro salva!"),
+        onError: (err) => {
+          toast.error(err.message);
+          setSelecionado(jogadorAtualId);
+        },
+      },
+    );
   }
 
   const jogadorSelecionado = jogadores.find((j) => j.id === selecionado);
@@ -68,7 +68,7 @@ export function ArtilheiroSelect({
               {jogadorSelecionado.selecao}
             </p>
           </div>
-          {isPending && (
+          {salvarArtilheiro.isPending && (
             <span className="ml-auto text-xs text-muted-foreground">
               Salvando...
             </span>
@@ -95,7 +95,7 @@ export function ArtilheiroSelect({
                 <button
                   key={jogador.id}
                   onClick={() => handleSelect(jogador.id)}
-                  disabled={isPending}
+                  disabled={salvarArtilheiro.isPending}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left
                     ${
                       ativo

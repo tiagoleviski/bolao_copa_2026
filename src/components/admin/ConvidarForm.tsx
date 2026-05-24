@@ -1,26 +1,27 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { convidarUsuario } from "@/actions/admin";
+import { useConvidarUsuario } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function ConvidarForm() {
   const [email, setEmail] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const convidar = useConvidarUsuario();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    startTransition(async () => {
-      const result = await convidarUsuario(email);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        toast.success(`Convite enviado para ${email}`);
-        setEmail("");
-      }
-    });
+    convidar.mutate(
+      { email },
+      {
+        onSuccess: () => {
+          toast.success(`Convite enviado para ${email}`);
+          setEmail("");
+        },
+        onError: (err) => toast.error(err.message),
+      },
+    );
   }
 
   return (
@@ -35,10 +36,10 @@ export function ConvidarForm() {
       />
       <Button
         type="submit"
-        disabled={isPending}
+        disabled={convidar.isPending}
         className="gradient-copa text-white font-semibold flex-shrink-0"
       >
-        {isPending ? "Enviando..." : "Enviar convite"}
+        {convidar.isPending ? "Enviando..." : "Enviar convite"}
       </Button>
     </form>
   );

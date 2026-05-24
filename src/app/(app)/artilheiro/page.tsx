@@ -1,47 +1,16 @@
-import { unstable_cache } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
-import { PRAZO_PREVISOES } from "@/lib/constants";
+"use client";
+
+import { useArtilheiro } from "@/hooks/useArtilheiro";
 import { ArtilheiroSelect } from "@/components/artilheiro/ArtilheiroSelect";
-import type { Jogador, Pais } from "@/lib/types";
+import { PRAZO_PREVISOES } from "@/lib/constants";
+import type { Pais } from "@/lib/types";
 
-const buscarJogadores = unstable_cache(
-  async () => {
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = await createClient();
-    const { data } = await supabase.from("jogadores").select("*").order("nome");
-    return (data ?? []) as Jogador[];
-  },
-  ["jogadores"],
-  { revalidate: false, tags: ["jogadores"] },
-);
+export default function ArtilheiroPage() {
+  const { data, isPending } = useArtilheiro();
 
-const buscarPaises = unstable_cache(
-  async () => {
-    const { createClient } = await import("@/lib/supabase/server");
-    const supabase = await createClient();
-    const { data } = await supabase.from("paises").select("*");
-    return (data ?? []) as Pais[];
-  },
-  ["paises"],
-  { revalidate: false, tags: ["paises"] },
-);
+  if (isPending) return null;
 
-export default async function ArtilheiroPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const [jogadores, paises, { data: apostaAtual }] = await Promise.all([
-    buscarJogadores(),
-    buscarPaises(),
-    supabase
-      .from("apostas_artilheiro")
-      .select("jogador_id")
-      .eq("user_id", user!.id)
-      .maybeSingle(),
-  ]);
-
+  const { jogadores, paises, apostaAtual } = data!;
   const paisesMap = new Map<string, Pais>(paises.map((p) => [p.nome, p]));
   const prazoEncerrado = new Date() > PRAZO_PREVISOES;
 

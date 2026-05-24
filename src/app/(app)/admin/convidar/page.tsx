@@ -1,26 +1,33 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+"use client";
+
+import { toast } from "sonner";
+import { useAdminUsuarios, useAlterarRole } from "@/hooks/useAdmin";
 import { ConvidarForm } from "@/components/admin/ConvidarForm";
-import { promoverAdmin, rebaixarUsuario } from "@/actions/admin";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
-export default async function ConvidarPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function ConvidarPage() {
+  const { data: usuarios, isPending } = useAdminUsuarios();
+  const alterarRole = useAlterarRole();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const { data: perfil } = await supabase
-    .from("perfis")
-    .select("role")
-    .eq("id", user!.id)
-    .maybeSingle();
+  useEffect(() => {
+    createClient()
+      .auth.getUser()
+      .then(({ data: { user } }) => setCurrentUserId(user?.id ?? null));
+  }, []);
 
-  if (perfil?.role !== "admin") redirect("/palpites");
+  if (isPending) return null;
 
-  const { data: usuarios } = await supabase
-    .from("perfis")
-    .select("id, nome_completo, email, role")
-    .order("nome_completo");
+  function handleToggleRole(userId: string, roleAtual: string) {
+    const novoRole = roleAtual === "admin" ? "user" : "admin";
+    alterarRole.mutate(
+      { userId, role: novoRole as "admin" | "user" },
+      {
+        onError: (err) => toast.error(err.message),
+      },
+    );
+  }
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -68,22 +75,14 @@ export default async function ConvidarPage() {
               >
                 {u.role}
               </span>
-              {u.id !== user!.id && (
-                <form>
-                  <button
-                    formAction={async () => {
-                      "use server";
-                      if (u.role === "admin") {
-                        await rebaixarUsuario(u.id);
-                      } else {
-                        await promoverAdmin(u.id);
-                      }
-                    }}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {u.role === "admin" ? "← user" : "→ admin"}
-                  </button>
-                </form>
+              {u.id !== currentUserId && (
+                <button
+                  onClick={() => handleToggleRole(u.id, u.role)}
+                  disabled={alterarRole.isPending}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                >
+                  {u.role === "admin" ? "← user" : "→ admin"}
+                </button>
               )}
             </div>
           ))}
