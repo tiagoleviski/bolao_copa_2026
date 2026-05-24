@@ -1,8 +1,17 @@
 "use client";
 
 import { usePalpites } from "@/hooks/usePalpites";
-import { RodadaSection } from "@/components/palpites/RodadaSection";
+import { DiaSection } from "@/components/palpites/DiaSection";
 import type { Partida } from "@/lib/types";
+
+function chaveData(dataHora: string): string {
+  return new Date(dataHora).toLocaleDateString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+  });
+}
 
 export default function PalpitesPage() {
   const { data, isPending } = usePalpites();
@@ -11,19 +20,21 @@ export default function PalpitesPage() {
 
   const { partidas, apostasMap } = data!;
 
-  const porRodada = new Map<number, Partida[]>();
+  const porDia = new Map<string, Partida[]>();
+  const ordemDias: string[] = [];
   for (const p of partidas) {
-    const rodada = p.rodada ?? 1;
-    const lista = porRodada.get(rodada) ?? [];
-    lista.push(p);
-    porRodada.set(rodada, lista);
+    const dia = chaveData(p.data_hora);
+    if (!porDia.has(dia)) {
+      ordemDias.push(dia);
+      porDia.set(dia, []);
+    }
+    porDia.get(dia)!.push(p);
   }
-  const rodadasOrdenadas = Array.from(porRodada.keys()).sort((a, b) => a - b);
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-4xl gradient-copa-text">
+        <h1 className="font-display text-4xl text-white">
           MEUS PALPITES
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
@@ -31,16 +42,16 @@ export default function PalpitesPage() {
         </p>
       </div>
 
-      {rodadasOrdenadas.map((rodada) => (
-        <RodadaSection
-          key={rodada}
-          rodada={rodada}
-          partidas={porRodada.get(rodada)!}
+      {ordemDias.map((dia) => (
+        <DiaSection
+          key={dia}
+          dia={dia}
+          partidas={porDia.get(dia)!}
           apostasMap={apostasMap}
         />
       ))}
 
-      {rodadasOrdenadas.length === 0 && (
+      {ordemDias.length === 0 && (
         <p className="text-muted-foreground text-center py-16">
           Nenhuma partida cadastrada.
         </p>

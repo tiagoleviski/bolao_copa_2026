@@ -42,7 +42,7 @@ export function RankingTable({ entries, userId }: RankingTableProps) {
             </div>
 
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-full gradient-copa flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#004b87] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
               {entry.nome_completo
                 .split(" ")
                 .slice(0, 2)

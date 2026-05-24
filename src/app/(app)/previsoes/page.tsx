@@ -47,7 +47,7 @@ export default function PrevisoesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-4xl gradient-copa-text">PREVISÕES</h1>
+        <h1 className="font-display text-4xl text-white">PREVISÕES</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Selecione quais seleções você prevê que avançarão em cada fase
         </p>
@@ -79,7 +79,7 @@ export default function PrevisoesPage() {
       </div>
 
       <div>
-        <h2 className="font-display text-3xl gradient-copa-text mb-4">
+        <h2 className="font-display text-3xl text-white mb-4">
           POSIÇÕES FINAIS
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

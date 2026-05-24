@@ -22,7 +22,7 @@ export default function RankingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-4xl gradient-copa-text">RANKING</h1>
+        <h1 className="font-display text-4xl text-white">RANKING</h1>
         <p className="text-muted-foreground text-sm mt-1">
           {totalPartidasFinalizadas > 0
             ? `${totalPartidasFinalizadas} partida${totalPartidasFinalizadas !== 1 ? "s" : ""} finalizada${totalPartidasFinalizadas !== 1 ? "s" : ""}`

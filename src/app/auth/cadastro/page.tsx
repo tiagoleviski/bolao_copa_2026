@@ -43,7 +43,7 @@ export default function CadastroPage() {
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="glass-strong rounded-2xl p-8 w-full max-w-md text-center space-y-4">
           <div className="text-5xl">📧</div>
-          <h2 className="font-display text-3xl gradient-copa-text">
+          <h2 className="font-display text-3xl text-white">
             CONFIRME SEU EMAIL
           </h2>
           <p className="text-muted-foreground">
@@ -65,7 +65,7 @@ export default function CadastroPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="glass-strong rounded-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-display text-5xl gradient-copa-text mb-2">
+          <h1 className="font-display text-5xl text-white mb-2">
             CRIAR CONTA
           </h1>
           <p className="text-muted-foreground text-sm">
@@ -114,7 +114,7 @@ export default function CadastroPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full gradient-copa text-white font-semibold h-11"
+            className="w-full bg-[#004b87] text-white font-semibold h-11"
           >
             {loading ? "Criando conta..." : "Criar conta"}
           </Button>

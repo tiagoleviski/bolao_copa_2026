@@ -22,7 +22,7 @@ export default function AdminPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-4xl gradient-copa-text">ADMIN</h1>
+        <h1 className="font-display text-4xl text-white">ADMIN</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Insira os resultados oficiais das partidas
         </p>

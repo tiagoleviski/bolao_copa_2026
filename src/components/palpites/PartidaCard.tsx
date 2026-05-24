@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSalvarAposta } from "@/hooks/usePalpites";
-import { apostaAberta, formatarData, formatarHora } from "@/lib/time";
+import { apostaAberta, formatarHora } from "@/lib/time";
+import { RODADA_LABELS } from "@/lib/constants";
 import { CountdownBadge } from "./CountdownBadge";
 import { FlagImage } from "@/components/shared/FlagImage";
 import { VenueInfo } from "@/components/shared/VenueInfo";
@@ -58,14 +59,19 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
 
   return (
     <div className="glass rounded-xl p-3 sm:p-4">
-      {/* Header: date, time, venue, deadline */}
-      <div className="flex flex-wrap items-center justify-between gap-1 mb-3">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>
-            {formatarData(partida.data_hora)} ·{" "}
-            {formatarHora(partida.data_hora)}
-          </span>
-          <VenueInfo sede={partida.sede} estadio={null} />
+      {/* Header row 1: round/group badge + countdown */}
+      <div className="flex items-center justify-between gap-1 mb-1.5">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          {partida.grupo && (
+            <span className="bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
+              {partida.grupo}
+            </span>
+          )}
+          {partida.rodada && partida.rodada <= 3 && (
+            <span className="text-[10px] uppercase tracking-wide opacity-60">
+              {RODADA_LABELS[partida.rodada] ?? `Rodada ${partida.rodada}`}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {finalizado && partida.gols_a !== null && (
@@ -83,6 +89,14 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
             <span className="text-xs text-muted-foreground">Salvando...</span>
           )}
         </div>
+      </div>
+
+      {/* Header row 2: time + venue */}
+      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+        <span className="font-medium text-foreground/70">
+          {formatarHora(partida.data_hora)}
+        </span>
+        <VenueInfo sede={partida.sede} estadio={partida.estadio} />
       </div>
 
       {/* Teams + Score inputs */}

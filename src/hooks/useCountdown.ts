@@ -9,7 +9,7 @@ export function useCountdown(dataHoraJogo: string) {
   useEffect(() => {
     const interval = setInterval(() => {
       setEstado(tempoAteJogo(dataHoraJogo));
-    }, 30_000);
+    }, 1_000);
     return () => clearInterval(interval);
   }, [dataHoraJogo]);
 

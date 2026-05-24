@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Bebas_Neue, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/providers/query-provider";
@@ -10,7 +10,7 @@ const bebasNeue = Bebas_Neue({
   variable: "--font-display",
 });
 
-const inter = Inter({
+const notoSans = Noto_Sans({
   subsets: ["latin"],
   variable: "--font-body",
 });
@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${bebasNeue.variable} ${inter.variable} h-full`}
+      className={`${bebasNeue.variable} ${notoSans.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
         <QueryProvider>{children}</QueryProvider>

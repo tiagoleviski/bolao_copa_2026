@@ -42,48 +42,59 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* Copa 2026 brand colors */
-  --color-copa-bg: #0a0a1a;
-  --color-copa-surface: #12122a;
-  --color-copa-purple: #7c3aed;
-  --color-copa-purple-light: #a855f7;
-  --color-copa-orange: #ea580c;
-  --color-copa-orange-light: #fb923c;
-  --color-copa-red: #dc2626;
-  --color-copa-gold: #f59e0b;
-  --color-copa-cyan: #06b6d4;
-  --color-copa-text: #f1f5f9;
-  --color-copa-muted: #64748b;
+  /* Copa 2026 brand colors — FIFA-inspired palette */
+  --color-copa-bg: #0d0d0d;
+  --color-copa-surface: #1a1a1a;
+  --color-copa-purple: #004b87;
+  --color-copa-purple-light: #1a6fb5;
+  --color-copa-orange: #00bfa5;
+  --color-copa-orange-light: #00d4b8;
+  --color-copa-red: #e63946;
+  --color-copa-gold: #c9a84c;
+  --color-copa-cyan: #00bfa5;
+  --color-copa-text: #f0f0f0;
+  --color-copa-muted: #888888;
+
+  /* Remap Tailwind purple to FIFA navy for consistent use of purple-* classes */
+  --color-purple-100: #cce0f5;
+  --color-purple-200: #99c2ea;
+  --color-purple-300: #5b9bd5;
+  --color-purple-400: #2d7dc3;
+  --color-purple-500: #004b87;
+  --color-purple-600: #003d70;
+  --color-purple-700: #003060;
+  --color-purple-800: #002348;
+  --color-purple-900: #001530;
 }
 
 :root {
-  --background: #0a0a1a;
-  --foreground: #f1f5f9;
+  --background: #0d0d0d;
+  --foreground: #f0f0f0;
   --card: rgba(255, 255, 255, 0.04);
-  --card-foreground: #f1f5f9;
-  --popover: #12122a;
-  --popover-foreground: #f1f5f9;
-  --primary: #7c3aed;
-  --primary-foreground: #f1f5f9;
+  --card-foreground: #f0f0f0;
+  --popover: #1a1a1a;
+  --popover-foreground: #f0f0f0;
+  --primary: #004b87;
+  --primary-foreground: #f0f0f0;
   --secondary: rgba(255, 255, 255, 0.06);
-  --secondary-foreground: #f1f5f9;
+  --secondary-foreground: #f0f0f0;
   --muted: rgba(255, 255, 255, 0.06);
-  --muted-foreground: #64748b;
-  --accent: rgba(124, 58, 237, 0.15);
-  --accent-foreground: #f1f5f9;
-  --destructive: #dc2626;
+  --muted-foreground: #888888;
+  --accent: rgba(0, 75, 135, 0.18);
+  --accent-foreground: #f0f0f0;
+  --destructive: #e63946;
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.08);
-  --ring: #7c3aed;
+  --ring: #004b87;
   --radius: 0.75rem;
-  --sidebar: #12122a;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #7c3aed;
-  --sidebar-primary-foreground: #f1f5f9;
-  --sidebar-accent: rgba(124, 58, 237, 0.15);
-  --sidebar-accent-foreground: #f1f5f9;
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #f0f0f0;
+  --sidebar-primary: #004b87;
+  --sidebar-primary-foreground: #f0f0f0;
+  --sidebar-accent: rgba(0, 75, 135, 0.18);
+  --sidebar-accent-foreground: #f0f0f0;
   --sidebar-border: rgba(255, 255, 255, 0.08);
-  --sidebar-ring: #7c3aed;
+  --sidebar-ring: #004b87;
 }
 
 @layer base {
@@ -98,18 +109,6 @@
 
   body {
     @apply min-h-full bg-background text-foreground antialiased font-sans;
-    background-image:
-      radial-gradient(
-        ellipse at 20% 0%,
-        rgba(124, 58, 237, 0.18) 0%,
-        transparent 55%
-      ),
-      radial-gradient(
-        ellipse at 80% 100%,
-        rgba(234, 88, 12, 0.14) 0%,
-        transparent 55%
-      );
-    background-attachment: fixed;
   }
 }
 
@@ -126,17 +125,6 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .gradient-copa {
-    background: linear-gradient(135deg, #7c3aed 0%, #ea580c 100%);
-  }
-
-  .gradient-copa-text {
-    background: linear-gradient(135deg, #a855f7 0%, #fb923c 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
   }
 
   .font-display {

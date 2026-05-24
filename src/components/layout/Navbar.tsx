@@ -38,11 +38,11 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-border">
+    <header className="sticky top-0 z-50 bg-[#004b87] border-b border-[#003d70]">
       <div className="mx-auto max-w-7xl px-4 h-14 flex items-center justify-between">
         <Link href="/palpites" className="flex items-center gap-2">
-          <span className="font-display text-2xl gradient-copa-text">
-            COPA 2026
+          <span className="font-display text-2xl text-white">
+            Bolão RES Copa 2026
           </span>
         </Link>
 
@@ -62,11 +62,11 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none">
             <Avatar className="h-8 w-8">
-              <AvatarFallback className="gradient-copa text-white text-xs font-bold">
+              <AvatarFallback className="bg-white/20 text-white text-xs font-bold">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <span className="hidden md:block text-sm text-foreground max-w-32 truncate">
+            <span className="hidden md:block text-sm text-white/90 max-w-32 truncate">
               {nomeUsuario}
             </span>
           </DropdownMenuTrigger>
@@ -101,7 +101,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+      className="px-3 py-1.5 rounded-lg text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
     >
       {children}
     </Link>

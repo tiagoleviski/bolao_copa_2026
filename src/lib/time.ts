@@ -39,11 +39,16 @@ export function apostaAberta(dataHoraJogo: string): boolean {
   return agora < fechamento;
 }
 
-export function tempoAteJogo(dataHoraJogo: string): {
-  texto: string;
+export interface ContadorDetalhado {
+  dias: number;
+  horas: number;
+  minutos: number;
+  segundos: number;
   urgente: boolean;
   encerrado: boolean;
-} {
+}
+
+export function tempoAteJogo(dataHoraJogo: string): ContadorDetalhado {
   const agora = new Date();
   const kickoff = new Date(dataHoraJogo);
   const fechamento = new Date(
@@ -52,26 +57,28 @@ export function tempoAteJogo(dataHoraJogo: string): {
   const diffMs = fechamento.getTime() - agora.getTime();
 
   if (diffMs <= 0) {
-    return { texto: "Encerrado", urgente: false, encerrado: true };
-  }
-
-  const diffH = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffM = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-  if (diffH > 24) {
-    const dias = Math.floor(diffH / 24);
     return {
-      texto: `${dias}d ${diffH % 24}h`,
+      dias: 0,
+      horas: 0,
+      minutos: 0,
+      segundos: 0,
       urgente: false,
-      encerrado: false,
+      encerrado: true,
     };
   }
-  if (diffH > 0) {
-    return {
-      texto: `${diffH}h ${diffM}m`,
-      urgente: diffH < 3,
-      encerrado: false,
-    };
-  }
-  return { texto: `${diffM}m`, urgente: true, encerrado: false };
+
+  const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const horas = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const segundos = Math.floor((diffMs % (1000 * 60)) / 1000);
+  const totalHoras = Math.floor(diffMs / (1000 * 60 * 60));
+
+  return {
+    dias,
+    horas,
+    minutos,
+    segundos,
+    urgente: totalHoras < 3,
+    encerrado: false,
+  };
 }

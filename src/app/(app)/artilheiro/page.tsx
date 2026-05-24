@@ -17,7 +17,7 @@ export default function ArtilheiroPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="font-display text-4xl gradient-copa-text">ARTILHEIRO</h1>
+        <h1 className="font-display text-4xl text-white">ARTILHEIRO</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Quem você acha que vai ser o artilheiro da Copa 2026?
         </p>

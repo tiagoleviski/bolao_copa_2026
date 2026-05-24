@@ -37,7 +37,7 @@ export function ConvidarForm() {
       <Button
         type="submit"
         disabled={convidar.isPending}
-        className="gradient-copa text-white font-semibold flex-shrink-0"
+        className="bg-[#004b87] text-white font-semibold flex-shrink-0"
       >
         {convidar.isPending ? "Enviando..." : "Enviar convite"}
       </Button>

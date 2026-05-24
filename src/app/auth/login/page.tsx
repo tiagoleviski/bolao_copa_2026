@@ -38,7 +38,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="glass-strong rounded-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-display text-5xl gradient-copa-text mb-2">
+          <h1 className="font-display text-5xl text-white mb-2">
             BOLÃO COPA 2026
           </h1>
           <p className="text-muted-foreground text-sm">
@@ -73,7 +73,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full gradient-copa text-white font-semibold h-11"
+            className="w-full bg-[#004b87] text-white font-semibold h-11"
           >
             {loading ? "Entrando..." : "Entrar"}
           </Button>

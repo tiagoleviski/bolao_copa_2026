@@ -9,7 +9,7 @@ export function VenueInfo({ sede, estadio, className = "" }: VenueInfoProps) {
 
   return (
     <span className={`text-xs text-muted-foreground ${className}`}>
-      📍 {[sede, estadio].filter(Boolean).join(" · ")}
+      {[sede, estadio].filter(Boolean).join(" · ")}
     </span>
   );
 }
