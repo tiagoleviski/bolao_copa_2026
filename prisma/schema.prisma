@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // URLs configuradas em prisma.config.ts (Prisma 7)
+}
+
+model Pais {
+  id           Int    @id @default(autoincrement())
+  nome         String
+  grupo        String
+  bandeira_url String
+
+  partidas_como_time_a Partida[]              @relation("TimeA")
+  partidas_como_time_b Partida[]              @relation("TimeB")
+  previsoes            PrevisaoClassificacao[]
+
+  @@map("paises")
+}
+
+model Partida {
+  id                 Int      @id @default(autoincrement())
+  time_a_id          Int?
+  time_b_id          Int?
+  data_hora          DateTime @db.Timestamptz(6)
+  fase               String
+  rodada             Int?
+  grupo              String?
+  status             String   @default("pendente")
+  gols_a             Int?
+  gols_b             Int?
+  sede               String?
+  estadio            String?
+  placeholder_time_a String?
+  placeholder_time_b String?
+
+  time_a  Pais?    @relation("TimeA", fields: [time_a_id], references: [id])
+  time_b  Pais?    @relation("TimeB", fields: [time_b_id], references: [id])
+  apostas Aposta[]
+
+  @@map("partidas")
+}
+
+model Aposta {
+  id               Int    @id @default(autoincrement())
+  user_id          String @db.Uuid
+  partida_id       Int
+  gols_time_a      Int
+  gols_time_b      Int
+  pontos_placar    Int    @default(0)
+  pontos_resultado Int    @default(0)
+  pontos_total     Int    @default(0)
+
+  partida Partida @relation(fields: [partida_id], references: [id])
+
+  @@unique([user_id, partida_id])
+  @@map("apostas")
+}
+
+// Managed by Supabase Auth trigger — only READ via Prisma
+model Perfil {
+  id            String @id @db.Uuid
+  nome_completo String
+  email         String
+
+  @@map("perfis")
+}
+
+model PrevisaoClassificacao {
+  id      Int    @id @default(autoincrement())
+  user_id String @db.Uuid
+  pais_id Int
+  fase    String
+
+  pais Pais @relation(fields: [pais_id], references: [id])
+
+  @@map("previsoes_classificacao")
+}
+
+model Jogador {
+  id      Int    @id @default(autoincrement())
+  nome    String
+  selecao String
+
+  apostas_artilheiro ApostaArtilheiro[]
+
+  @@map("jogadores")
+}
+
+model ApostaArtilheiro {
+  id         Int    @id @default(autoincrement())
+  user_id    String @db.Uuid
+  jogador_id Int
+
+  jogador Jogador @relation(fields: [jogador_id], references: [id])
+
+  @@unique([user_id])
+  @@map("apostas_artilheiro")
+}
+
+model ArtilheiroOficial {
+  id          Int      @id @default(autoincrement())
+  jogador_id  Int
+  definido_em DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("artilheiro_oficial")
+}

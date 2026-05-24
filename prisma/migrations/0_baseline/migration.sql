@@ -1,0 +1,6 @@
+-- Baseline migration: tabelas já existem no Supabase.
+-- Este arquivo é vazio de propósito — serve apenas para que o Prisma
+-- reconheça o estado inicial do banco como "já aplicado".
+--
+-- Para marcar como aplicado sem executar:
+--   npx prisma migrate resolve --applied 0_baseline
