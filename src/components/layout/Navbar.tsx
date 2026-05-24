@@ -1,0 +1,109 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+interface NavbarProps {
+  nomeUsuario: string;
+  emailUsuario: string;
+  isAdmin: boolean;
+}
+
+export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    toast.success("Até logo!");
+    router.push("/auth/login");
+    router.refresh();
+  }
+
+  const initials = nomeUsuario
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+
+  return (
+    <header className="sticky top-0 z-50 glass border-b border-border">
+      <div className="mx-auto max-w-7xl px-4 h-14 flex items-center justify-between">
+        <Link href="/palpites" className="flex items-center gap-2">
+          <span className="font-display text-2xl gradient-copa-text">
+            COPA 2026
+          </span>
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-1">
+          <NavLink href="/palpites">Palpites</NavLink>
+          <NavLink href="/previsoes">Previsões</NavLink>
+          <NavLink href="/artilheiro">Artilheiro</NavLink>
+          <NavLink href="/ranking">Ranking</NavLink>
+          {isAdmin && (
+            <>
+              <NavLink href="/admin">Resultados</NavLink>
+              <NavLink href="/admin/convidar">Convidar</NavLink>
+            </>
+          )}
+        </nav>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="gradient-copa text-white text-xs font-bold">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <span className="hidden md:block text-sm text-foreground max-w-32 truncate">
+              {nomeUsuario}
+            </span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              disabled
+              className="text-muted-foreground text-xs"
+            >
+              {emailUsuario}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="text-red-400 cursor-pointer"
+            >
+              Sair
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}
+
+function NavLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+    >
+      {children}
+    </Link>
+  );
+}
