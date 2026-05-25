@@ -11,69 +11,65 @@ export interface ExternalResult {
   date: string;
 }
 
-// Mapeamento dos nomes usados pela API-Football → nomes no banco (português)
+// Mapeamento dos nomes usados pela football-data.org → nomes no banco (português)
 export const API_TEAM_NAME_MAP: Record<string, string> = {
   // América do Sul
   Brazil: "Brasil",
   Argentina: "Argentina",
   Uruguay: "Uruguai",
   Colombia: "Colômbia",
-  Chile: "Chile",
   Ecuador: "Equador",
-  Peru: "Peru",
+  Paraguay: "Paraguai",
 
   // América Central / Norte
   "United States": "Estados Unidos",
-  USA: "Estados Unidos",
   Mexico: "México",
+  Canada: "Canadá",
   Panama: "Panamá",
-  Guatemala: "Guatemala",
+  Haiti: "Haiti",
+  Curaçao: "Curaçao",
 
   // Europa
   Germany: "Alemanha",
   France: "França",
   Spain: "Espanha",
   England: "Inglaterra",
-  Italy: "Itália",
   Portugal: "Portugal",
   Netherlands: "Holanda",
   Belgium: "Bélgica",
   Croatia: "Croácia",
-  Serbia: "Sérvia",
   Switzerland: "Suíça",
-  Denmark: "Dinamarca",
-  Ukraine: "Ucrânia",
-  "Czech Republic": "República Checa",
-  Czechia: "República Checa",
+  Czechia: "República Tcheca",
   Turkey: "Turquia",
-  Romania: "Romênia",
+  Austria: "Áustria",
+  Scotland: "Escócia",
+  Sweden: "Suécia",
+  Norway: "Noruega",
+  "Bosnia-Herzegovina": "Bósnia e Herzegovina",
 
   // África
   Morocco: "Marrocos",
   Senegal: "Senegal",
-  Nigeria: "Nigéria",
   Algeria: "Argélia",
   Tunisia: "Tunísia",
-  Angola: "Angola",
   "Ivory Coast": "Costa do Marfim",
-  "Cote d'Ivoire": "Costa do Marfim",
+  "South Africa": "África do Sul",
+  Egypt: "Egito",
+  Ghana: "Gana",
+  "Congo DR": "RD Congo",
+  "Cape Verde Islands": "Cabo Verde",
 
   // Ásia / Oceania
   Japan: "Japão",
   "South Korea": "Coreia do Sul",
-  "Korea Republic": "Coreia do Sul",
-  "North Korea": "Coreia do Norte",
-  "Korea DPR": "Coreia do Norte",
-  China: "China",
   "Saudi Arabia": "Arábia Saudita",
   Australia: "Austrália",
   "New Zealand": "Nova Zelândia",
-  Afghanistan: "Afeganistão",
-  Kyrgyzstan: "Quirguistão",
-  Tahiti: "Taiti",
-  "Faroe Islands": "Ilhas Faroé",
-  Zimbabwe: "Zimbábue",
-  "Southeast Asia": "Sudeste Asiático",
+  Iran: "Irã",
+  Iraq: "Iraque",
+  Qatar: "Catar",
+  Jordan: "Jordânia",
+  Uzbekistan: "Uzbequistão",
 };
 
 export function resolverTimeId(nomeApi: string, paises: Pais[]): number | null {
@@ -90,29 +86,29 @@ export function resolverTimeId(nomeApi: string, paises: Pais[]): number | null {
 export async function fetchResultadosDia(
   date: string,
 ): Promise<ExternalResult[]> {
-  const apiKey = process.env.FOOTBALL_API_KEY;
-  if (!apiKey) throw new Error("FOOTBALL_API_KEY não configurada");
+  const apiKey = process.env.FOOTBALL_DATA_API_KEY;
+  if (!apiKey) throw new Error("FOOTBALL_DATA_API_KEY não configurada");
 
-  const url = `https://v3.football.api-sports.io/fixtures?league=1&season=2026&date=${date}&status=FT`;
+  const url = `https://api.football-data.org/v4/competitions/WC/matches?status=FINISHED&dateFrom=${date}&dateTo=${date}`;
   const res = await fetch(url, {
     headers: {
-      "x-apisports-key": apiKey,
+      "X-Auth-Token": apiKey,
     },
     next: { revalidate: 0 },
   });
 
-  if (!res.ok) throw new Error(`API-Football erro: ${res.status}`);
+  if (!res.ok) throw new Error(`football-data.org erro: ${res.status}`);
 
   const json = await res.json();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const fixtures: any[] = json.response ?? [];
+  const matches: any[] = json.matches ?? [];
 
-  return fixtures.map((f) => ({
-    fixtureId: f.fixture.id,
-    homeTeam: f.teams.home.name,
-    awayTeam: f.teams.away.name,
-    homeGoals: f.goals.home ?? 0,
-    awayGoals: f.goals.away ?? 0,
-    date: f.fixture.date,
+  return matches.map((m) => ({
+    fixtureId: m.id,
+    homeTeam: m.homeTeam.name,
+    awayTeam: m.awayTeam.name,
+    homeGoals: m.score.fullTime.home ?? 0,
+    awayGoals: m.score.fullTime.away ?? 0,
+    date: m.utcDate,
   }));
 }
