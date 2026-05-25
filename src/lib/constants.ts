@@ -3,8 +3,8 @@ import { FaseClassificacao } from "./types";
 // 2026-06-10 16:00 BRT (19:00 UTC)
 export const PRAZO_PREVISOES = new Date("2026-06-10T19:00:00Z");
 
-// Each match closes for betting 1 hour before kickoff
-export const MINUTOS_ANTES_FECHAMENTO = 60;
+// Betting closes exactly at kickoff (last valid bet is 1 second before)
+export const MINUTOS_ANTES_FECHAMENTO = 0;
 
 export const FASES_ORDEM: FaseClassificacao[] = [
   "Segunda Fase",

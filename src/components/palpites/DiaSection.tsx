@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { PartidaCard } from "./PartidaCard";
 import type { Aposta, Partida } from "@/lib/types";
 
@@ -5,11 +8,25 @@ interface DiaSectionProps {
   dia: string;
   partidas: Partida[];
   apostasMap: Map<number, Aposta>;
+  isHoje?: boolean;
 }
 
-export function DiaSection({ dia, partidas, apostasMap }: DiaSectionProps) {
+export function DiaSection({
+  dia,
+  partidas,
+  apostasMap,
+  isHoje,
+}: DiaSectionProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isHoje && ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isHoje]);
+
   return (
-    <div className="space-y-2">
+    <div ref={ref} className="space-y-2">
       <h2 className="font-display text-xl text-foreground/50 uppercase tracking-wider px-1">
         {dia}
       </h2>

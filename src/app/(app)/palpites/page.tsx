@@ -31,12 +31,12 @@ export default function PalpitesPage() {
     porDia.get(dia)!.push(p);
   }
 
+  const hojeChave = chaveData(new Date().toISOString());
+
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-4xl text-white">
-          MEUS PALPITES
-        </h1>
+        <h1 className="font-display text-4xl text-white">MEUS PALPITES</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Insira o placar que você prevê para cada partida
         </p>
@@ -46,6 +46,7 @@ export default function PalpitesPage() {
         <DiaSection
           key={dia}
           dia={dia}
+          isHoje={dia === hojeChave}
           partidas={porDia.get(dia)!}
           apostasMap={apostasMap}
         />
