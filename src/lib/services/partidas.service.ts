@@ -97,6 +97,16 @@ function resolverPlaceholder(
     return time?.pais_id ?? null;
   }
 
+  // Formatos de fases posteriores — ainda não resolvíveis, sem aviso
+  // Ex: "Vencedor Jogo 1", "Vencedor Oitavas 3", "Perdedor Semifinal 2"
+  if (
+    /^(Vencedor|Perdedor) (Jogo|Oitavas|Quartas|Semifinal) \d+$/.test(
+      placeholder,
+    )
+  ) {
+    return null;
+  }
+
   console.warn(`[chaveamento] placeholder não reconhecido: "${placeholder}"`);
   return null;
 }
