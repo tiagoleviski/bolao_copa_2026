@@ -65,9 +65,8 @@ export async function atualizarResultadoPartida(
   }
 }
 
-// Regex para placeholders do tipo "1º Grupo A" ou "2º Grupo B"
-// Verifica o formato real no banco: SELECT DISTINCT placeholder_time_a, placeholder_time_b FROM partidas WHERE rodada >= 4;
-const PLACEHOLDER_GRUPO_RE = /^(\d)º Grupo ([A-L])$/;
+// Formato real no banco: "1º Lugar Grupo A", "2º Lugar Grupo B", etc.
+const PLACEHOLDER_GRUPO_RE = /^(\d)º Lugar Grupo ([A-L])$/;
 
 function resolverPlaceholder(
   placeholder: string | null,
@@ -78,6 +77,7 @@ function resolverPlaceholder(
 ): number | null {
   if (!placeholder) return null;
 
+  // "1º Lugar Grupo A" → 1º colocado do grupo A
   const m = PLACEHOLDER_GRUPO_RE.exec(placeholder);
   if (m) {
     const posicao = parseInt(m[1]);
@@ -87,14 +87,14 @@ function resolverPlaceholder(
     return grupoData?.equipes[posicao - 1]?.pais_id ?? null;
   }
 
-  // Terceiro lugar: placeholder deve indicar que é o n-ésimo melhor terceiro
-  // Ex: "3º Melhor 3º" ou similar — só resolve quando todos os grupos terminaram
-  if (/3[°º]/i.test(placeholder) && todosGruposFinalizados) {
-    const rank = /(\d+)[°º]\s*[Mm]elhor/i.exec(placeholder);
-    if (rank) {
-      const idx = parseInt(rank[1]) - 1;
-      return terceiros[idx]?.pais_id ?? null;
-    }
+  // "Melhor 3º Lugar (Grupos A/B/C/D/F)" → melhor 3º entre os grupos listados
+  // Só resolve quando todos os grupos terminaram (ranking de terceiros é definitivo)
+  const gruposMatch = /\(Grupos ([A-L/]+)\)/.exec(placeholder);
+  if (gruposMatch) {
+    if (!todosGruposFinalizados) return null;
+    const grupos = gruposMatch[1].split("/");
+    const time = terceiros.find((t) => grupos.includes(t.grupo));
+    return time?.pais_id ?? null;
   }
 
   console.warn(`[chaveamento] placeholder não reconhecido: "${placeholder}"`);
