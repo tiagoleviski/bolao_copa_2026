@@ -4,6 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import { FASES_ORDEM, PRAZO_PREVISOES } from "@/lib/constants";
 import type { FaseClassificacao } from "@/lib/types";
 
+export async function getPaises() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("paises").select("*");
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
 export async function getPrevisoes(userId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

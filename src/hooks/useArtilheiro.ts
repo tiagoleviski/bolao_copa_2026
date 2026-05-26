@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api/client";
-import type { Jogador, Pais } from "@/lib/types";
+import type { Jogador } from "@/lib/types";
 
 interface ApostaArtilheiroAtual {
   jogador_id: number;
@@ -10,7 +10,6 @@ interface ApostaArtilheiroAtual {
 
 interface ArtilheiroData {
   jogadores: Jogador[];
-  paises: Pais[];
   apostaAtual: ApostaArtilheiroAtual | null;
 }
 

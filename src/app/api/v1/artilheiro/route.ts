@@ -4,7 +4,6 @@ import { requireSession } from "@/lib/auth/guards";
 import { handleApiError } from "@/lib/api/error-handler";
 import {
   getJogadores,
-  getPaises,
   getApostaArtilheiro,
   salvarApostaArtilheiro,
 } from "@/lib/services/artilheiro.service";
@@ -16,12 +15,11 @@ const postSchema = z.object({
 export async function GET() {
   try {
     const user = await requireSession();
-    const [jogadores, paises, apostaAtual] = await Promise.all([
+    const [jogadores, apostaAtual] = await Promise.all([
       getJogadores(),
-      getPaises(),
       getApostaArtilheiro(user.id),
     ]);
-    return NextResponse.json({ jogadores, paises, apostaAtual });
+    return NextResponse.json({ jogadores, apostaAtual });
   } catch (e) {
     return handleApiError(e);
   }

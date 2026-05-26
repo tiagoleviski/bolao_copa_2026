@@ -3,15 +3,13 @@
 import { useArtilheiro } from "@/hooks/useArtilheiro";
 import { ArtilheiroSelect } from "@/components/artilheiro/ArtilheiroSelect";
 import { PRAZO_PREVISOES } from "@/lib/constants";
-import type { Pais } from "@/lib/types";
 
 export default function ArtilheiroPage() {
   const { data, isPending } = useArtilheiro();
 
   if (isPending) return null;
 
-  const { jogadores, paises, apostaAtual } = data!;
-  const paisesMap = new Map<string, Pais>(paises.map((p) => [p.nome, p]));
+  const { jogadores, apostaAtual } = data!;
   const prazoEncerrado = new Date() > PRAZO_PREVISOES;
 
   return (
@@ -41,7 +39,6 @@ export default function ArtilheiroPage() {
 
         <ArtilheiroSelect
           jogadores={jogadores}
-          paisesMap={paisesMap}
           jogadorAtualId={apostaAtual?.jogador_id ?? null}
           prazoEncerrado={prazoEncerrado}
         />

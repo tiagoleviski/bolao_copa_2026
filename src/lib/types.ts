@@ -45,7 +45,11 @@ export interface PrevisaoClassificacao {
 export interface Jogador {
   id: number;
   nome: string;
-  selecao: string;
+  pais: {
+    id: number;
+    nome: string;
+    bandeira_url: string;
+  };
 }
 
 export interface ApostaArtilheiro {

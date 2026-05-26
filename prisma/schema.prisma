@@ -17,6 +17,7 @@ model Pais {
   partidas_como_time_a Partida[]              @relation("TimeA")
   partidas_como_time_b Partida[]              @relation("TimeB")
   previsoes            PrevisaoClassificacao[]
+  jogadores            Jogador[]
 
   @@map("paises")
 }
@@ -83,8 +84,9 @@ model PrevisaoClassificacao {
 model Jogador {
   id      Int    @id @default(autoincrement())
   nome    String
-  selecao String
+  pais_id Int
 
+  pais               Pais              @relation(fields: [pais_id], references: [id])
   apostas_artilheiro ApostaArtilheiro[]
 
   @@map("jogadores")

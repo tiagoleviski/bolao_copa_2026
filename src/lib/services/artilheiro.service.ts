@@ -7,15 +7,8 @@ export async function getJogadores() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("jogadores")
-    .select("*")
+    .select("id, nome, pais:paises(id, nome, bandeira_url)")
     .order("nome");
-  if (error) throw new Error(error.message);
-  return data ?? [];
-}
-
-export async function getPaises() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from("paises").select("*");
   if (error) throw new Error(error.message);
   return data ?? [];
 }

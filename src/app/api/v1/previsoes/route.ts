@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth/guards";
 import { handleApiError } from "@/lib/api/error-handler";
-import { getPaises } from "@/lib/services/artilheiro.service";
-import { getPrevisoes } from "@/lib/services/previsoes.service";
+import { getPaises, getPrevisoes } from "@/lib/services/previsoes.service";
 
 export async function GET() {
   try {

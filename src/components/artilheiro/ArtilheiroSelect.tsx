@@ -4,18 +4,16 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useSalvarApostaArtilheiro } from "@/hooks/useArtilheiro";
 import { FlagImage } from "@/components/shared/FlagImage";
-import type { Jogador, Pais } from "@/lib/types";
+import type { Jogador } from "@/lib/types";
 
 interface ArtilheiroSelectProps {
   jogadores: Jogador[];
-  paisesMap: Map<string, Pais>;
   jogadorAtualId: number | null;
   prazoEncerrado: boolean;
 }
 
 export function ArtilheiroSelect({
   jogadores,
-  paisesMap,
   jogadorAtualId,
   prazoEncerrado,
 }: ArtilheiroSelectProps) {
@@ -26,7 +24,7 @@ export function ArtilheiroSelect({
   const filtrados = jogadores.filter(
     (j) =>
       j.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      j.selecao.toLowerCase().includes(busca.toLowerCase()),
+      j.pais.nome.toLowerCase().includes(busca.toLowerCase()),
   );
 
   function handleSelect(jogadorId: number) {
@@ -45,18 +43,15 @@ export function ArtilheiroSelect({
   }
 
   const jogadorSelecionado = jogadores.find((j) => j.id === selecionado);
-  const paisSelecionado = jogadorSelecionado
-    ? paisesMap.get(jogadorSelecionado.selecao)
-    : null;
 
   return (
     <div className="space-y-4">
       {jogadorSelecionado && (
         <div className="glass rounded-xl p-4 flex items-center gap-3">
-          {paisSelecionado?.bandeira_url && (
+          {jogadorSelecionado.pais.bandeira_url && (
             <FlagImage
-              src={paisSelecionado.bandeira_url}
-              alt={paisSelecionado.nome}
+              src={jogadorSelecionado.pais.bandeira_url}
+              alt={jogadorSelecionado.pais.nome}
               size={40}
             />
           )}
@@ -65,7 +60,7 @@ export function ArtilheiroSelect({
               {jogadorSelecionado.nome}
             </p>
             <p className="text-sm text-muted-foreground">
-              {jogadorSelecionado.selecao}
+              {jogadorSelecionado.pais.nome}
             </p>
           </div>
           {salvarArtilheiro.isPending && (
@@ -88,8 +83,7 @@ export function ArtilheiroSelect({
           />
 
           <div className="max-h-72 overflow-y-auto space-y-1 rounded-xl">
-            {filtrados.slice(0, 50).map((jogador) => {
-              const pais = paisesMap.get(jogador.selecao);
+            {filtrados.map((jogador) => {
               const ativo = selecionado === jogador.id;
               return (
                 <button
@@ -103,16 +97,16 @@ export function ArtilheiroSelect({
                         : "hover:bg-white/5 text-muted-foreground hover:text-foreground"
                     }`}
                 >
-                  {pais?.bandeira_url && (
+                  {jogador.pais.bandeira_url && (
                     <FlagImage
-                      src={pais.bandeira_url}
-                      alt={pais.nome}
+                      src={jogador.pais.bandeira_url}
+                      alt={jogador.pais.nome}
                       size={24}
                     />
                   )}
                   <span className="font-medium">{jogador.nome}</span>
                   <span className="text-xs text-muted-foreground ml-auto">
-                    {jogador.selecao}
+                    {jogador.pais.nome}
                   </span>
                 </button>
               );
