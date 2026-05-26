@@ -1,12 +1,12 @@
-import { PONTUACAO } from "./constants";
+import { PONTUACAO, PONTUACAO_CHAVEAMENTO } from "./constants";
 import type {
   Aposta,
   ApostaArtilheiro,
-  FaseClassificacao,
   Partida,
   Perfil,
-  PrevisaoClassificacao,
+  PrevisaoChaveamento,
   RankingEntry,
+  ResultadoChaveamentoOficial,
 } from "./types";
 
 export function calcularPontosPartida(
@@ -44,15 +44,31 @@ export function calcularPontosPartida(
   return { pontos_placar: 0, pontos_resultado: 0, pontos_total: 0 };
 }
 
-export function calcularPontosPrevisoes(
-  previsoes: PrevisaoClassificacao[],
-  classificacaoOficial: Map<number, FaseClassificacao[]>,
+export function calcularPontosChaveamento(
+  previsoes: PrevisaoChaveamento[],
+  resultadosOficiais: ResultadoChaveamentoOficial[],
 ): number {
+  if (resultadosOficiais.length === 0) return 0;
+
+  const vencedorReal = new Map<string, number>();
+  const timesPorFase = new Map<string, Set<number>>();
+
+  for (const r of resultadosOficiais) {
+    vencedorReal.set(`${r.fase}:${r.slot}`, r.pais_id);
+    const set = timesPorFase.get(r.fase) ?? new Set<number>();
+    set.add(r.pais_id);
+    timesPorFase.set(r.fase, set);
+  }
+
   let total = 0;
-  for (const previsao of previsoes) {
-    const fasesAlcancadas = classificacaoOficial.get(previsao.pais_id) ?? [];
-    if (fasesAlcancadas.includes(previsao.fase as FaseClassificacao)) {
-      total += PONTUACAO.CLASSIFICACAO[previsao.fase as FaseClassificacao] ?? 0;
+  for (const prev of previsoes) {
+    const key = `${prev.fase}:${prev.slot}`;
+    const vencedor = vencedorReal.get(key);
+
+    if (vencedor === prev.pais_id) {
+      total += PONTUACAO_CHAVEAMENTO.CAMINHO_EXATO;
+    } else if (timesPorFase.get(prev.fase)?.has(prev.pais_id)) {
+      total += PONTUACAO_CHAVEAMENTO.AVANCOU;
     }
   }
   return total;
@@ -69,10 +85,10 @@ export function calcularPontosArtilheiro(
 export function calcularRanking(
   perfis: Perfil[],
   apostas: Aposta[],
-  previsoes: PrevisaoClassificacao[],
-  classificacaoOficial: Map<number, FaseClassificacao[]>,
   apostasArtilheiro: ApostaArtilheiro[],
   artilheiroOficialId: number | null,
+  previsoesChaveamento: PrevisaoChaveamento[] = [],
+  resultadosChaveamento: ResultadoChaveamentoOficial[] = [],
 ): RankingEntry[] {
   const apostasMap = new Map<string, Aposta[]>();
   for (const aposta of apostas) {
@@ -81,11 +97,11 @@ export function calcularRanking(
     apostasMap.set(aposta.user_id, list);
   }
 
-  const previsoesMap = new Map<string, PrevisaoClassificacao[]>();
-  for (const prev of previsoes) {
-    const list = previsoesMap.get(prev.user_id) ?? [];
+  const chaveamentoMap = new Map<string, PrevisaoChaveamento[]>();
+  for (const prev of previsoesChaveamento) {
+    const list = chaveamentoMap.get(prev.user_id) ?? [];
     list.push(prev);
-    previsoesMap.set(prev.user_id, list);
+    chaveamentoMap.set(prev.user_id, list);
   }
 
   const artilheiroMap = new Map<string, ApostaArtilheiro>();
@@ -100,16 +116,16 @@ export function calcularRanking(
       0,
     );
 
-    const minhasPrevisoes = previsoesMap.get(perfil.id) ?? [];
-    const pontos_previsoes = calcularPontosPrevisoes(
-      minhasPrevisoes,
-      classificacaoOficial,
-    );
-
     const minhaApostaArtilheiro = artilheiroMap.get(perfil.id) ?? null;
     const pontos_artilheiro = calcularPontosArtilheiro(
       minhaApostaArtilheiro,
       artilheiroOficialId,
+    );
+
+    const meusChaveamentos = chaveamentoMap.get(perfil.id) ?? [];
+    const pontos_previsoes = calcularPontosChaveamento(
+      meusChaveamentos,
+      resultadosChaveamento,
     );
 
     return {

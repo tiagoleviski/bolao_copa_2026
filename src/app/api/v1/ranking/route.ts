@@ -7,7 +7,7 @@ import type {
   Aposta,
   ApostaArtilheiro,
   Perfil,
-  PrevisaoClassificacao,
+  PrevisaoChaveamento,
 } from "@/lib/types";
 
 export async function GET() {
@@ -16,20 +16,20 @@ export async function GET() {
     const {
       perfis,
       apostas,
-      previsoes,
       apostasArtilheiro,
       artilheiroOficialId,
-      classificacaoOficial,
       totalPartidasFinalizadas,
+      previsoesChaveamento,
+      resultadosChaveamentoOficiais,
     } = await getRankingData();
 
     const ranking = calcularRanking(
       perfis as Perfil[],
       apostas as Aposta[],
-      previsoes as PrevisaoClassificacao[],
-      classificacaoOficial,
       apostasArtilheiro as ApostaArtilheiro[],
       artilheiroOficialId,
+      previsoesChaveamento as PrevisaoChaveamento[],
+      resultadosChaveamentoOficiais,
     );
 
     return NextResponse.json({ ranking, totalPartidasFinalizadas });

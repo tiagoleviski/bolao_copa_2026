@@ -14,9 +14,8 @@ model Pais {
   grupo        String
   bandeira_url String
 
-  partidas_como_time_a Partida[]              @relation("TimeA")
-  partidas_como_time_b Partida[]              @relation("TimeB")
-  previsoes            PrevisaoClassificacao[]
+  partidas_como_time_a Partida[] @relation("TimeA")
+  partidas_como_time_b Partida[] @relation("TimeB")
   jogadores            Jogador[]
 
   @@map("paises")
@@ -68,17 +67,6 @@ model Perfil {
   email         String
 
   @@map("perfis")
-}
-
-model PrevisaoClassificacao {
-  id      Int    @id @default(autoincrement())
-  user_id String @db.Uuid
-  pais_id Int
-  fase    String
-
-  pais Pais @relation(fields: [pais_id], references: [id])
-
-  @@map("previsoes_classificacao")
 }
 
 model Jogador {

@@ -2,14 +2,15 @@ import { describe, it, expect } from "vitest";
 import {
   calcularPontosPartida,
   calcularPontosArtilheiro,
-  calcularPontosPrevisoes,
+  calcularPontosChaveamento,
   calcularRanking,
 } from "@/lib/scoring";
 import type {
   ApostaArtilheiro,
   Perfil,
   Aposta,
-  PrevisaoClassificacao,
+  PrevisaoChaveamento,
+  ResultadoChaveamentoOficial,
 } from "@/lib/types";
 
 // ─── calcularPontosPartida ────────────────────────────────────────────────────
@@ -110,32 +111,65 @@ describe("calcularPontosArtilheiro", () => {
   });
 });
 
-// ─── calcularPontosPrevisoes ──────────────────────────────────────────────────
+// ─── calcularPontosChaveamento ────────────────────────────────────────────────
 
-describe("calcularPontosPrevisoes", () => {
-  it("soma pontos de previsões acertadas", () => {
-    const previsoes: PrevisaoClassificacao[] = [
-      { user_id: "u1", pais_id: 1, fase: "Campeão" },
-      { user_id: "u1", pais_id: 2, fase: "Semifinal" },
-    ] as PrevisaoClassificacao[];
-
-    const oficial = new Map([
-      [1, ["Campeão", "Semifinal", "Quartas de Final"] as any],
-      [2, ["Semifinal", "Quartas de Final"] as any],
-    ]);
-
-    // Campeão=15, Semifinal=5
-    expect(calcularPontosPrevisoes(previsoes, oficial)).toBe(20);
+describe("calcularPontosChaveamento", () => {
+  it("retorna 0 quando não há resultados oficiais", () => {
+    const previsoes: PrevisaoChaveamento[] = [
+      {
+        user_id: "u1",
+        fase: "Final",
+        slot: 1,
+        pais_id: 1,
+      } as PrevisaoChaveamento,
+    ];
+    expect(calcularPontosChaveamento(previsoes, [])).toBe(0);
   });
 
-  it("retorna 0 quando nenhuma previsão acertou", () => {
-    const previsoes: PrevisaoClassificacao[] = [
-      { user_id: "u1", pais_id: 1, fase: "Campeão" },
-    ] as PrevisaoClassificacao[];
+  it("retorna 10 pts por caminho exato (mesmo slot)", () => {
+    const previsoes: PrevisaoChaveamento[] = [
+      {
+        user_id: "u1",
+        fase: "Final",
+        slot: 1,
+        pais_id: 1,
+      } as PrevisaoChaveamento,
+    ];
+    const oficiais: ResultadoChaveamentoOficial[] = [
+      { fase: "Final", slot: 1, pais_id: 1 } as ResultadoChaveamentoOficial,
+    ];
+    expect(calcularPontosChaveamento(previsoes, oficiais)).toBe(10);
+  });
 
-    const oficial = new Map([[1, ["Semifinal"] as any]]);
+  it("retorna 3 pts quando time avançou mas por slot diferente", () => {
+    const previsoes: PrevisaoChaveamento[] = [
+      {
+        user_id: "u1",
+        fase: "Semifinal",
+        slot: 1,
+        pais_id: 5,
+      } as PrevisaoChaveamento,
+    ];
+    const oficiais: ResultadoChaveamentoOficial[] = [
+      { fase: "Semifinal", slot: 1, pais_id: 7 } as ResultadoChaveamentoOficial,
+      { fase: "Semifinal", slot: 2, pais_id: 5 } as ResultadoChaveamentoOficial,
+    ];
+    expect(calcularPontosChaveamento(previsoes, oficiais)).toBe(3);
+  });
 
-    expect(calcularPontosPrevisoes(previsoes, oficial)).toBe(0);
+  it("retorna 0 pts quando time não avançou", () => {
+    const previsoes: PrevisaoChaveamento[] = [
+      {
+        user_id: "u1",
+        fase: "Final",
+        slot: 1,
+        pais_id: 99,
+      } as PrevisaoChaveamento,
+    ];
+    const oficiais: ResultadoChaveamentoOficial[] = [
+      { fase: "Final", slot: 1, pais_id: 1 } as ResultadoChaveamentoOficial,
+    ];
+    expect(calcularPontosChaveamento(previsoes, oficiais)).toBe(0);
   });
 });
 
@@ -154,7 +188,7 @@ describe("calcularRanking", () => {
   ] as Aposta[];
 
   it("ordena por pontos_total decrescente", () => {
-    const ranking = calcularRanking(perfis, apostas, [], new Map(), [], null);
+    const ranking = calcularRanking(perfis, apostas, [], null);
     expect(ranking[0].user_id).toBe("u1");
     expect(ranking[0].pontos_total).toBe(15);
     expect(ranking[1].user_id).toBe("u2");
@@ -162,21 +196,14 @@ describe("calcularRanking", () => {
   });
 
   it("atribui posições corretas", () => {
-    const ranking = calcularRanking(perfis, apostas, [], new Map(), [], null);
+    const ranking = calcularRanking(perfis, apostas, [], null);
     expect(ranking[0].posicao).toBe(1);
     expect(ranking[1].posicao).toBe(2);
   });
 
-  it("soma pontos de palpites, previsões e artilheiro", () => {
+  it("soma pontos de palpites, chaveamento e artilheiro", () => {
     const artilheiro = [{ user_id: "u1", jogador_id: 7 }] as ApostaArtilheiro[];
-    const ranking = calcularRanking(
-      perfis,
-      apostas,
-      [],
-      new Map(),
-      artilheiro,
-      7,
-    );
+    const ranking = calcularRanking(perfis, apostas, artilheiro, 7);
     const alice = ranking.find((r) => r.user_id === "u1")!;
     expect(alice.pontos_palpites).toBe(15);
     expect(alice.pontos_artilheiro).toBe(15);

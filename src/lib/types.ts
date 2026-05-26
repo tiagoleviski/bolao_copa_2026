@@ -35,13 +35,6 @@ export interface Aposta {
   pontos_total: number;
 }
 
-export interface PrevisaoClassificacao {
-  id: number;
-  user_id: string;
-  pais_id: number;
-  fase: string;
-}
-
 export interface Jogador {
   id: number;
   nome: string;
@@ -75,16 +68,6 @@ export interface RankingEntry {
   posicao: number;
 }
 
-export type FaseClassificacao =
-  | "Segunda Fase"
-  | "Oitavas de Final"
-  | "Quartas de Final"
-  | "Semifinal"
-  | "Campeão"
-  | "Vice-Campeão"
-  | "3º Lugar"
-  | "4º Lugar";
-
 export interface ClassificacaoEquipe {
   pais_id: number;
   nome: string;
@@ -107,3 +90,44 @@ export interface ClassificacaoGrupo {
 }
 
 export type ClassificacaoGrupos = ClassificacaoGrupo[];
+
+export interface PrevisaoGrupo {
+  id: number;
+  user_id: string;
+  pais_id: number;
+  posicao: 1 | 2 | 3 | 4;
+  terceiro_avanca: boolean;
+}
+
+export interface PrevisaoChaveamento {
+  id: number;
+  user_id: string;
+  fase: FaseChaveamento;
+  slot: number;
+  pais_id: number;
+}
+
+export interface ResultadoChaveamentoOficial {
+  id: number;
+  fase: FaseChaveamento;
+  slot: number;
+  pais_id: number;
+}
+
+export interface PosicaoOficialGrupo {
+  id: number;
+  pais_id: number;
+  posicao: 1 | 2 | 3 | 4;
+  terceiro_avancou: boolean;
+}
+
+export type FaseChaveamento =
+  | "Segunda Fase"
+  | "Oitavas de Final"
+  | "Quartas de Final"
+  | "Semifinal"
+  | "Terceiro Lugar"
+  | "Final";
+
+// Descriptor de slot no bracket: "1A" = 1° do grupo A, "2B" = 2° do grupo B, "T3" = 3° melhor terceiro
+export type SlotDescriptor = string;

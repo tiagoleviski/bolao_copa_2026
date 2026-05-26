@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireSession } from "@/lib/auth/guards";
 import { handleApiError } from "@/lib/api/error-handler";
-import { salvarPrevisaoFase } from "@/lib/services/previsoes.service";
-import { FASES_ORDEM } from "@/lib/constants";
-import type { FaseClassificacao } from "@/lib/types";
+import {
+  removerPrevisaoGrupo,
+  salvarPrevisaoGrupo,
+} from "@/lib/services/chaveamento.service";
 
 const postSchema = z.object({
-  fase: z.enum(FASES_ORDEM as [FaseClassificacao, ...FaseClassificacao[]]),
-  paisIds: z.array(z.number().int().positive()),
+  paisId: z.number().int().positive(),
+  posicao: z
+    .union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)])
+    .nullable(),
+  terceiroAvanca: z.boolean().optional().default(false),
 });
 
 export async function POST(req: NextRequest) {
@@ -17,7 +21,15 @@ export async function POST(req: NextRequest) {
     const parsed = postSchema.safeParse(await req.json().catch(() => null));
     if (!parsed.success)
       return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
-    await salvarPrevisaoFase(user.id, parsed.data.fase, parsed.data.paisIds);
+
+    const { paisId, posicao, terceiroAvanca } = parsed.data;
+
+    if (posicao === null) {
+      await removerPrevisaoGrupo(user.id, paisId);
+    } else {
+      await salvarPrevisaoGrupo(user.id, paisId, posicao, terceiroAvanca);
+    }
+
     return NextResponse.json({ success: true });
   } catch (e) {
     return handleApiError(e);
