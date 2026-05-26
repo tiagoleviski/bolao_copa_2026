@@ -16,7 +16,7 @@ const notoSans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Bolão Copa 2026",
+  title: "Bolão RES Copa 2026",
   description: "Faça seus palpites para a Copa do Mundo 2026",
 };
 
