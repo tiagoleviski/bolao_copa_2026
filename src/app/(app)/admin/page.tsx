@@ -71,7 +71,7 @@ export default function AdminPage() {
             })
           }
           disabled={sync.isPending}
-          className="flex-shrink-0 px-4 py-2 rounded-lg bg-[#004b87] hover:bg-[#003d70] text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="flex-shrink-0 px-4 py-2 rounded-lg bg-[#004b87] hover:bg-[#003d70] text-white text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <span className={sync.isPending ? "animate-spin inline-block" : ""}>
             ⟳

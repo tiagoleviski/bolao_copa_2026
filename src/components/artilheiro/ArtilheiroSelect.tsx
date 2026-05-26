@@ -96,7 +96,7 @@ export function ArtilheiroSelect({
                   key={jogador.id}
                   onClick={() => handleSelect(jogador.id)}
                   disabled={salvarArtilheiro.isPending}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left cursor-pointer
                     ${
                       ativo
                         ? "bg-purple-600/30 border border-purple-500 text-foreground"
