@@ -79,19 +79,10 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className="mt-6 space-y-3 text-center text-sm">
-          <p className="text-muted-foreground">
-            Não tem conta?{" "}
-            <Link
-              href="/auth/cadastro"
-              className="text-purple-400 hover:text-purple-300"
-            >
-              Cadastre-se
-            </Link>
-          </p>
+        <div className="mt-6 text-center text-sm">
           <Link
             href="/auth/recuperar-senha"
-            className="block text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground"
           >
             Esqueci minha senha
           </Link>

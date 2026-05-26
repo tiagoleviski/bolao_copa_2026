@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 
 export default function NovaSenhaPage() {
   const router = useRouter();
+  const [nome, setNome] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmacao, setConfirmacao] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,14 +27,26 @@ export default function NovaSenhaPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({ password: senha });
 
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Senha atualizada com sucesso!");
-      router.push("/palpites");
+    const { data: userData, error: userError } = await supabase.auth.updateUser(
+      { password: senha, data: { nome_completo: nome } },
+    );
+
+    if (userError) {
+      toast.error(userError.message);
+      setLoading(false);
+      return;
     }
+
+    if (userData.user && nome) {
+      await supabase
+        .from("perfis")
+        .update({ nome_completo: nome })
+        .eq("id", userData.user.id);
+    }
+
+    toast.success("Conta criada com sucesso!");
+    router.push("/palpites");
 
     setLoading(false);
   }
@@ -42,19 +55,28 @@ export default function NovaSenhaPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="glass-strong rounded-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-display text-5xl text-white mb-2">
-            NOVA SENHA
-          </h1>
+          <h1 className="font-display text-5xl text-white mb-2">CRIAR CONTA</h1>
           <p className="text-muted-foreground text-sm">
-            Escolha uma nova senha para sua conta
+            Complete seu cadastro para participar do bolão
           </p>
         </div>
 
         <form onSubmit={handleNovaSenha} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Nova senha
+              Nome completo
             </label>
+            <Input
+              type="text"
+              placeholder="Seu nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              required
+              autoComplete="name"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Senha</label>
             <Input
               type="password"
               placeholder="Mínimo 6 caracteres"
@@ -84,7 +106,7 @@ export default function NovaSenhaPage() {
             disabled={loading}
             className="w-full bg-[#004b87] text-white font-semibold h-11"
           >
-            {loading ? "Salvando..." : "Salvar nova senha"}
+            {loading ? "Salvando..." : "Entrar no bolão"}
           </Button>
         </form>
       </div>

@@ -47,9 +47,11 @@ export function useAdminUsuarios() {
 }
 
 export function useConvidarUsuario() {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: { email: string }) =>
       apiClient.post("/admin/convidar", payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "usuarios"] }),
   });
 }
 
@@ -60,6 +62,15 @@ export function useAlterarRole() {
       apiClient.post(`/admin/usuarios/${payload.userId}/role`, {
         role: payload.role,
       }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "usuarios"] }),
+  });
+}
+
+export function useDeletarUsuario() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) =>
+      apiClient.delete(`/admin/usuarios/${userId}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "usuarios"] }),
   });
 }

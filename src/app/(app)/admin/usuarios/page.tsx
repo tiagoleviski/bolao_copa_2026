@@ -1,14 +1,19 @@
 "use client";
 
 import { toast } from "sonner";
-import { useAdminUsuarios, useAlterarRole } from "@/hooks/useAdmin";
+import {
+  useAdminUsuarios,
+  useAlterarRole,
+  useDeletarUsuario,
+} from "@/hooks/useAdmin";
 import { ConvidarForm } from "@/components/admin/ConvidarForm";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function ConvidarPage() {
+export default function UsuariosPage() {
   const { data: usuarios, isPending } = useAdminUsuarios();
   const alterarRole = useAlterarRole();
+  const deletarUsuario = useDeletarUsuario();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,18 +28,24 @@ export default function ConvidarPage() {
     const novoRole = roleAtual === "admin" ? "user" : "admin";
     alterarRole.mutate(
       { userId, role: novoRole as "admin" | "user" },
-      {
-        onError: (err) => toast.error(err.message),
-      },
+      { onError: (err) => toast.error(err.message) },
     );
+  }
+
+  function handleDeletar(userId: string, nome: string) {
+    if (!confirm(`Tem certeza que deseja remover "${nome}" do bolão?`)) return;
+    deletarUsuario.mutate(userId, {
+      onSuccess: () => toast.success(`${nome} foi removido.`),
+      onError: (err) => toast.error(err.message),
+    });
   }
 
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <h1 className="font-display text-4xl text-white">CONVIDAR</h1>
+        <h1 className="font-display text-4xl text-white">USUÁRIOS</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Envie um link de convite para um novo participante
+          Gerencie os participantes do bolão
         </p>
       </div>
 
@@ -76,13 +87,22 @@ export default function ConvidarPage() {
                 {u.role}
               </span>
               {u.id !== currentUserId && (
-                <button
-                  onClick={() => handleToggleRole(u.id, u.role)}
-                  disabled={alterarRole.isPending}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-                >
-                  {u.role === "admin" ? "← user" : "→ admin"}
-                </button>
+                <>
+                  <button
+                    onClick={() => handleToggleRole(u.id, u.role)}
+                    disabled={alterarRole.isPending}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {u.role === "admin" ? "← user" : "→ admin"}
+                  </button>
+                  <button
+                    onClick={() => handleDeletar(u.id, u.nome_completo)}
+                    disabled={deletarUsuario.isPending}
+                    className="text-xs text-red-400/70 hover:text-red-400 transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    Excluir
+                  </button>
+                </>
               )}
             </div>
           ))}

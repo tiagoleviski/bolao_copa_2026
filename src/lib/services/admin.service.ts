@@ -17,7 +17,8 @@ export async function convidarUsuario(email: string) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const adminClient = createAdminClient();
   const { error } = await adminClient.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${appUrl}/auth/callback?next=/auth/nova-senha`,
+    redirectTo: `${appUrl}/auth/invite`,
+    data: { nome_completo: "" },
   });
   if (error) throw new Error(error.message);
 }
@@ -39,5 +40,13 @@ export async function rebaixarUsuario(userId: string, requesterId: string) {
     .from("perfis")
     .update({ role: "user" })
     .eq("id", userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function deletarUsuario(userId: string, requesterId: string) {
+  if (userId === requesterId)
+    throw new Error("Você não pode deletar sua própria conta.");
+  const adminClient = createAdminClient();
+  const { error } = await adminClient.auth.admin.deleteUser(userId);
   if (error) throw new Error(error.message);
 }
