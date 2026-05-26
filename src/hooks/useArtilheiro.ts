@@ -30,3 +30,11 @@ export function useSalvarApostaArtilheiro() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["artilheiro"] }),
   });
 }
+
+export function useDeletarApostaArtilheiro() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiClient.delete("/artilheiro"),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["artilheiro"] }),
+  });
+}

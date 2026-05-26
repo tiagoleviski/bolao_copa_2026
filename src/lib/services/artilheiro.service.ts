@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import { PRAZO_PREVISOES } from "@/lib/constants";
+import { PRAZO_ARTILHEIRO } from "@/lib/constants";
 
 export async function getJogadores() {
   const supabase = await createClient();
@@ -23,11 +23,23 @@ export async function getApostaArtilheiro(userId: string) {
   return data;
 }
 
+export async function deletarApostaArtilheiro(userId: string) {
+  if (new Date() > PRAZO_ARTILHEIRO)
+    throw new Error("Prazo para apostas encerrado.");
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("apostas_artilheiro")
+    .delete()
+    .eq("user_id", userId);
+  if (error) throw new Error(error.message);
+}
+
 export async function salvarApostaArtilheiro(
   userId: string,
   jogadorId: number,
 ) {
-  if (new Date() > PRAZO_PREVISOES)
+  if (new Date() > PRAZO_ARTILHEIRO)
     throw new Error("Prazo para apostas encerrado.");
 
   const supabase = await createClient();

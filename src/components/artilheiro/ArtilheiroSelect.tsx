@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { useSalvarApostaArtilheiro } from "@/hooks/useArtilheiro";
+import {
+  useSalvarApostaArtilheiro,
+  useDeletarApostaArtilheiro,
+} from "@/hooks/useArtilheiro";
 import { FlagImage } from "@/components/shared/FlagImage";
 import type { Jogador } from "@/lib/types";
 
@@ -20,6 +23,7 @@ export function ArtilheiroSelect({
   const [selecionado, setSelecionado] = useState<number | null>(jogadorAtualId);
   const [busca, setBusca] = useState("");
   const salvarArtilheiro = useSalvarApostaArtilheiro();
+  const deletarArtilheiro = useDeletarApostaArtilheiro();
 
   const filtrados = jogadores.filter(
     (j) =>
@@ -63,11 +67,31 @@ export function ArtilheiroSelect({
               {jogadorSelecionado.pais.nome}
             </p>
           </div>
-          {salvarArtilheiro.isPending && (
-            <span className="ml-auto text-xs text-muted-foreground">
-              Salvando...
-            </span>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {salvarArtilheiro.isPending && (
+              <span className="text-xs text-muted-foreground">Salvando...</span>
+            )}
+            {!prazoEncerrado && (
+              <button
+                onClick={() =>
+                  deletarArtilheiro.mutate(undefined, {
+                    onSuccess: () => {
+                      setSelecionado(null);
+                      toast.success("Aposta removida.");
+                    },
+                    onError: (err) => toast.error(err.message),
+                  })
+                }
+                disabled={
+                  deletarArtilheiro.isPending || salvarArtilheiro.isPending
+                }
+                className="text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
+                title="Remover aposta"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
       )}
 

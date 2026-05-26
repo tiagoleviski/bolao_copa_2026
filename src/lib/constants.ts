@@ -1,7 +1,10 @@
 import { FaseClassificacao } from "./types";
 
-// 2026-06-10 16:00 BRT (19:00 UTC)
-export const PRAZO_PREVISOES = new Date("2026-06-10T19:00:00Z");
+// 2026-06-11 16:00 BRT (19:00 UTC) — primeiro jogo da Copa
+export const PRAZO_ARTILHEIRO = new Date("2026-06-11T19:00:00Z");
+
+// mesmo prazo: todas as previsões fecham com o apito inicial
+export const PRAZO_PREVISOES = PRAZO_ARTILHEIRO;
 
 // Betting closes exactly at kickoff (last valid bet is 1 second before)
 export const MINUTOS_ANTES_FECHAMENTO = 0;
