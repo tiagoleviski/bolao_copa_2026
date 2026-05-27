@@ -1,17 +1,17 @@
 "use client";
 
 import { toast } from "sonner";
-import { useSalvarGrupo } from "@/hooks/useChaveamento";
 import { FlagImage } from "@/components/shared/FlagImage";
-import type { Pais, PrevisaoGrupo } from "@/lib/types";
+import type { PrevisaoLocal } from "@/hooks/useChaveamento";
+import type { Pais } from "@/lib/types";
 
 interface GrupoCardProps {
   grupo: string;
   paises: Pais[];
-  previsoes: PrevisaoGrupo[];
+  previsoes: PrevisaoLocal[];
   prazoEncerrado: boolean;
   terceirosAvancando: number;
-  onAlterado: () => void;
+  onToggle: (paisId: number, posicao: 1 | 2 | 3) => void;
 }
 
 const POSICAO_LABELS = ["1°", "2°", "3°"] as const;
@@ -29,31 +29,16 @@ export function GrupoCard({
   previsoes,
   prazoEncerrado,
   terceirosAvancando,
-  onAlterado,
+  onToggle,
 }: GrupoCardProps) {
-  const salvar = useSalvarGrupo();
-
   const previsaoPorPais = new Map(previsoes.map((p) => [p.pais_id, p]));
-  const ocupadosPorPosicao = new Set(
-    previsoes.filter((p) => p.posicao <= 3).map((p) => p.posicao),
-  );
+  const ocupadosPorPosicao = new Set(previsoes.map((p) => p.posicao));
 
-  function togglePosicao(pais: Pais, posicao: 1 | 2 | 3) {
+  function handleClick(pais: Pais, posicao: 1 | 2 | 3) {
     if (prazoEncerrado) return;
 
     const atual = previsaoPorPais.get(pais.id);
     const jaTem = atual?.posicao === posicao;
-
-    if (jaTem) {
-      salvar.mutate(
-        { paisId: pais.id, posicao: null },
-        {
-          onSuccess: onAlterado,
-          onError: (err) => toast.error(err.message),
-        },
-      );
-      return;
-    }
 
     if (!jaTem && ocupadosPorPosicao.has(posicao)) {
       toast.error(
@@ -62,18 +47,12 @@ export function GrupoCard({
       return;
     }
 
-    if (posicao === 3 && terceirosAvancando >= 8) {
+    if (!jaTem && posicao === 3 && terceirosAvancando >= 8) {
       toast.error("Máximo de 8 terceiros colocados já selecionados.");
       return;
     }
 
-    salvar.mutate(
-      { paisId: pais.id, posicao, terceiroAvanca: posicao === 3 },
-      {
-        onSuccess: onAlterado,
-        onError: (err) => toast.error(err.message),
-      },
-    );
+    onToggle(pais.id, posicao);
   }
 
   return (
@@ -102,8 +81,8 @@ export function GrupoCard({
                   return (
                     <button
                       key={pos}
-                      onClick={() => togglePosicao(pais, pos)}
-                      disabled={prazoEncerrado || salvar.isPending}
+                      onClick={() => handleClick(pais, pos)}
+                      disabled={prazoEncerrado}
                       className={`w-8 h-7 rounded text-xs font-bold border transition-all cursor-pointer
                         ${ativo ? POSICAO_CORES[pos] : POSICAO_INATIVO}
                         ${prazoEncerrado ? "cursor-not-allowed opacity-60" : ""}`}

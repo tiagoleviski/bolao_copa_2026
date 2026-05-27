@@ -1,47 +1,100 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useChaveamento, useLimparChaveamento } from "@/hooks/useChaveamento";
+import {
+  useChaveamento,
+  useSalvarGrupos,
+  type PrevisaoLocal,
+} from "@/hooks/useChaveamento";
 import { GruposPanel } from "@/components/chaveamento/GruposPanel";
-import { Bracket } from "@/components/chaveamento/Bracket";
-import { PRAZO_PREVISOES } from "@/lib/constants";
+import { GRUPOS, PRAZO_PREVISOES } from "@/lib/constants";
 
 export default function ChaveamentoPage() {
   const { data, isPending } = useChaveamento();
-  const limpar = useLimparChaveamento();
-  const [abaAtiva, setAbaAtiva] = useState<"grupos" | "chaveamento">("grupos");
+  const salvar = useSalvarGrupos();
 
-  if (isPending) return null;
+  const [previsoes, setPrevisoes] = useState<PrevisaoLocal[]>([]);
+  const [inicializado, setInicializado] = useState(false);
 
-  const { paises, previsoesGrupo, previsoesChaveamento } = data!;
+  useEffect(() => {
+    if (data && !inicializado) {
+      setPrevisoes(
+        data.previsoesGrupo
+          .filter((p) => p.posicao >= 1 && p.posicao <= 3)
+          .map((p) => ({
+            pais_id: p.pais_id,
+            posicao: p.posicao as 1 | 2 | 3,
+            terceiro_avanca: p.terceiro_avanca,
+          })),
+      );
+      setInicializado(true);
+    }
+  }, [data, inicializado]);
+
+  if (isPending || !data) return null;
+
+  const { paises } = data;
   const prazoEncerrado = new Date() > PRAZO_PREVISOES;
 
-  const totalGruposPreenchidos = (() => {
-    const gruposOk = new Set<string>();
-    for (const prev of previsoesGrupo) {
+  // ─── Métricas derivadas ───────────────────────────────────────────────────
+
+  const terceirosAvancando = previsoes.filter((p) => p.posicao === 3).length;
+
+  const gruposCompletos = (() => {
+    const primeiros = new Set<string>();
+    const segundos = new Set<string>();
+    for (const prev of previsoes) {
       const pais = paises.find((p) => p.id === prev.pais_id);
-      if (pais && prev.posicao <= 3) gruposOk.add(pais.grupo);
+      if (!pais) continue;
+      if (prev.posicao === 1) primeiros.add(pais.grupo);
+      if (prev.posicao === 2) segundos.add(pais.grupo);
     }
-    return gruposOk.size;
+    return (
+      primeiros.size === GRUPOS.length &&
+      segundos.size === GRUPOS.length &&
+      terceirosAvancando === 8
+    );
   })();
 
-  const terceirosAvancando = previsoesGrupo.filter(
-    (p) => p.posicao === 3 && p.terceiro_avanca,
-  ).length;
-
-  const gruposCompletos =
-    totalGruposPreenchidos === 12 && terceirosAvancando === 8;
-
-  function handleGrupoAlterado() {
-    if (previsoesChaveamento.length > 0) {
-      limpar.mutate(undefined, {
-        onSuccess: () =>
-          toast.info(
-            "Previsões do chaveamento limpas — as classificações dos grupos mudaram.",
-          ),
-      });
+  const gruposComPrimeiroESegundo = (() => {
+    const primeiros = new Set<string>();
+    const segundos = new Set<string>();
+    for (const prev of previsoes) {
+      const pais = paises.find((p) => p.id === prev.pais_id);
+      if (!pais) continue;
+      if (prev.posicao === 1) primeiros.add(pais.grupo);
+      if (prev.posicao === 2) segundos.add(pais.grupo);
     }
+    return GRUPOS.filter((g) => primeiros.has(g) && segundos.has(g)).length;
+  })();
+
+  // ─── Toggle de posição (estado local, sem API) ────────────────────────────
+
+  function handleToggle(paisId: number, posicao: 1 | 2 | 3) {
+    const atual = previsoes.find((p) => p.pais_id === paisId);
+
+    if (atual?.posicao === posicao) {
+      setPrevisoes((prev) => prev.filter((p) => p.pais_id !== paisId));
+      return;
+    }
+
+    setPrevisoes((prev) => {
+      const semAtual = prev.filter((p) => p.pais_id !== paisId);
+      return [
+        ...semAtual,
+        { pais_id: paisId, posicao, terceiro_avanca: posicao === 3 },
+      ];
+    });
+  }
+
+  // ─── Salvar (única chamada à API) ─────────────────────────────────────────
+
+  function handleSalvar() {
+    salvar.mutate(previsoes, {
+      onSuccess: () => toast.success("Previsões salvas!"),
+      onError: (err) => toast.error(err.message),
+    });
   }
 
   return (
@@ -49,7 +102,8 @@ export default function ChaveamentoPage() {
       <div>
         <h1 className="font-display text-4xl text-white">CHAVEAMENTO</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Preencha os grupos e monte seu bracket para a Copa 2026
+          Preencha a classificação de cada grupo. Selecione 8 terceiros
+          colocados
         </p>
         {prazoEncerrado && (
           <p className="text-red-400 text-sm mt-2">
@@ -58,78 +112,43 @@ export default function ChaveamentoPage() {
         )}
       </div>
 
-      {/* Abas */}
-      <div className="flex gap-2 border-b border-white/10">
-        <button
-          onClick={() => setAbaAtiva("grupos")}
-          className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px
-            ${abaAtiva === "grupos" ? "border-purple-400 text-white" : "border-transparent text-muted-foreground hover:text-white"}`}
-        >
-          Fase de Grupos
+      {/* Progresso */}
+      <div className="flex items-center gap-3 text-sm">
+        <span className="text-muted-foreground">
+          Grupos com 1° e 2°:
           <span
-            className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
-              gruposCompletos
-                ? "bg-green-600/30 text-green-400"
-                : "bg-white/10 text-muted-foreground"
-            }`}
+            className={`ml-1 font-bold ${gruposComPrimeiroESegundo === 12 ? "text-green-400" : "text-white"}`}
           >
-            {totalGruposPreenchidos}/12
+            {gruposComPrimeiroESegundo}/12
           </span>
-        </button>
-        <button
-          onClick={() => setAbaAtiva("chaveamento")}
-          className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer border-b-2 -mb-px
-            ${abaAtiva === "chaveamento" ? "border-purple-400 text-white" : "border-transparent text-muted-foreground hover:text-white"}`}
-        >
-          Bracket
-          {!gruposCompletos && (
-            <span className="ml-2 text-xs text-yellow-500">
-              complete os grupos primeiro
-            </span>
-          )}
-        </button>
+        </span>
+        <span className="text-white/20">·</span>
+        <span className="text-muted-foreground">
+          Terceiros:
+          <span
+            className={`ml-1 font-bold ${terceirosAvancando === 8 ? "text-green-400" : "text-white"}`}
+          >
+            {terceirosAvancando}/8
+          </span>
+        </span>
       </div>
 
-      {/* Aba: Grupos */}
-      {abaAtiva === "grupos" && (
-        <div className="space-y-6">
-          <GruposPanel
-            paises={paises}
-            previsoes={previsoesGrupo}
-            prazoEncerrado={prazoEncerrado}
-            terceirosAvancando={terceirosAvancando}
-            onAlterado={handleGrupoAlterado}
-          />
+      <GruposPanel
+        paises={paises}
+        previsoes={previsoes}
+        prazoEncerrado={prazoEncerrado}
+        terceirosAvancando={terceirosAvancando}
+        onToggle={handleToggle}
+      />
 
-          {gruposCompletos && (
-            <button
-              onClick={() => setAbaAtiva("chaveamento")}
-              className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-colors cursor-pointer"
-            >
-              Montar o Bracket →
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Aba: Bracket */}
-      {abaAtiva === "chaveamento" && (
-        <div className="space-y-4">
-          {!gruposCompletos && (
-            <div className="rounded-xl bg-yellow-500/10 border border-yellow-500/30 px-4 py-3 text-sm text-yellow-300">
-              Preencha todos os grupos e selecione os 8 melhores terceiros para
-              que os times apareçam no bracket.
-            </div>
-          )}
-          <div className="glass rounded-2xl p-4">
-            <Bracket
-              paises={paises}
-              previsoesGrupo={previsoesGrupo}
-              previsoesChaveamento={previsoesChaveamento}
-              prazoEncerrado={prazoEncerrado}
-            />
-          </div>
-        </div>
+      {!prazoEncerrado && (
+        <button
+          onClick={handleSalvar}
+          disabled={!gruposCompletos || salvar.isPending}
+          className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors cursor-pointer"
+        >
+          {salvar.isPending ? "Salvando…" : "Salvar previsões"}
+        </button>
       )}
     </div>
   );

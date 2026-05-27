@@ -37,17 +37,15 @@ export async function salvarPrevisaoGrupo(
   if (new Date() > PRAZO_PREVISOES) throw new Error("Prazo encerrado.");
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("previsao_grupo")
-    .upsert(
-      {
-        user_id: userId,
-        pais_id: paisId,
-        posicao,
-        terceiro_avanca: terceiroAvanca,
-      },
-      { onConflict: "user_id,pais_id" },
-    );
+  const { error } = await supabase.from("previsao_grupo").upsert(
+    {
+      user_id: userId,
+      pais_id: paisId,
+      posicao,
+      terceiro_avanca: terceiroAvanca,
+    },
+    { onConflict: "user_id,pais_id" },
+  );
   if (error) throw new Error(error.message);
 }
 
@@ -60,6 +58,37 @@ export async function removerPrevisaoGrupo(userId: string, paisId: number) {
     .delete()
     .eq("user_id", userId)
     .eq("pais_id", paisId);
+  if (error) throw new Error(error.message);
+}
+
+export async function salvarPrevisoesGrupo(
+  userId: string,
+  previsoes: Array<{
+    pais_id: number;
+    posicao: 1 | 2 | 3;
+    terceiro_avanca: boolean;
+  }>,
+) {
+  if (new Date() > PRAZO_PREVISOES) throw new Error("Prazo encerrado.");
+
+  const supabase = await createClient();
+
+  const { error: delError } = await supabase
+    .from("previsao_grupo")
+    .delete()
+    .eq("user_id", userId);
+  if (delError) throw new Error(delError.message);
+
+  if (previsoes.length === 0) return;
+
+  const { error } = await supabase.from("previsao_grupo").insert(
+    previsoes.map((p) => ({
+      user_id: userId,
+      pais_id: p.pais_id,
+      posicao: p.posicao,
+      terceiro_avanca: p.terceiro_avanca,
+    })),
+  );
   if (error) throw new Error(error.message);
 }
 

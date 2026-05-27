@@ -2,14 +2,15 @@
 
 import { GRUPOS } from "@/lib/constants";
 import { GrupoCard } from "./GrupoCard";
-import type { Pais, PrevisaoGrupo } from "@/lib/types";
+import type { PrevisaoLocal } from "@/hooks/useChaveamento";
+import type { Pais } from "@/lib/types";
 
 interface GruposPanelProps {
   paises: Pais[];
-  previsoes: PrevisaoGrupo[];
+  previsoes: PrevisaoLocal[];
   prazoEncerrado: boolean;
   terceirosAvancando: number;
-  onAlterado: () => void;
+  onToggle: (paisId: number, posicao: 1 | 2 | 3) => void;
 }
 
 export function GruposPanel({
@@ -17,7 +18,7 @@ export function GruposPanel({
   previsoes,
   prazoEncerrado,
   terceirosAvancando,
-  onAlterado,
+  onToggle,
 }: GruposPanelProps) {
   const paisePorGrupo = new Map<string, Pais[]>();
   for (const grupo of GRUPOS) {
@@ -27,7 +28,7 @@ export function GruposPanel({
     );
   }
 
-  const previsoesPorGrupo = new Map<string, PrevisaoGrupo[]>();
+  const previsoesPorGrupo = new Map<string, PrevisaoLocal[]>();
   for (const prev of previsoes) {
     const pais = paises.find((p) => p.id === prev.pais_id);
     if (!pais) continue;
@@ -46,7 +47,7 @@ export function GruposPanel({
           previsoes={previsoesPorGrupo.get(grupo) ?? []}
           prazoEncerrado={prazoEncerrado}
           terceirosAvancando={terceirosAvancando}
-          onAlterado={onAlterado}
+          onToggle={onToggle}
         />
       ))}
     </div>

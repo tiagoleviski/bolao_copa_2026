@@ -56,6 +56,21 @@ export function useLimparChaveamento() {
   });
 }
 
+export type PrevisaoLocal = {
+  pais_id: number;
+  posicao: 1 | 2 | 3;
+  terceiro_avanca: boolean;
+};
+
+export function useSalvarGrupos() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (previsoes: PrevisaoLocal[]) =>
+      apiClient.put("/chaveamento/grupo", previsoes),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["chaveamento"] }),
+  });
+}
+
 export function useSalvarChaveamento() {
   const qc = useQueryClient();
   return useMutation({
