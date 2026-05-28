@@ -85,6 +85,12 @@ export const PONTUACAO_CHAVEAMENTO = {
   AVANCOU: 3,
 };
 
+export const PONTUACAO_PODIO = {
+  PODIO_EXATO: 60,
+  CAMPEAO_EXATO: 30,
+  TIME_NO_PODIO: 10,
+};
+
 export const RODADA_LABELS: Record<number, string> = {
   1: "1ª Rodada",
   2: "2ª Rodada",

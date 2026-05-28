@@ -6,7 +6,9 @@ import { calcularRanking } from "@/lib/scoring";
 import type {
   Aposta,
   ApostaArtilheiro,
+  ApostaPodio,
   Perfil,
+  PodioOficial,
   PrevisaoChaveamento,
 } from "@/lib/types";
 
@@ -21,6 +23,8 @@ export async function GET() {
       totalPartidasFinalizadas,
       previsoesChaveamento,
       resultadosChaveamentoOficiais,
+      apostasPodio,
+      podioOficial,
     } = await getRankingData();
 
     const ranking = calcularRanking(
@@ -30,6 +34,8 @@ export async function GET() {
       artilheiroOficialId,
       previsoesChaveamento as PrevisaoChaveamento[],
       resultadosChaveamentoOficiais,
+      apostasPodio as ApostaPodio[],
+      podioOficial as PodioOficial[],
     );
 
     return NextResponse.json({ ranking, totalPartidasFinalizadas });

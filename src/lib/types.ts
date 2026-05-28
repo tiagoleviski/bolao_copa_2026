@@ -58,6 +58,19 @@ export interface Perfil {
   email: string;
 }
 
+export interface ApostaPodio {
+  id: number;
+  user_id: string;
+  posicao: 1 | 2 | 3;
+  pais_id: number;
+}
+
+export interface PodioOficial {
+  id: number;
+  posicao: 1 | 2 | 3;
+  pais_id: number;
+}
+
 export interface RankingEntry {
   user_id: string;
   nome_completo: string;
@@ -65,6 +78,7 @@ export interface RankingEntry {
   pontos_palpites: number;
   pontos_previsoes: number;
   pontos_artilheiro: number;
+  pontos_podio: number;
   posicao: number;
 }
 

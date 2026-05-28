@@ -8,6 +8,7 @@ import {
   type PrevisaoLocal,
 } from "@/hooks/useChaveamento";
 import { GruposPanel } from "@/components/chaveamento/GruposPanel";
+import { PodioPanel } from "@/components/chaveamento/PodioPanel";
 import { GRUPOS, PRAZO_PREVISOES } from "@/lib/constants";
 
 export default function ChaveamentoPage() {
@@ -132,6 +133,8 @@ export default function ChaveamentoPage() {
           </span>
         </span>
       </div>
+
+      <PodioPanel prazoEncerrado={prazoEncerrado} />
 
       <GruposPanel
         paises={paises}
