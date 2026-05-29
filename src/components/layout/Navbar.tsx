@@ -52,6 +52,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
           <NavLink href="/artilheiro">Artilheiro</NavLink>
           <NavLink href="/grupos">Grupos</NavLink>
           <NavLink href="/ranking">Ranking</NavLink>
+          <NavLink href="/regras">Regras</NavLink>
           {isAdmin && (
             <>
               <NavLink href="/admin">Resultados</NavLink>
@@ -79,6 +80,12 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
               {emailUsuario}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => router.push("/regras")}
+              className="cursor-pointer"
+            >
+              Regras
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleLogout}
               className="text-red-400 cursor-pointer"
