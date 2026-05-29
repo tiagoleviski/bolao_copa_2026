@@ -1,4 +1,4 @@
-import { PONTUACAO, PONTUACAO_CHAVEAMENTO, PONTUACAO_PODIO } from "./constants";
+import { PONTUACAO, PONTUACAO_PODIO } from "./constants";
 import type {
   Aposta,
   ApostaArtilheiro,
@@ -6,9 +6,7 @@ import type {
   Partida,
   Perfil,
   PodioOficial,
-  PrevisaoChaveamento,
   RankingEntry,
-  ResultadoChaveamentoOficial,
 } from "./types";
 
 export function calcularPontosPartida(
@@ -44,36 +42,6 @@ export function calcularPontosPartida(
   }
 
   return { pontos_placar: 0, pontos_resultado: 0, pontos_total: 0 };
-}
-
-export function calcularPontosChaveamento(
-  previsoes: PrevisaoChaveamento[],
-  resultadosOficiais: ResultadoChaveamentoOficial[],
-): number {
-  if (resultadosOficiais.length === 0) return 0;
-
-  const vencedorReal = new Map<string, number>();
-  const timesPorFase = new Map<string, Set<number>>();
-
-  for (const r of resultadosOficiais) {
-    vencedorReal.set(`${r.fase}:${r.slot}`, r.pais_id);
-    const set = timesPorFase.get(r.fase) ?? new Set<number>();
-    set.add(r.pais_id);
-    timesPorFase.set(r.fase, set);
-  }
-
-  let total = 0;
-  for (const prev of previsoes) {
-    const key = `${prev.fase}:${prev.slot}`;
-    const vencedor = vencedorReal.get(key);
-
-    if (vencedor === prev.pais_id) {
-      total += PONTUACAO_CHAVEAMENTO.CAMINHO_EXATO;
-    } else if (timesPorFase.get(prev.fase)?.has(prev.pais_id)) {
-      total += PONTUACAO_CHAVEAMENTO.AVANCOU;
-    }
-  }
-  return total;
 }
 
 export function calcularPontosPodio(
@@ -115,8 +83,6 @@ export function calcularRanking(
   apostas: Aposta[],
   apostasArtilheiro: ApostaArtilheiro[],
   artilheiroOficialId: number | null,
-  previsoesChaveamento: PrevisaoChaveamento[] = [],
-  resultadosChaveamento: ResultadoChaveamentoOficial[] = [],
   apostasPodio: ApostaPodio[] = [],
   podioOficial: PodioOficial[] = [],
 ): RankingEntry[] {
@@ -125,13 +91,6 @@ export function calcularRanking(
     const list = apostasMap.get(aposta.user_id) ?? [];
     list.push(aposta);
     apostasMap.set(aposta.user_id, list);
-  }
-
-  const chaveamentoMap = new Map<string, PrevisaoChaveamento[]>();
-  for (const prev of previsoesChaveamento) {
-    const list = chaveamentoMap.get(prev.user_id) ?? [];
-    list.push(prev);
-    chaveamentoMap.set(prev.user_id, list);
   }
 
   const artilheiroMap = new Map<string, ApostaArtilheiro>();
@@ -159,12 +118,6 @@ export function calcularRanking(
       artilheiroOficialId,
     );
 
-    const meusChaveamentos = chaveamentoMap.get(perfil.id) ?? [];
-    const pontos_previsoes = calcularPontosChaveamento(
-      meusChaveamentos,
-      resultadosChaveamento,
-    );
-
     const meuPodio = podioMap.get(perfil.id) ?? [];
     const pontos_podio = calcularPontosPodio(meuPodio, podioOficial);
 
@@ -172,11 +125,9 @@ export function calcularRanking(
       user_id: perfil.id,
       nome_completo: perfil.nome_completo,
       pontos_palpites,
-      pontos_previsoes,
       pontos_artilheiro,
       pontos_podio,
-      pontos_total:
-        pontos_palpites + pontos_previsoes + pontos_artilheiro + pontos_podio,
+      pontos_total: pontos_palpites + pontos_artilheiro + pontos_podio,
       posicao: 0,
     };
   });

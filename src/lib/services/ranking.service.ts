@@ -1,11 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import type {
-  ApostaPodio,
-  PodioOficial,
-  ResultadoChaveamentoOficial,
-} from "@/lib/types";
+import type { ApostaPodio, PodioOficial } from "@/lib/types";
 
 export async function getRankingData() {
   const supabase = await createClient();
@@ -16,8 +12,6 @@ export async function getRankingData() {
     { data: apostasArtilheiro },
     { data: artilheiroOficial },
     { data: partidas },
-    { data: previsoesChaveamento },
-    { data: resultadosChaveamento },
     { data: apostasPodio },
     { data: podioOficial },
   ] = await Promise.all([
@@ -34,14 +28,6 @@ export async function getRankingData() {
       .from("partidas")
       .select("id, gols_a, gols_b, status")
       .eq("status", "finalizado"),
-    supabase.from("previsao_chaveamento").select("*"),
-    supabase
-      .from("resultado_chaveamento_oficial")
-      .select("*")
-      .then(
-        (res) => res,
-        () => ({ data: null, error: null }),
-      ),
     supabase
       .from("aposta_podio")
       .select("*")
@@ -64,9 +50,6 @@ export async function getRankingData() {
     apostasArtilheiro: apostasArtilheiro ?? [],
     artilheiroOficialId: artilheiroOficial?.jogador_id ?? null,
     totalPartidasFinalizadas: (partidas ?? []).length,
-    previsoesChaveamento: previsoesChaveamento ?? [],
-    resultadosChaveamentoOficiais: (resultadosChaveamento ??
-      []) as ResultadoChaveamentoOficial[],
     apostasPodio: (apostasPodio ?? []) as ApostaPodio[],
     podioOficial: (podioOficial ?? []) as PodioOficial[],
   };

@@ -76,7 +76,6 @@ export interface RankingEntry {
   nome_completo: string;
   pontos_total: number;
   pontos_palpites: number;
-  pontos_previsoes: number;
   pontos_artilheiro: number;
   pontos_podio: number;
   posicao: number;
@@ -113,35 +112,9 @@ export interface PrevisaoGrupo {
   terceiro_avanca: boolean;
 }
 
-export interface PrevisaoChaveamento {
-  id: number;
-  user_id: string;
-  fase: FaseChaveamento;
-  slot: number;
-  pais_id: number;
-}
-
-export interface ResultadoChaveamentoOficial {
-  id: number;
-  fase: FaseChaveamento;
-  slot: number;
-  pais_id: number;
-}
-
 export interface PosicaoOficialGrupo {
   id: number;
   pais_id: number;
   posicao: 1 | 2 | 3 | 4;
   terceiro_avancou: boolean;
 }
-
-export type FaseChaveamento =
-  | "Segunda Fase"
-  | "Oitavas de Final"
-  | "Quartas de Final"
-  | "Semifinal"
-  | "Terceiro Lugar"
-  | "Final";
-
-// Descriptor de slot no bracket: "1A" = 1° do grupo A, "2B" = 2° do grupo B, "T3" = 3° melhor terceiro
-export type SlotDescriptor = string;

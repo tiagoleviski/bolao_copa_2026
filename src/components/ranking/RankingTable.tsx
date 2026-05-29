@@ -65,7 +65,6 @@ export function RankingTable({ entries, userId }: RankingTableProps) {
               </p>
               <div className="flex gap-3 mt-0.5">
                 <PointsBadge label="Palpites" value={entry.pontos_palpites} />
-                <PointsBadge label="Previsões" value={entry.pontos_previsoes} />
                 <PointsBadge
                   label="Artilheiro"
                   value={entry.pontos_artilheiro}

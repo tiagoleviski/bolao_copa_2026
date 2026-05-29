@@ -9,7 +9,6 @@ import type {
   ApostaPodio,
   Perfil,
   PodioOficial,
-  PrevisaoChaveamento,
 } from "@/lib/types";
 
 export async function GET() {
@@ -21,8 +20,6 @@ export async function GET() {
       apostasArtilheiro,
       artilheiroOficialId,
       totalPartidasFinalizadas,
-      previsoesChaveamento,
-      resultadosChaveamentoOficiais,
       apostasPodio,
       podioOficial,
     } = await getRankingData();
@@ -32,8 +29,6 @@ export async function GET() {
       apostas as Aposta[],
       apostasArtilheiro as ApostaArtilheiro[],
       artilheiroOficialId,
-      previsoesChaveamento as PrevisaoChaveamento[],
-      resultadosChaveamentoOficiais,
       apostasPodio as ApostaPodio[],
       podioOficial as PodioOficial[],
     );

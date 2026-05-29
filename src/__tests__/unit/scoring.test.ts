@@ -2,16 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   calcularPontosPartida,
   calcularPontosArtilheiro,
-  calcularPontosChaveamento,
   calcularRanking,
 } from "@/lib/scoring";
-import type {
-  ApostaArtilheiro,
-  Perfil,
-  Aposta,
-  PrevisaoChaveamento,
-  ResultadoChaveamentoOficial,
-} from "@/lib/types";
+import type { ApostaArtilheiro, Perfil, Aposta } from "@/lib/types";
 
 // ─── calcularPontosPartida ────────────────────────────────────────────────────
 
@@ -111,68 +104,6 @@ describe("calcularPontosArtilheiro", () => {
   });
 });
 
-// ─── calcularPontosChaveamento ────────────────────────────────────────────────
-
-describe("calcularPontosChaveamento", () => {
-  it("retorna 0 quando não há resultados oficiais", () => {
-    const previsoes: PrevisaoChaveamento[] = [
-      {
-        user_id: "u1",
-        fase: "Final",
-        slot: 1,
-        pais_id: 1,
-      } as PrevisaoChaveamento,
-    ];
-    expect(calcularPontosChaveamento(previsoes, [])).toBe(0);
-  });
-
-  it("retorna 10 pts por caminho exato (mesmo slot)", () => {
-    const previsoes: PrevisaoChaveamento[] = [
-      {
-        user_id: "u1",
-        fase: "Final",
-        slot: 1,
-        pais_id: 1,
-      } as PrevisaoChaveamento,
-    ];
-    const oficiais: ResultadoChaveamentoOficial[] = [
-      { fase: "Final", slot: 1, pais_id: 1 } as ResultadoChaveamentoOficial,
-    ];
-    expect(calcularPontosChaveamento(previsoes, oficiais)).toBe(10);
-  });
-
-  it("retorna 3 pts quando time avançou mas por slot diferente", () => {
-    const previsoes: PrevisaoChaveamento[] = [
-      {
-        user_id: "u1",
-        fase: "Semifinal",
-        slot: 1,
-        pais_id: 5,
-      } as PrevisaoChaveamento,
-    ];
-    const oficiais: ResultadoChaveamentoOficial[] = [
-      { fase: "Semifinal", slot: 1, pais_id: 7 } as ResultadoChaveamentoOficial,
-      { fase: "Semifinal", slot: 2, pais_id: 5 } as ResultadoChaveamentoOficial,
-    ];
-    expect(calcularPontosChaveamento(previsoes, oficiais)).toBe(3);
-  });
-
-  it("retorna 0 pts quando time não avançou", () => {
-    const previsoes: PrevisaoChaveamento[] = [
-      {
-        user_id: "u1",
-        fase: "Final",
-        slot: 1,
-        pais_id: 99,
-      } as PrevisaoChaveamento,
-    ];
-    const oficiais: ResultadoChaveamentoOficial[] = [
-      { fase: "Final", slot: 1, pais_id: 1 } as ResultadoChaveamentoOficial,
-    ];
-    expect(calcularPontosChaveamento(previsoes, oficiais)).toBe(0);
-  });
-});
-
 // ─── calcularRanking ──────────────────────────────────────────────────────────
 
 describe("calcularRanking", () => {
@@ -201,7 +132,7 @@ describe("calcularRanking", () => {
     expect(ranking[1].posicao).toBe(2);
   });
 
-  it("soma pontos de palpites, chaveamento e artilheiro", () => {
+  it("soma pontos de palpites e artilheiro", () => {
     const artilheiro = [{ user_id: "u1", jogador_id: 7 }] as ApostaArtilheiro[];
     const ranking = calcularRanking(perfis, apostas, artilheiro, 7);
     const alice = ranking.find((r) => r.user_id === "u1")!;

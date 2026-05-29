@@ -152,45 +152,4 @@ describe("atualizarResultadoPartida", () => {
 
     expect(apostasUpdateMock).not.toHaveBeenCalled();
   });
-
-  it("não lança erro mesmo se popularChaveamento falhar internamente", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-    const apostas = [{ id: 10, gols_time_a: 1, gols_time_b: 0 }];
-    const { client } = buildMockClient(apostas);
-
-    // Faz o from("partidas").select().gte().or() lançar erro (simula falha no chaveamento)
-    client.from.mockImplementation((table: string) => {
-      if (table === "partidas") {
-        return {
-          update: vi.fn().mockReturnValue({
-            eq: vi.fn().mockResolvedValue({ error: null }),
-          }),
-          select: vi.fn().mockReturnValue({
-            gte: vi.fn().mockReturnValue({
-              or: vi.fn().mockRejectedValue(new Error("DB timeout")),
-            }),
-            lte: vi.fn().mockResolvedValue({ data: [], error: null }),
-          }),
-        };
-      }
-      if (table === "apostas") {
-        return {
-          select: vi.fn().mockReturnValue({
-            eq: vi.fn().mockResolvedValue({ data: apostas, error: null }),
-          }),
-          update: vi.fn().mockReturnValue({
-            eq: vi.fn().mockResolvedValue({ error: null }),
-          }),
-        };
-      }
-      return {};
-    });
-
-    vi.mocked(createClient).mockResolvedValue(client as any);
-
-    // popularChaveamento é capturado com try/catch → não deve propagar
-    await expect(atualizarResultadoPartida(42, 1, 0)).resolves.not.toThrow();
-    consoleSpy.mockRestore();
-  });
 });

@@ -2,21 +2,14 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { PRAZO_PREVISOES } from "@/lib/constants";
-import type {
-  FaseChaveamento,
-  PosicaoOficialGrupo,
-  PrevisaoChaveamento,
-  PrevisaoGrupo,
-  ResultadoChaveamentoOficial,
-} from "@/lib/types";
+import type { PosicaoOficialGrupo, PrevisaoGrupo } from "@/lib/types";
 
 export async function getChaveamentoData(userId: string) {
   const supabase = await createClient();
 
-  const [paisesRes, gruposRes, chaveamentoRes] = await Promise.all([
+  const [paisesRes, gruposRes] = await Promise.all([
     supabase.from("paises").select("*").order("grupo").order("nome"),
     supabase.from("previsao_grupo").select("*").eq("user_id", userId),
-    supabase.from("previsao_chaveamento").select("*").eq("user_id", userId),
   ]);
 
   if (paisesRes.error) throw new Error(paisesRes.error.message);
@@ -24,7 +17,6 @@ export async function getChaveamentoData(userId: string) {
   return {
     paises: paisesRes.data ?? [],
     previsoesGrupo: (gruposRes.data ?? []) as PrevisaoGrupo[],
-    previsoesChaveamento: (chaveamentoRes.data ?? []) as PrevisaoChaveamento[],
   };
 }
 
@@ -92,60 +84,13 @@ export async function salvarPrevisoesGrupo(
   if (error) throw new Error(error.message);
 }
 
-export async function salvarPrevisaoSlot(
-  userId: string,
-  fase: FaseChaveamento,
-  slot: number,
-  paisId: number | null,
-) {
-  if (new Date() > PRAZO_PREVISOES) throw new Error("Prazo encerrado.");
-
-  const supabase = await createClient();
-
-  if (paisId === null) {
-    const { error } = await supabase
-      .from("previsao_chaveamento")
-      .delete()
-      .eq("user_id", userId)
-      .eq("fase", fase)
-      .eq("slot", slot);
-    if (error) throw new Error(error.message);
-    return;
-  }
-
-  const { error } = await supabase
-    .from("previsao_chaveamento")
-    .upsert(
-      { user_id: userId, fase, slot, pais_id: paisId },
-      { onConflict: "user_id,fase,slot" },
-    );
-  if (error) throw new Error(error.message);
-}
-
-export async function limparChaveamento(userId: string) {
-  if (new Date() > PRAZO_PREVISOES) throw new Error("Prazo encerrado.");
-
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("previsao_chaveamento")
-    .delete()
-    .eq("user_id", userId);
-  if (error) throw new Error(error.message);
-}
-
 // ─── Dados oficiais para scoring ─────────────────────────────────────────────
 
 export async function getResultadosOficiais() {
   const supabase = await createClient();
-
-  const [posGrupoRes, chaveamentoRes] = await Promise.all([
-    supabase.from("posicao_oficial_grupo").select("*"),
-    supabase.from("resultado_chaveamento_oficial").select("*"),
-  ]);
+  const posGrupoRes = await supabase.from("posicao_oficial_grupo").select("*");
 
   return {
     posicoesOficiais: (posGrupoRes.data ?? []) as PosicaoOficialGrupo[],
-    resultadosChaveamento: (chaveamentoRes.data ??
-      []) as ResultadoChaveamentoOficial[],
   };
 }
