@@ -2,6 +2,7 @@
 
 import { useRanking } from "@/hooks/useRanking";
 import { RankingTable } from "@/components/ranking/RankingTable";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -15,7 +16,8 @@ export default function RankingPage() {
       .then(({ data: { user } }) => setUserId(user?.id ?? null));
   }, []);
 
-  if (isPending || !userId) return null;
+  if (isPending || !userId)
+    return <PageSkeleton blocks={1} blockHeight="h-80" />;
 
   const { ranking, totalPartidasFinalizadas } = data!;
 

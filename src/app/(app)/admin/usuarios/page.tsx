@@ -7,6 +7,7 @@ import {
   useDeletarUsuario,
 } from "@/hooks/useAdmin";
 import { ConvidarForm } from "@/components/admin/ConvidarForm";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -22,7 +23,8 @@ export default function UsuariosPage() {
       .then(({ data: { user } }) => setCurrentUserId(user?.id ?? null));
   }, []);
 
-  if (isPending) return null;
+  if (isPending)
+    return <PageSkeleton blocks={2} blockHeight="h-48" maxWidth="max-w-2xl" />;
 
   function handleToggleRole(userId: string, roleAtual: string) {
     const novoRole = roleAtual === "admin" ? "user" : "admin";

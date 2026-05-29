@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAdminPartidas, useSyncResultados } from "@/hooks/useAdmin";
 import { ResultadoCard } from "@/components/admin/ResultadoCard";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import type { Partida } from "@/lib/types";
 
 function chaveData(dataHora: string): string {
@@ -41,7 +42,7 @@ export default function AdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isPending) return null;
+  if (isPending) return <PageSkeleton blocks={4} blockHeight="h-48" />;
 
   const porDia = new Map<string, Partida[]>();
   const ordemDias: string[] = [];

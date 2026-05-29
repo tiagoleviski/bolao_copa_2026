@@ -9,6 +9,7 @@ import {
 } from "@/hooks/useChaveamento";
 import { GruposPanel } from "@/components/chaveamento/GruposPanel";
 import { PodioPanel } from "@/components/chaveamento/PodioPanel";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import { GRUPOS, PRAZO_PREVISOES } from "@/lib/constants";
 
 export default function ChaveamentoPage() {
@@ -33,7 +34,7 @@ export default function ChaveamentoPage() {
     }
   }, [data, inicializado]);
 
-  if (isPending || !data) return null;
+  if (isPending || !data) return <PageSkeleton blocks={3} blockHeight="h-48" />;
 
   const { paises } = data;
   const prazoEncerrado = new Date() > PRAZO_PREVISOES;

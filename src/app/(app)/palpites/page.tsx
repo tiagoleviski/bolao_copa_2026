@@ -2,6 +2,7 @@
 
 import { usePalpites } from "@/hooks/usePalpites";
 import { DiaSection } from "@/components/palpites/DiaSection";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import type { Partida } from "@/lib/types";
 
 function chaveData(dataHora: string): string {
@@ -16,7 +17,7 @@ function chaveData(dataHora: string): string {
 export default function PalpitesPage() {
   const { data, isPending } = usePalpites();
 
-  if (isPending) return null;
+  if (isPending) return <PageSkeleton blocks={4} blockHeight="h-48" />;
 
   const { partidas, apostasMap } = data!;
 

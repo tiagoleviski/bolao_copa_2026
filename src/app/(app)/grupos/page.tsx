@@ -2,12 +2,14 @@
 
 import { useGrupos } from "@/hooks/useGrupos";
 import { TabelaGrupos } from "@/components/grupos/TabelaGrupos";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import { TOTAL_PARTIDAS_GRUPOS } from "@/lib/constants";
 
 export default function GruposPage() {
   const { data, isPending } = useGrupos();
 
-  if (isPending) return null;
+  if (isPending)
+    return <PageSkeleton blocks={2} blockHeight="h-60" subtitle={false} />;
 
   const classificacao = data?.classificacao ?? [];
   const terceiros = data?.terceiros ?? [];

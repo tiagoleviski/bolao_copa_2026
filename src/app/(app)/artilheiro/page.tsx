@@ -2,13 +2,15 @@
 
 import { useArtilheiro } from "@/hooks/useArtilheiro";
 import { ArtilheiroSelect } from "@/components/artilheiro/ArtilheiroSelect";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import { CountdownBadge } from "@/components/palpites/CountdownBadge";
 import { PRAZO_ARTILHEIRO } from "@/lib/constants";
 
 export default function ArtilheiroPage() {
   const { data, isPending } = useArtilheiro();
 
-  if (isPending) return null;
+  if (isPending)
+    return <PageSkeleton blocks={1} blockHeight="h-40" maxWidth="max-w-2xl" />;
 
   const { jogadores, apostaAtual } = data!;
   const prazoEncerrado = new Date() > PRAZO_ARTILHEIRO;
