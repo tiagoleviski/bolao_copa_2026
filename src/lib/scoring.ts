@@ -1,4 +1,4 @@
-import { PONTUACAO, PONTUACAO_PODIO } from "./constants";
+import { PONTUACAO, PONTUACAO_GRUPO, PONTUACAO_PODIO } from "./constants";
 import type {
   Aposta,
   ApostaArtilheiro,
@@ -6,6 +6,8 @@ import type {
   Partida,
   Perfil,
   PodioOficial,
+  PosicaoOficialGrupo,
+  PrevisaoGrupo,
   RankingEntry,
 } from "./types";
 
@@ -58,16 +60,20 @@ export function calcularPontosPodio(
     aposta.every((a) => podioMap.get(a.posicao) === a.pais_id);
   if (todoExato) return PONTUACAO_PODIO.PODIO_EXATO;
 
-  const apostaCampeao = aposta.find((a) => a.posicao === 1);
-  if (!apostaCampeao || podioMap.get(1) !== apostaCampeao.pais_id) return 0;
+  let pontos = 0;
 
-  let pontos = PONTUACAO_PODIO.CAMPEAO_EXATO;
+  const apostaCampeao = aposta.find((a) => a.posicao === 1);
+  if (apostaCampeao && podioMap.get(1) === apostaCampeao.pais_id) {
+    pontos += PONTUACAO_PODIO.CAMPEAO_EXATO;
+  }
+
   for (const a of aposta) {
-    if (a.posicao !== 1 && podioSet.has(a.pais_id)) {
+    if (podioSet.has(a.pais_id) && podioMap.get(a.posicao) !== a.pais_id) {
       pontos += PONTUACAO_PODIO.TIME_NO_PODIO;
     }
   }
-  return pontos;
+
+  return Math.min(pontos, PONTUACAO_PODIO.PODIO_EXATO);
 }
 
 export function calcularPontosArtilheiro(
@@ -78,6 +84,36 @@ export function calcularPontosArtilheiro(
   return aposta.jogador_id === artilheiroOficialId ? PONTUACAO.ARTILHEIRO : 0;
 }
 
+function avancou(posicao: number, terceiroAvanca: boolean): boolean {
+  return posicao <= 2 || (posicao === 3 && terceiroAvanca);
+}
+
+export function calcularPontosGrupo(
+  previsoes: PrevisaoGrupo[],
+  oficiais: PosicaoOficialGrupo[],
+): number {
+  if (oficiais.length === 0 || previsoes.length === 0) return 0;
+
+  const oficialMap = new Map(oficiais.map((o) => [o.pais_id, o]));
+  let pontos = 0;
+
+  for (const prev of previsoes) {
+    const oficial = oficialMap.get(prev.pais_id);
+    if (!oficial) continue;
+
+    if (prev.posicao === oficial.posicao) {
+      pontos += PONTUACAO_GRUPO.POSICAO_EXATA;
+    } else if (
+      avancou(prev.posicao, prev.terceiro_avanca) &&
+      avancou(oficial.posicao, oficial.terceiro_avancou)
+    ) {
+      pontos += PONTUACAO_GRUPO.TIME_PASSOU;
+    }
+  }
+
+  return pontos;
+}
+
 export function calcularRanking(
   perfis: Perfil[],
   apostas: Aposta[],
@@ -85,6 +121,8 @@ export function calcularRanking(
   artilheiroOficialId: number | null,
   apostasPodio: ApostaPodio[] = [],
   podioOficial: PodioOficial[] = [],
+  previsoesGrupo: PrevisaoGrupo[] = [],
+  posicaoOficialGrupo: PosicaoOficialGrupo[] = [],
 ): RankingEntry[] {
   const apostasMap = new Map<string, Aposta[]>();
   for (const aposta of apostas) {
@@ -105,6 +143,13 @@ export function calcularRanking(
     podioMap.set(a.user_id, list);
   }
 
+  const grupoMap = new Map<string, PrevisaoGrupo[]>();
+  for (const p of previsoesGrupo) {
+    const list = grupoMap.get(p.user_id) ?? [];
+    list.push(p);
+    grupoMap.set(p.user_id, list);
+  }
+
   const entries: RankingEntry[] = perfis.map((perfil) => {
     const minhasApostas = apostasMap.get(perfil.id) ?? [];
     const pontos_palpites = minhasApostas.reduce(
@@ -121,13 +166,21 @@ export function calcularRanking(
     const meuPodio = podioMap.get(perfil.id) ?? [];
     const pontos_podio = calcularPontosPodio(meuPodio, podioOficial);
 
+    const minhasPrevisoes = grupoMap.get(perfil.id) ?? [];
+    const pontos_grupo = calcularPontosGrupo(
+      minhasPrevisoes,
+      posicaoOficialGrupo,
+    );
+
     return {
       user_id: perfil.id,
       nome_completo: perfil.nome_completo,
       pontos_palpites,
       pontos_artilheiro,
       pontos_podio,
-      pontos_total: pontos_palpites + pontos_artilheiro + pontos_podio,
+      pontos_grupo,
+      pontos_total:
+        pontos_palpites + pontos_artilheiro + pontos_podio + pontos_grupo,
       posicao: 0,
     };
   });

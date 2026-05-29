@@ -1,7 +1,12 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import type { ApostaPodio, PodioOficial } from "@/lib/types";
+import type {
+  ApostaPodio,
+  PodioOficial,
+  PosicaoOficialGrupo,
+  PrevisaoGrupo,
+} from "@/lib/types";
 
 export async function getRankingData() {
   const supabase = await createClient();
@@ -14,6 +19,8 @@ export async function getRankingData() {
     { data: partidas },
     { data: apostasPodio },
     { data: podioOficial },
+    { data: previsoesGrupo },
+    { data: posicaoOficialGrupo },
   ] = await Promise.all([
     supabase.from("perfis").select("id, nome_completo, email"),
     supabase.from("apostas").select("*"),
@@ -42,6 +49,20 @@ export async function getRankingData() {
         (res) => res,
         () => ({ data: null, error: null }),
       ),
+    supabase
+      .from("previsao_grupo")
+      .select("*")
+      .then(
+        (res) => res,
+        () => ({ data: null, error: null }),
+      ),
+    supabase
+      .from("posicao_oficial_grupo")
+      .select("*")
+      .then(
+        (res) => res,
+        () => ({ data: null, error: null }),
+      ),
   ]);
 
   return {
@@ -52,5 +73,7 @@ export async function getRankingData() {
     totalPartidasFinalizadas: (partidas ?? []).length,
     apostasPodio: (apostasPodio ?? []) as ApostaPodio[],
     podioOficial: (podioOficial ?? []) as PodioOficial[],
+    previsoesGrupo: (previsoesGrupo ?? []) as PrevisaoGrupo[],
+    posicaoOficialGrupo: (posicaoOficialGrupo ?? []) as PosicaoOficialGrupo[],
   };
 }

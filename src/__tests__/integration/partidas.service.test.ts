@@ -71,7 +71,7 @@ describe("atualizarResultadoPartida", () => {
     expect(updateCall).toBeDefined();
   });
 
-  it("calcula 10 pts para aposta com placar exato", async () => {
+  it("calcula 2 pts para aposta com placar exato", async () => {
     const apostas = [{ id: 10, gols_time_a: 2, gols_time_b: 1 }];
     const { client, apostasUpdateMock } = buildMockClient(apostas);
     vi.mocked(createClient).mockResolvedValue(client as any);
@@ -79,13 +79,13 @@ describe("atualizarResultadoPartida", () => {
     await atualizarResultadoPartida(42, 2, 1);
 
     expect(apostasUpdateMock).toHaveBeenCalledWith({
-      pontos_placar: 10,
+      pontos_placar: 2,
       pontos_resultado: 0,
-      pontos_total: 10,
+      pontos_total: 2,
     });
   });
 
-  it("calcula 5 pts para resultado correto (placar diferente)", async () => {
+  it("calcula 1 pt para resultado correto (placar diferente)", async () => {
     const apostas = [{ id: 11, gols_time_a: 3, gols_time_b: 0 }];
     const { client, apostasUpdateMock } = buildMockClient(apostas);
     vi.mocked(createClient).mockResolvedValue(client as any);
@@ -95,8 +95,8 @@ describe("atualizarResultadoPartida", () => {
 
     expect(apostasUpdateMock).toHaveBeenCalledWith({
       pontos_placar: 0,
-      pontos_resultado: 5,
-      pontos_total: 5,
+      pontos_resultado: 1,
+      pontos_total: 1,
     });
   });
 
@@ -117,8 +117,8 @@ describe("atualizarResultadoPartida", () => {
 
   it("processa múltiplas apostas com pontuações diferentes", async () => {
     const apostas = [
-      { id: 10, gols_time_a: 2, gols_time_b: 1 }, // exato → 10pts
-      { id: 11, gols_time_a: 3, gols_time_b: 0 }, // resultado correto → 5pts
+      { id: 10, gols_time_a: 2, gols_time_b: 1 }, // exato → 2pts
+      { id: 11, gols_time_a: 3, gols_time_b: 0 }, // resultado correto → 1pt
       { id: 12, gols_time_a: 0, gols_time_b: 1 }, // errado → 0pts
     ];
     const { client, apostasUpdateMock } = buildMockClient(apostas);
@@ -128,14 +128,14 @@ describe("atualizarResultadoPartida", () => {
 
     expect(apostasUpdateMock).toHaveBeenCalledTimes(3);
     expect(apostasUpdateMock).toHaveBeenCalledWith({
-      pontos_placar: 10,
+      pontos_placar: 2,
       pontos_resultado: 0,
-      pontos_total: 10,
+      pontos_total: 2,
     });
     expect(apostasUpdateMock).toHaveBeenCalledWith({
       pontos_placar: 0,
-      pontos_resultado: 5,
-      pontos_total: 5,
+      pontos_resultado: 1,
+      pontos_total: 1,
     });
     expect(apostasUpdateMock).toHaveBeenCalledWith({
       pontos_placar: 0,

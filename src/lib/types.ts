@@ -78,6 +78,7 @@ export interface RankingEntry {
   pontos_palpites: number;
   pontos_artilheiro: number;
   pontos_podio: number;
+  pontos_grupo: number;
   posicao: number;
 }
 

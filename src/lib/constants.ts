@@ -6,10 +6,10 @@ export const PRAZO_PREVISOES = PRAZO_ARTILHEIRO;
 export const MINUTOS_ANTES_FECHAMENTO = 0;
 
 export const PONTUACAO = {
-  PLACAR_EXATO: 10,
-  RESULTADO_CORRETO: 5,
+  PLACAR_EXATO: 2,
+  RESULTADO_CORRETO: 1,
   RESULTADO_ERRADO: 0,
-  ARTILHEIRO: 15,
+  ARTILHEIRO: 20,
 };
 
 export const GRUPOS = [
@@ -33,6 +33,11 @@ export const PONTUACAO_PODIO = {
   PODIO_EXATO: 60,
   CAMPEAO_EXATO: 30,
   TIME_NO_PODIO: 10,
+};
+
+export const PONTUACAO_GRUPO = {
+  POSICAO_EXATA: 2,
+  TIME_PASSOU: 1,
 };
 
 export const RODADA_LABELS: Record<number, string> = {
