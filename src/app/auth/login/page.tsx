@@ -25,7 +25,7 @@ export default function LoginPage() {
       <div className="glass-strong rounded-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="font-display text-5xl text-white mb-2">
-            BOLÃO COPA 2026
+            BOLÃO RES COPA 2026
           </h1>
           <p className="text-muted-foreground text-sm">
             Entre para fazer seus palpites
