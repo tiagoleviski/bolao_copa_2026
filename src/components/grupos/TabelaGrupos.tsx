@@ -23,7 +23,10 @@ export function TabelaGrupos({ data, terceirosClassificados }: Props) {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="A">
-        <TabsList className="flex flex-wrap h-auto gap-1 bg-white/5 p-1">
+        <TabsList
+          className="flex flex-wrap gap-1 bg-white/5 p-1"
+          style={{ height: "auto" }}
+        >
           {GRUPOS.map((g) => (
             <TabsTrigger
               key={g}
@@ -38,7 +41,7 @@ export function TabelaGrupos({ data, terceirosClassificados }: Props) {
         {GRUPOS.map((g) => {
           const grupo = grupoMap.get(g);
           return (
-            <TabsContent key={g} value={g} className="mt-4">
+            <TabsContent key={g} value={g} className="mt-2">
               {grupo ? (
                 <TabelaGrupo
                   grupo={grupo}

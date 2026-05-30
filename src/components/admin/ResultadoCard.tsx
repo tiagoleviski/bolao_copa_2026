@@ -26,7 +26,7 @@ export function ResultadoCard({ partida }: ResultadoCardProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex flex-1 items-center justify-end gap-2">
+        <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
           {partida.time_a?.bandeira_url && (
             <FlagImage
               src={partida.time_a.bandeira_url}
@@ -34,7 +34,12 @@ export function ResultadoCard({ partida }: ResultadoCardProps) {
               size={28}
             />
           )}
-          <span className="text-sm font-medium truncate">{nomeA}</span>
+          <span className="text-sm font-medium text-right truncate hidden sm:block">
+            {nomeA}
+          </span>
+          <span className="text-sm font-medium text-right truncate sm:hidden max-w-[72px]">
+            {nomeA.split(" ")[0]}
+          </span>
         </div>
 
         <div className="flex items-center gap-1 flex-shrink-0">
@@ -47,7 +52,7 @@ export function ResultadoCard({ partida }: ResultadoCardProps) {
           </div>
         </div>
 
-        <div className="flex flex-1 items-center gap-2">
+        <div className="flex flex-1 items-center gap-2 min-w-0">
           {partida.time_b?.bandeira_url && (
             <FlagImage
               src={partida.time_b.bandeira_url}
@@ -55,7 +60,12 @@ export function ResultadoCard({ partida }: ResultadoCardProps) {
               size={28}
             />
           )}
-          <span className="text-sm font-medium truncate">{nomeB}</span>
+          <span className="text-sm font-medium truncate hidden sm:block">
+            {nomeB}
+          </span>
+          <span className="text-sm font-medium truncate sm:hidden max-w-[72px]">
+            {nomeB.split(" ")[0]}
+          </span>
         </div>
       </div>
     </div>

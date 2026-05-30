@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/layout/Navbar";
-import { MobileNav } from "@/components/layout/MobileNav";
 
 export default async function AppLayout({
   children,
@@ -38,10 +37,9 @@ export default async function AppLayout({
         emailUsuario={emailUsuario}
         isAdmin={isAdmin}
       />
-      <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-6 pb-24 md:pb-6">
+      <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-6">
         {children}
       </main>
-      <MobileNav isAdmin={isAdmin} />
     </div>
   );
 }
