@@ -1,37 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
+import { useLogin } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [loading, setLoading] = useState(false);
+  const login = useLogin();
 
-  async function handleLogin(e: React.FormEvent) {
+  function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: senha,
-    });
-
-    if (error) {
-      toast.error("Email ou senha incorretos.");
-    } else {
-      router.push("/palpites");
-      router.refresh();
-    }
-
-    setLoading(false);
+    login.mutate(
+      { email, senha },
+      { onError: () => toast.error("Email ou senha incorretos.") },
+    );
   }
 
   return (
@@ -72,10 +58,10 @@ export default function LoginPage() {
 
           <Button
             type="submit"
-            disabled={loading}
+            disabled={login.isPending}
             className="w-full bg-[#004b87] text-white font-semibold h-11"
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {login.isPending ? "Entrando..." : "Entrar"}
           </Button>
         </form>
 

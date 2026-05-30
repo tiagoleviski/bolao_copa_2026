@@ -8,20 +8,13 @@ import {
 } from "@/hooks/useAdmin";
 import { ConvidarForm } from "@/components/admin/ConvidarForm";
 import { PageSkeleton } from "@/components/shared/PageSkeleton";
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useCurrentUser } from "@/hooks/useAuth";
 
 export default function UsuariosPage() {
   const { data: usuarios, isPending } = useAdminUsuarios();
   const alterarRole = useAlterarRole();
   const deletarUsuario = useDeletarUsuario();
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    createClient()
-      .auth.getUser()
-      .then(({ data: { user } }) => setCurrentUserId(user?.id ?? null));
-  }, []);
+  const { data: currentUser } = useCurrentUser();
 
   if (isPending)
     return <PageSkeleton blocks={2} blockHeight="h-48" maxWidth="max-w-2xl" />;
@@ -88,7 +81,7 @@ export default function UsuariosPage() {
               >
                 {u.role}
               </span>
-              {u.id !== currentUserId && (
+              {u.id !== currentUser?.id && (
                 <>
                   <button
                     onClick={() => handleToggleRole(u.id, u.role)}

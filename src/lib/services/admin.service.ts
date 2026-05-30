@@ -24,7 +24,7 @@ export async function convidarUsuario(email: string) {
 }
 
 export async function promoverAdmin(userId: string) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("perfis")
     .update({ role: "admin" })
@@ -35,7 +35,7 @@ export async function promoverAdmin(userId: string) {
 export async function rebaixarUsuario(userId: string, requesterId: string) {
   if (userId === requesterId)
     throw new Error("Você não pode remover seu próprio acesso admin.");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from("perfis")
     .update({ role: "user" })

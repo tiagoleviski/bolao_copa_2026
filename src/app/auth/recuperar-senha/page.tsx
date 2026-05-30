@@ -1,52 +1,98 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
+import { useResetPassword, useVerifyOtp } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function RecuperarSenhaPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [codigo, setCodigo] = useState("");
   const [enviado, setEnviado] = useState(false);
+  const resetPassword = useResetPassword();
+  const verifyOtp = useVerifyOtp();
 
-  async function handleRecuperar(e: React.FormEvent) {
+  function handleEnviarCodigo(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/auth/nova-senha`,
+    resetPassword.mutate(email, {
+      onSuccess: () => setEnviado(true),
+      onError: (err) => toast.error(err.message),
     });
+  }
 
-    if (error) {
-      toast.error(error.message);
-    } else {
-      setEnviado(true);
-    }
-
-    setLoading(false);
+  function handleVerificarCodigo(e: React.FormEvent) {
+    e.preventDefault();
+    verifyOtp.mutate(
+      { email, token: codigo },
+      {
+        onSuccess: () => router.push("/auth/nova-senha"),
+        onError: (err) => toast.error(err.message),
+      },
+    );
   }
 
   if (enviado) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="glass-strong rounded-2xl p-8 w-full max-w-md text-center space-y-4">
-          <div className="text-5xl">📧</div>
-          <h2 className="font-display text-3xl text-white">
-            EMAIL ENVIADO
-          </h2>
-          <p className="text-muted-foreground">
-            Verifique sua caixa de entrada e clique no link para redefinir sua
-            senha.
-          </p>
-          <Link href="/auth/login" className="block">
-            <Button variant="outline" className="w-full">
-              Voltar para o login
+        <div className="glass-strong rounded-2xl p-8 w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="text-5xl mb-4">📧</div>
+            <h2 className="font-display text-3xl text-white">
+              VERIFIQUE SEU EMAIL
+            </h2>
+            <p className="text-muted-foreground text-sm mt-2">
+              Se <span className="text-foreground">{email}</span> estiver
+              cadastrado, você receberá um código de recuperação
+            </p>
+          </div>
+
+          <form onSubmit={handleVerificarCodigo} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Código de recuperação
+              </label>
+              <Input
+                type="text"
+                placeholder="Digite o código"
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+                required
+                autoComplete="one-time-code"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={verifyOtp.isPending}
+              className="w-full bg-[#004b87] text-white font-semibold h-11"
+            >
+              {verifyOtp.isPending ? "Verificando..." : "Verificar código"}
             </Button>
-          </Link>
+          </form>
+
+          <div className="mt-6 text-center space-y-2">
+            <button
+              onClick={() => {
+                setEnviado(false);
+                setCodigo("");
+              }}
+              className="text-sm text-purple-400 hover:text-purple-300 cursor-pointer"
+            >
+              Reenviar código
+            </button>
+            <p>
+              <Link
+                href="/auth/login"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                ← Voltar para o login
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -60,11 +106,11 @@ export default function RecuperarSenhaPage() {
             RECUPERAR SENHA
           </h1>
           <p className="text-muted-foreground text-sm">
-            Enviaremos um link para o seu email
+            Enviaremos um código para o seu email
           </p>
         </div>
 
-        <form onSubmit={handleRecuperar} className="space-y-4">
+        <form onSubmit={handleEnviarCodigo} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Email</label>
             <Input
@@ -78,10 +124,10 @@ export default function RecuperarSenhaPage() {
 
           <Button
             type="submit"
-            disabled={loading}
+            disabled={resetPassword.isPending}
             className="w-full bg-[#004b87] text-white font-semibold h-11"
           >
-            {loading ? "Enviando..." : "Enviar link"}
+            {resetPassword.isPending ? "Enviando..." : "Enviar código"}
           </Button>
         </form>
 

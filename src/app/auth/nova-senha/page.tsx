@@ -1,20 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
+import { useCurrentUser, useSetPassword } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function NovaSenhaPage() {
   const router = useRouter();
+  const { data: currentUser } = useCurrentUser();
   const [nome, setNome] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmacao, setConfirmacao] = useState("");
-  const [loading, setLoading] = useState(false);
+  const setPassword = useSetPassword();
 
-  async function handleNovaSenha(e: React.FormEvent) {
+  const nomeExistente = currentUser?.user_metadata?.nome_completo || "";
+  const isRecuperacao = !!nomeExistente;
+
+  useEffect(() => {
+    if (nomeExistente) {
+      setNome(nomeExistente);
+    }
+  }, [nomeExistente]);
+
+  function handleNovaSenha(e: React.FormEvent) {
     e.preventDefault();
     if (senha !== confirmacao) {
       toast.error("As senhas não conferem.");
@@ -24,59 +34,56 @@ export default function NovaSenhaPage() {
       toast.error("A senha precisa ter pelo menos 6 caracteres.");
       return;
     }
-    setLoading(true);
-
-    const supabase = createClient();
-
-    const { data: userData, error: userError } = await supabase.auth.updateUser(
-      { password: senha, data: { nome_completo: nome } },
+    setPassword.mutate(
+      { nome, senha },
+      {
+        onSuccess: () => {
+          toast.success(
+            isRecuperacao
+              ? "Senha atualizada com sucesso!"
+              : "Conta criada com sucesso!",
+          );
+          router.push("/palpites");
+        },
+        onError: (err) => toast.error(err.message),
+      },
     );
-
-    if (userError) {
-      toast.error(userError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (userData.user && nome) {
-      await supabase
-        .from("perfis")
-        .update({ nome_completo: nome })
-        .eq("id", userData.user.id);
-    }
-
-    toast.success("Conta criada com sucesso!");
-    router.push("/palpites");
-
-    setLoading(false);
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="glass-strong rounded-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-display text-5xl text-white mb-2">CRIAR CONTA</h1>
+          <h1 className="font-display text-5xl text-white mb-2">
+            {isRecuperacao ? "NOVA SENHA" : "CRIAR CONTA"}
+          </h1>
           <p className="text-muted-foreground text-sm">
-            Complete seu cadastro para participar do bolão
+            {isRecuperacao
+              ? "Defina sua nova senha"
+              : "Complete seu cadastro para participar do bolão"}
           </p>
         </div>
 
         <form onSubmit={handleNovaSenha} className="space-y-4">
+          {!isRecuperacao && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Nome completo <span className="text-red-500">*</span>
+              </label>
+              <Input
+                type="text"
+                placeholder="Seu nome"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                required
+                autoComplete="name"
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Nome completo
+              Nova senha
             </label>
-            <Input
-              type="text"
-              placeholder="Seu nome"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              autoComplete="name"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Senha</label>
             <Input
               type="password"
               placeholder="Mínimo 6 caracteres"
@@ -103,10 +110,14 @@ export default function NovaSenhaPage() {
 
           <Button
             type="submit"
-            disabled={loading}
+            disabled={setPassword.isPending}
             className="w-full bg-[#004b87] text-white font-semibold h-11"
           >
-            {loading ? "Salvando..." : "Entrar no bolão"}
+            {setPassword.isPending
+              ? "Salvando..."
+              : isRecuperacao
+                ? "Atualizar senha"
+                : "Entrar no bolão"}
           </Button>
         </form>
       </div>
