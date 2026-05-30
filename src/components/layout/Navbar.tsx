@@ -52,6 +52,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
           <NavLink href="/artilheiro">Artilheiro</NavLink>
           <NavLink href="/grupos">Grupos</NavLink>
           <NavLink href="/ranking">Ranking</NavLink>
+          <NavLink href="/auditoria">Auditoria</NavLink>
           <NavLink href="/regras">Regras</NavLink>
           {isAdmin && (
             <>

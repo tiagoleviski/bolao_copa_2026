@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: "/artilheiro", label: "Artilheiro", icon: "👟" },
   { href: "/grupos", label: "Grupos", icon: "📋" },
   { href: "/ranking", label: "Ranking", icon: "📊" },
+  { href: "/auditoria", label: "Auditoria", icon: "🔍" },
 ];
 
 interface MobileNavProps {
