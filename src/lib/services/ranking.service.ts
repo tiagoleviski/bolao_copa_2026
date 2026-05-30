@@ -22,7 +22,10 @@ export async function getRankingData() {
     { data: previsoesGrupo },
     { data: posicaoOficialGrupo },
   ] = await Promise.all([
-    supabase.from("perfis").select("id, nome_completo, email"),
+    supabase
+      .from("perfis")
+      .select("id, nome_completo, email")
+      .neq("nome_completo", ""),
     supabase.from("apostas").select("*"),
     supabase.from("apostas_artilheiro").select("*"),
     supabase
