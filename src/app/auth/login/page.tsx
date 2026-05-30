@@ -1,16 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 import { useLogin } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [verificando, setVerificando] = useState(true);
   const login = useLogin();
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        router.replace("/palpites");
+      } else {
+        setVerificando(false);
+      }
+    });
+  }, [router]);
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -19,6 +34,8 @@ export default function LoginPage() {
       { onError: () => toast.error("Email ou senha incorretos.") },
     );
   }
+
+  if (verificando) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">

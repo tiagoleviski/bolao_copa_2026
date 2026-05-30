@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Menu, X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ interface NavbarProps {
 export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -33,6 +35,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    queryClient.clear();
     toast.success("Até logo!");
     router.push("/auth/login");
     router.refresh();
