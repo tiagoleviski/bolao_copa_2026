@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { usePalpites } from "@/hooks/usePalpites";
 import { DiaSection } from "@/components/palpites/DiaSection";
 import { PageSkeleton } from "@/components/shared/PageSkeleton";
@@ -15,6 +16,10 @@ function chaveData(dataHora: string): string {
 }
 
 export default function PalpitesPage() {
+  const searchParams = useSearchParams();
+  const forceClosed =
+    process.env.NODE_ENV === "development" &&
+    searchParams.get("forceClosed") === "true";
   const { data, isPending } = usePalpites();
 
   if (isPending) return <PageSkeleton blocks={4} blockHeight="h-48" />;
@@ -50,6 +55,7 @@ export default function PalpitesPage() {
           isHoje={dia === hojeChave}
           partidas={porDia.get(dia)!}
           apostasMap={apostasMap}
+          forceClosed={forceClosed}
         />
       ))}
 

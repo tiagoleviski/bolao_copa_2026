@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSalvarAposta } from "@/hooks/usePalpites";
 import { apostaAberta, formatarHora } from "@/lib/time";
+import { calcularPontosPartida } from "@/lib/scoring";
 import { RODADA_LABELS } from "@/lib/constants";
 import { CountdownBadge } from "./CountdownBadge";
 import { FlagImage } from "@/components/shared/FlagImage";
@@ -13,11 +14,16 @@ import type { Aposta, Partida } from "@/lib/types";
 interface PartidaCardProps {
   partida: Partida;
   aposta: Aposta | null;
+  forceClosed?: boolean;
 }
 
-export function PartidaCard({ partida, aposta }: PartidaCardProps) {
+export function PartidaCard({
+  partida,
+  aposta,
+  forceClosed,
+}: PartidaCardProps) {
   const salvarAposta = useSalvarAposta();
-  const aberta = apostaAberta(partida.data_hora);
+  const aberta = forceClosed ? false : apostaAberta(partida.data_hora);
   const [golsA, setGolsA] = useState(aposta?.gols_time_a ?? "");
   const [golsB, setGolsB] = useState(aposta?.gols_time_b ?? "");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -72,14 +78,12 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
           )}
         </div>
         <div className="flex items-center gap-2">
-          {finalizado && partida.gols_a !== null && (
-            <span className="text-xs text-muted-foreground">
-              Resultado: {partida.gols_a}–{partida.gols_b}
+          {finalizado && (
+            <span className="text-xs font-medium text-muted-foreground">
+              Finalizado
             </span>
           )}
-          {!finalizado && aberta && (
-            <CountdownBadge dataHoraJogo={partida.data_hora} />
-          )}
+          {!finalizado && <CountdownBadge dataHoraJogo={partida.data_hora} />}
         </div>
       </div>
 
@@ -131,12 +135,50 @@ export function PartidaCard({ partida, aposta }: PartidaCardProps) {
         </div>
       </div>
 
-      {/* Points if match is done */}
-      {finalizado && aposta && (
-        <div className="mt-2 text-center">
-          <span className="text-xs font-semibold text-copa-gold">
-            +{aposta.pontos_total} pts
+      {finalizado && partida.gols_a !== null && partida.gols_b !== null && (
+        <ResultadoFooter partida={partida} aposta={aposta} />
+      )}
+    </div>
+  );
+}
+
+function ResultadoFooter({
+  partida,
+  aposta,
+}: {
+  partida: Partida;
+  aposta: Aposta | null;
+}) {
+  const pontos = aposta ? calcularPontosPartida(aposta, partida) : null;
+
+  return (
+    <div className="mt-3 rounded-lg bg-white/5 border border-white/10 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Resultado oficial</span>
+        <span className="text-sm font-bold text-foreground">
+          {partida.gols_a} × {partida.gols_b}
+        </span>
+      </div>
+
+      {pontos ? (
+        <div className="flex items-center justify-between pt-1 border-t border-white/5">
+          <span className="text-xs">
+            {pontos.pontos_placar > 0
+              ? "✓ Placar exato"
+              : pontos.pontos_resultado > 0
+                ? "✓ Resultado correto"
+                : "✗ Errou o resultado"}
           </span>
+          <span
+            className={`text-sm font-bold ${pontos.pontos_total > 0 ? "text-copa-gold" : "text-muted-foreground"}`}
+          >
+            +{pontos.pontos_total} pts
+          </span>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between pt-1 border-t border-white/5">
+          <span className="text-xs text-muted-foreground">Sem palpite</span>
+          <span className="text-sm font-bold text-muted-foreground">0 pts</span>
         </div>
       )}
     </div>

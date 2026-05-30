@@ -9,6 +9,7 @@ interface DiaSectionProps {
   partidas: Partida[];
   apostasMap: Map<number, Aposta>;
   isHoje?: boolean;
+  forceClosed?: boolean;
 }
 
 export function DiaSection({
@@ -16,6 +17,7 @@ export function DiaSection({
   partidas,
   apostasMap,
   isHoje,
+  forceClosed,
 }: DiaSectionProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -36,6 +38,7 @@ export function DiaSection({
             key={partida.id}
             partida={partida}
             aposta={apostasMap.get(partida.id) ?? null}
+            forceClosed={forceClosed}
           />
         ))}
       </div>
