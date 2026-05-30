@@ -43,11 +43,6 @@ export default function ArtilheiroPage() {
             <h2 className="font-display text-2xl text-amber-400">
               {prazoEncerrado ? "MINHA APOSTA" : "APOSTE NO ARTILHEIRO"}
             </h2>
-            {!prazoEncerrado && (
-              <span className="ml-auto text-xs text-muted-foreground">
-                +15 pts se acertar
-              </span>
-            )}
           </div>
 
           <ArtilheiroSelect
