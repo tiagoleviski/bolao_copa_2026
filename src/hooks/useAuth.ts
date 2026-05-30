@@ -87,6 +87,15 @@ export function useHandleInvite() {
       const supabase = createClient();
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
+
+      const hashError = params.get("error");
+      const errorCode = params.get("error_code");
+      if (hashError) {
+        const err = new Error(errorCode || hashError);
+        (err as any).code = errorCode;
+        throw err;
+      }
+
       const access_token = params.get("access_token");
       const refresh_token = params.get("refresh_token");
 
@@ -106,6 +115,5 @@ export function useHandleInvite() {
       throw new Error("auth_callback_error");
     },
     onSuccess: () => router.replace("/auth/nova-senha"),
-    onError: () => router.replace("/auth/login?error=auth_callback_error"),
   });
 }

@@ -39,13 +39,27 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/ranking") ||
     pathname.startsWith("/admin");
 
+  const cadastroIncompleto = user && !user.user_metadata?.nome_completo;
+
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
   }
 
+  if (cadastroIncompleto && !isAuthRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/nova-senha";
+    return NextResponse.redirect(url);
+  }
+
   if (user && isAuthRoute && pathname !== "/auth/callback") {
+    if (
+      cadastroIncompleto &&
+      (pathname === "/auth/nova-senha" || pathname === "/auth/invite")
+    ) {
+      return supabaseResponse;
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/palpites";
     return NextResponse.redirect(url);

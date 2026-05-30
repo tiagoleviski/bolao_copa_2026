@@ -22,11 +22,14 @@ export default async function AppLayout({
     .eq("id", user.id)
     .maybeSingle();
 
-  const nomeUsuario =
-    perfil?.nome_completo ??
-    user.user_metadata?.nome_completo ??
-    user.email ??
-    "Usuário";
+  const nomeCompleto =
+    perfil?.nome_completo || user.user_metadata?.nome_completo;
+
+  if (!nomeCompleto) {
+    redirect("/auth/nova-senha");
+  }
+
+  const nomeUsuario = nomeCompleto ?? user.email ?? "Usuário";
   const emailUsuario = perfil?.email ?? user.email ?? "";
   const isAdmin = perfil?.role === "admin";
 
