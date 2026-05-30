@@ -164,10 +164,10 @@ function ResultadoFooter({
         <div className="flex items-center justify-between pt-1 border-t border-white/5">
           <span className="text-xs">
             {pontos.pontos_placar > 0
-              ? "✓ Placar exato"
+              ? "Placar exato"
               : pontos.pontos_resultado > 0
-                ? "✓ Resultado correto"
-                : "✗ Errou o resultado"}
+                ? "Resultado correto"
+                : "Errou o resultado"}
           </span>
           <span
             className={`text-sm font-bold ${pontos.pontos_total > 0 ? "text-copa-gold" : "text-muted-foreground"}`}
