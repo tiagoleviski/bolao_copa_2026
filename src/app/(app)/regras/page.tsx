@@ -4,19 +4,19 @@ export default function RegrasPage() {
       <div>
         <h1 className="font-display text-4xl text-white">REGRAS</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Como funciona o bolao, as modalidades de aposta e a pontuacao
+          Como funciona o bolão, as modalidades de aposta e a pontuação
         </p>
       </div>
 
       <div className="glass rounded-2xl p-6 space-y-4">
         <h2 className="font-display text-2xl text-white">Palpites nos Jogos</h2>
         <p className="text-sm text-muted-foreground">
-          Palpite no placar de cada partida da Copa. O palpite fecha no horario
-          de inicio da partida.
+          Palpite no placar de cada partida da Copa. O palpite fecha no horário
+          de início da partida.
         </p>
 
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-white">Pontuacao</h3>
+          <h3 className="text-sm font-semibold text-white">Pontuação</h3>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>
               <span className="text-green-400 font-semibold">2 pts</span> —
@@ -24,7 +24,7 @@ export default function RegrasPage() {
             </li>
             <li>
               <span className="text-yellow-400 font-semibold">1 pt</span> —
-              Resultado correto (vitoria, empate ou derrota)
+              Resultado correto (vitória, empate ou derrota)
             </li>
             <li>
               <span className="text-red-400 font-semibold">0 pts</span> —
@@ -40,7 +40,7 @@ export default function RegrasPage() {
             <span className="text-white">2x1</span> ganha{" "}
             <span className="text-green-400">2 pts</span> (placar exato). Quem
             palpitou <span className="text-white">1x0</span> ganha{" "}
-            <span className="text-yellow-400">1 pt</span> (acertou vitoria do
+            <span className="text-yellow-400">1 pt</span> (acertou vitória do
             Brasil). Quem palpitou <span className="text-white">0x2</span> ganha{" "}
             <span className="text-red-400">0 pts</span>.
           </p>
@@ -50,13 +50,13 @@ export default function RegrasPage() {
       <div className="glass rounded-2xl p-6 space-y-4">
         <h2 className="font-display text-2xl text-white">Artilheiro</h2>
         <p className="text-sm text-muted-foreground">
-          Escolha o jogador que sera o artilheiro da Copa. A aposta deve ser
-          feita antes do primeiro jogo, em 11/06/2026 as 16h (horario de
-          Brasilia).
+          Escolha o jogador que será o artilheiro da Copa. A aposta deve ser
+          feita antes do primeiro jogo, em 11/06/2026 às 16h (horário de
+          Brasília).
         </p>
 
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-white">Pontuacao</h3>
+          <h3 className="text-sm font-semibold text-white">Pontuação</h3>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>
               <span className="text-green-400 font-semibold">20 pts</span> —
@@ -71,7 +71,7 @@ export default function RegrasPage() {
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-white">Exemplo</h3>
           <p className="text-sm text-muted-foreground">
-            Voce apostou em Mbappe e ele terminou como artilheiro da Copa. Voce
+            Você apostou em Mbappé e ele terminou como artilheiro da Copa. Você
             ganha <span className="text-green-400">20 pts</span>.
           </p>
         </div>
@@ -80,21 +80,21 @@ export default function RegrasPage() {
       <div className="glass rounded-2xl p-6 space-y-4">
         <h2 className="font-display text-2xl text-white">Fase de Grupos</h2>
         <p className="text-sm text-muted-foreground">
-          Preveja a classificacao de cada grupo (1o, 2o, 3o e 4o lugar). A
-          previsao deve ser feita antes do primeiro jogo, em 11/06/2026 as 16h
-          (horario de Brasilia).
+          Preveja a classificação de cada grupo (1º, 2º, 3º e 4º lugar). A
+          previsão deve ser feita antes do primeiro jogo, em 11/06/2026 às 16h
+          (horário de Brasília).
         </p>
 
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-white">Pontuacao</h3>
+          <h3 className="text-sm font-semibold text-white">Pontuação</h3>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>
               <span className="text-green-400 font-semibold">2 pts</span> —
-              Posicao exata no grupo
+              Posição exata no grupo
             </li>
             <li>
               <span className="text-yellow-400 font-semibold">1 pt</span> — Time
-              classificou, mas em posicao diferente da prevista
+              classificou, mas em posição diferente da prevista
             </li>
           </ul>
         </div>
@@ -102,38 +102,46 @@ export default function RegrasPage() {
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-white">Exemplo</h3>
           <p className="text-sm text-muted-foreground">
-            No grupo A, voce previu Argentina em 1o e ela ficou em 1o:{" "}
-            <span className="text-green-400">2 pts</span>. Previu Marrocos em
-            2o, mas ficou em 3o e avancou:{" "}
-            <span className="text-yellow-400">1 pt</span>. A pontuacao e por
-            selecao, entao quanto mais acertos em todos os 12 grupos, mais
+            No grupo A, você previu México em 1º e ele ficou em 1º:{" "}
+            <span className="text-green-400">2 pts</span>. Previu Coreia do Sul
+            em 2º, mas ficou em 3º e avançou:{" "}
+            <span className="text-yellow-400">1 pt</span>. A pontuação é por
+            seleção, então quanto mais acertos em todos os 12 grupos, mais
             pontos.
           </p>
         </div>
       </div>
 
       <div className="glass rounded-2xl p-6 space-y-4">
-        <h2 className="font-display text-2xl text-white">Podio</h2>
+        <h2 className="font-display text-2xl text-white">Pódio</h2>
         <p className="text-sm text-muted-foreground">
-          Aposte nas tres selecoes que terminam no podio (1o, 2o e 3o lugar). A
-          aposta deve ser feita antes do primeiro jogo, em 11/06/2026 as 16h
-          (horario de Brasilia).
+          Aposte nas três seleções que terminam no pódio (1º, 2º e 3º lugar). A
+          aposta deve ser feita antes do primeiro jogo, em 11/06/2026 às 16h
+          (horário de Brasília).
         </p>
 
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-white">Pontuacao</h3>
+          <h3 className="text-sm font-semibold text-white">Pontuação</h3>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>
               <span className="text-green-400 font-semibold">60 pts</span> —
-              Podio perfeito (3 posicoes exatas)
+              Pódio perfeito (3 posições exatas)
             </li>
             <li>
               <span className="text-yellow-400 font-semibold">30 pts</span> —
-              Acertou o campeao
+              Acertou o campeão
             </li>
             <li>
-              <span className="text-blue-400 font-semibold">10 pts</span> — Time
-              esta no podio, mas na posicao errada (por selecao)
+              <span className="text-cyan-400 font-semibold">20 pts</span> —
+              Acertou o vice-campeão
+            </li>
+            <li>
+              <span className="text-orange-400 font-semibold">10 pts</span> —
+              Acertou o terceiro lugar
+            </li>
+            <li>
+              <span className="text-blue-400 font-semibold">5 pts</span> — Time
+              está no pódio, mas na posição errada (por seleção)
             </li>
           </ul>
         </div>
@@ -141,27 +149,27 @@ export default function RegrasPage() {
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-white">Exemplo</h3>
           <p className="text-sm text-muted-foreground">
-            Podio oficial: 1o Brasil, 2o Franca, 3o Argentina. Voce apostou 1o
-            Brasil, 2o Argentina, 3o Inglaterra. Resultado:{" "}
-            <span className="text-yellow-400">30 pts</span> (campeao exato) +{" "}
-            <span className="text-blue-400">10 pts</span> (Argentina no podio,
-            posicao errada) ={" "}
-            <span className="text-white font-semibold">40 pts</span>.
+            Pódio oficial: 1º Brasil, 2º França, 3º Argentina. Você apostou 1º
+            Brasil, 2º Argentina, 3º Inglaterra. Resultado:{" "}
+            <span className="text-yellow-400">30 pts</span> (campeão exato) +{" "}
+            <span className="text-blue-400">5 pts</span> (Argentina no pódio,
+            posição errada) ={" "}
+            <span className="text-white font-semibold">35 pts</span>.
           </p>
         </div>
       </div>
 
       <div className="glass rounded-2xl p-6 space-y-4">
         <h2 className="font-display text-2xl text-white">
-          Ranking e Premiacao
+          Ranking e Premiação
         </h2>
         <p className="text-sm text-muted-foreground">
-          O ranking e calculado pela soma dos pontos de todas as quatro
-          modalidades: palpites nos jogos, artilheiro, fase de grupos e podio.
+          O ranking é calculado pela soma dos pontos de todas as quatro
+          modalidades: palpites nos jogos, artilheiro, fase de grupos e pódio.
         </p>
         <p className="text-sm text-muted-foreground">
-          Os <span className="text-white font-semibold">tres primeiros</span> no
-          ranking final terao premiacao.
+          Os <span className="text-white font-semibold">três primeiros</span> no
+          ranking final terão premiação.
         </p>
       </div>
     </div>

@@ -62,13 +62,12 @@ export function calcularPontosPodio(
 
   let pontos = 0;
 
-  const apostaCampeao = aposta.find((a) => a.posicao === 1);
-  if (apostaCampeao && podioMap.get(1) === apostaCampeao.pais_id) {
-    pontos += PONTUACAO_PODIO.CAMPEAO_EXATO;
-  }
-
   for (const a of aposta) {
-    if (podioSet.has(a.pais_id) && podioMap.get(a.posicao) !== a.pais_id) {
+    if (podioMap.get(a.posicao) === a.pais_id) {
+      if (a.posicao === 1) pontos += PONTUACAO_PODIO.CAMPEAO_EXATO;
+      else if (a.posicao === 2) pontos += PONTUACAO_PODIO.VICE_EXATO;
+      else if (a.posicao === 3) pontos += PONTUACAO_PODIO.TERCEIRO_EXATO;
+    } else if (podioSet.has(a.pais_id)) {
       pontos += PONTUACAO_PODIO.TIME_NO_PODIO;
     }
   }

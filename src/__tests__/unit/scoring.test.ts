@@ -141,22 +141,22 @@ describe("calcularPontosPodio", () => {
     expect(calcularPontosPodio(aposta, podioOficial)).toBe(60);
   });
 
-  it("retorna 50 pts: campeão certo + 2 times no pódio fora de posição", () => {
+  it("retorna 40 pts: campeão certo + 2 times no pódio fora de posição", () => {
     const aposta: ApostaPodio[] = [
       { id: 1, user_id: "u1", posicao: 1, pais_id: 10 },
       { id: 2, user_id: "u1", posicao: 2, pais_id: 30 },
       { id: 3, user_id: "u1", posicao: 3, pais_id: 20 },
     ];
-    expect(calcularPontosPodio(aposta, podioOficial)).toBe(50);
+    expect(calcularPontosPodio(aposta, podioOficial)).toBe(40);
   });
 
-  it("retorna 40 pts: campeão certo + 1 time no pódio fora de posição", () => {
+  it("retorna 35 pts: campeão certo + 1 time no pódio fora de posição", () => {
     const aposta: ApostaPodio[] = [
       { id: 1, user_id: "u1", posicao: 1, pais_id: 10 },
       { id: 2, user_id: "u1", posicao: 2, pais_id: 30 },
       { id: 3, user_id: "u1", posicao: 3, pais_id: 99 },
     ];
-    expect(calcularPontosPodio(aposta, podioOficial)).toBe(40);
+    expect(calcularPontosPodio(aposta, podioOficial)).toBe(35);
   });
 
   it("retorna 30 pts: só campeão certo, nenhum outro no pódio", () => {
@@ -168,22 +168,22 @@ describe("calcularPontosPodio", () => {
     expect(calcularPontosPodio(aposta, podioOficial)).toBe(30);
   });
 
-  it("retorna 20 pts: campeão errado + 2 times no pódio fora de posição", () => {
+  it("retorna 10 pts: campeão errado + 2 times no pódio fora de posição", () => {
     const aposta: ApostaPodio[] = [
       { id: 1, user_id: "u1", posicao: 1, pais_id: 99 },
       { id: 2, user_id: "u1", posicao: 2, pais_id: 30 },
       { id: 3, user_id: "u1", posicao: 3, pais_id: 20 },
     ];
-    expect(calcularPontosPodio(aposta, podioOficial)).toBe(20);
+    expect(calcularPontosPodio(aposta, podioOficial)).toBe(10);
   });
 
-  it("retorna 10 pts: campeão errado + 1 time no pódio fora de posição", () => {
+  it("retorna 5 pts: campeão errado + 1 time no pódio fora de posição", () => {
     const aposta: ApostaPodio[] = [
       { id: 1, user_id: "u1", posicao: 1, pais_id: 99 },
       { id: 2, user_id: "u1", posicao: 2, pais_id: 30 },
       { id: 3, user_id: "u1", posicao: 3, pais_id: 88 },
     ];
-    expect(calcularPontosPodio(aposta, podioOficial)).toBe(10);
+    expect(calcularPontosPodio(aposta, podioOficial)).toBe(5);
   });
 
   it("retorna 0 pts: nenhum time no pódio", () => {
@@ -195,14 +195,40 @@ describe("calcularPontosPodio", () => {
     expect(calcularPontosPodio(aposta, podioOficial)).toBe(0);
   });
 
-  it("não dá pontos por time na posição exata (exceto campeão ou pódio completo)", () => {
+  it("retorna 50 pts: campeão e vice certos", () => {
     const aposta: ApostaPodio[] = [
       { id: 1, user_id: "u1", posicao: 1, pais_id: 10 },
       { id: 2, user_id: "u1", posicao: 2, pais_id: 20 },
       { id: 3, user_id: "u1", posicao: 3, pais_id: 99 },
     ];
-    // Campeão (30) + time 20 está na posição exata (não é "fora de posição") = 30
-    expect(calcularPontosPodio(aposta, podioOficial)).toBe(30);
+    expect(calcularPontosPodio(aposta, podioOficial)).toBe(50);
+  });
+
+  it("retorna 20 pts: só vice certo", () => {
+    const aposta: ApostaPodio[] = [
+      { id: 1, user_id: "u1", posicao: 1, pais_id: 99 },
+      { id: 2, user_id: "u1", posicao: 2, pais_id: 20 },
+      { id: 3, user_id: "u1", posicao: 3, pais_id: 88 },
+    ];
+    expect(calcularPontosPodio(aposta, podioOficial)).toBe(20);
+  });
+
+  it("retorna 10 pts: só terceiro certo", () => {
+    const aposta: ApostaPodio[] = [
+      { id: 1, user_id: "u1", posicao: 1, pais_id: 99 },
+      { id: 2, user_id: "u1", posicao: 2, pais_id: 88 },
+      { id: 3, user_id: "u1", posicao: 3, pais_id: 30 },
+    ];
+    expect(calcularPontosPodio(aposta, podioOficial)).toBe(10);
+  });
+
+  it("retorna 25 pts: vice certo + terceiro no pódio fora de posição", () => {
+    const aposta: ApostaPodio[] = [
+      { id: 1, user_id: "u1", posicao: 1, pais_id: 99 },
+      { id: 2, user_id: "u1", posicao: 2, pais_id: 20 },
+      { id: 3, user_id: "u1", posicao: 3, pais_id: 10 },
+    ];
+    expect(calcularPontosPodio(aposta, podioOficial)).toBe(25);
   });
 
   it("retorna 0 para listas vazias", () => {
