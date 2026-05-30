@@ -63,7 +63,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
         </nav>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none">
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none cursor-pointer">
             <Avatar className="h-8 w-8">
               <AvatarFallback className="bg-white/20 text-white text-xs font-bold">
                 {initials}
@@ -81,12 +81,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
               {emailUsuario}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => router.push("/regras")}
-              className="cursor-pointer"
-            >
-              Regras
-            </DropdownMenuItem>
+
             <DropdownMenuItem
               onClick={handleLogout}
               className="text-red-400 cursor-pointer"
