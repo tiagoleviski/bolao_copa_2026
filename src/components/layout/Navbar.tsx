@@ -60,9 +60,17 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
       ? [
           { href: "/admin", label: "Resultados" },
           { href: "/admin/usuarios", label: "Usuários" },
+          { href: "/admin/checagem", label: "Checagem" },
         ]
       : []),
   ];
+
+  // Link ativo = href mais específico (prefixo mais longo) que casa com a URL,
+  // para "/admin" não acender junto com "/admin/usuarios" ou "/admin/checagem".
+  const activeHref = navLinks
+    .map((l) => l.href)
+    .filter((h) => pathname === h || pathname.startsWith(h + "/"))
+    .sort((a, b) => b.length - a.length)[0];
 
   return (
     <header className="sticky top-0 z-50 bg-[#004b87] border-b border-[#003d70]">
@@ -79,7 +87,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
               key={link.href}
               href={link.href}
               className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                pathname.startsWith(link.href)
+                link.href === activeHref
                   ? "text-white bg-white/15"
                   : "text-white/80 hover:text-white hover:bg-white/10"
               }`}
@@ -137,7 +145,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
               key={link.href}
               href={link.href}
               className={`block px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                pathname.startsWith(link.href)
+                link.href === activeHref
                   ? "text-white bg-white/15"
                   : "text-white/80 hover:text-white hover:bg-white/10"
               }`}
