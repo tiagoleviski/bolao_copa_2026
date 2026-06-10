@@ -19,22 +19,22 @@ import type {
 // ─── calcularPontosPartida ────────────────────────────────────────────────────
 
 describe("calcularPontosPartida", () => {
-  it("retorna 2 pts para placar exato (vitória)", () => {
+  it("retorna 3 pts para placar exato (vitória)", () => {
     expect(
       calcularPontosPartida(
         { gols_time_a: 2, gols_time_b: 1 },
         { gols_a: 2, gols_b: 1 },
       ),
-    ).toEqual({ pontos_placar: 2, pontos_resultado: 0, pontos_total: 2 });
+    ).toEqual({ pontos_placar: 3, pontos_resultado: 0, pontos_total: 3 });
   });
 
-  it("retorna 2 pts para placar exato (empate)", () => {
+  it("retorna 3 pts para placar exato (empate)", () => {
     expect(
       calcularPontosPartida(
         { gols_time_a: 0, gols_time_b: 0 },
         { gols_a: 0, gols_b: 0 },
       ),
-    ).toEqual({ pontos_placar: 2, pontos_resultado: 0, pontos_total: 2 });
+    ).toEqual({ pontos_placar: 3, pontos_resultado: 0, pontos_total: 3 });
   });
 
   it("retorna 1 pt para resultado correto (vitória com placar diferente)", () => {
@@ -91,12 +91,12 @@ describe("calcularPontosPartida", () => {
     ).toEqual({ pontos_placar: 0, pontos_resultado: 0, pontos_total: 0 });
   });
 
-  it("não soma placar exato + resultado (máximo é 2)", () => {
+  it("não soma placar exato + resultado (máximo é 3)", () => {
     const result = calcularPontosPartida(
       { gols_time_a: 2, gols_time_b: 1 },
       { gols_a: 2, gols_b: 1 },
     );
-    expect(result.pontos_total).toBe(2);
+    expect(result.pontos_total).toBe(3);
     expect(result.pontos_resultado).toBe(0);
   });
 });

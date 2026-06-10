@@ -191,7 +191,7 @@ describe("[REAL DB] sincronizar resultado de uma partida", () => {
     expect(africa.posicao).toBe(2);
   });
 
-  it("grava 10pts na aposta de quem acertou o placar exato (1-0)", async () => {
+  it("grava 3pts na aposta de quem acertou o placar exato (1-0)", async () => {
     const apostaId = await seedAposta(testUserIds[0], partidaId, 1, 0); // apostou 1-0 → exato
 
     await atualizarResultadoPartida(partidaId, 1, 0);
@@ -202,9 +202,9 @@ describe("[REAL DB] sincronizar resultado de uma partida", () => {
       .eq("id", apostaId)
       .single();
 
-    expect(data!.pontos_placar).toBe(10);
+    expect(data!.pontos_placar).toBe(3);
     expect(data!.pontos_resultado).toBe(0);
-    expect(data!.pontos_total).toBe(10);
+    expect(data!.pontos_total).toBe(3);
   });
 
   it("grava 5pts na aposta de quem acertou só o resultado (2-0 apostado, 1-0 real)", async () => {

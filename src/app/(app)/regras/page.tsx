@@ -19,7 +19,7 @@ export default function RegrasPage() {
           <h3 className="text-sm font-semibold text-white">Pontuação</h3>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>
-              <span className="text-green-400 font-semibold">2 pts</span> —
+              <span className="text-green-400 font-semibold">3 pts</span> —
               Placar exato
             </li>
             <li>
@@ -38,7 +38,7 @@ export default function RegrasPage() {
           <p className="text-sm text-muted-foreground">
             O jogo terminou Brasil 2x1 Alemanha. Quem palpitou{" "}
             <span className="text-white">2x1</span> ganha{" "}
-            <span className="text-green-400">2 pts</span> (placar exato). Quem
+            <span className="text-green-400">3 pts</span> (placar exato). Quem
             palpitou <span className="text-white">1x0</span> ganha{" "}
             <span className="text-yellow-400">1 pt</span> (acertou vitória do
             Brasil). Quem palpitou <span className="text-white">0x2</span> ganha{" "}
