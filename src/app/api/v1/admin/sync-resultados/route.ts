@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleApiError } from "@/lib/api/error-handler";
 import { requireAdmin } from "@/lib/auth/guards";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   fetchResultadosDia,
   fetchConfrontosMataMata,
@@ -23,8 +23,10 @@ export async function POST(req: NextRequest) {
       await requireAdmin();
     }
 
-    const supabase = await createClient();
-    const today = new Date().toISOString().split("T")[0];
+    const supabase = createAdminClient();
+    const today = new Date().toLocaleDateString("en-CA", {
+      timeZone: "America/Sao_Paulo",
+    });
 
     const [resultados, { data: paises }, { data: partidas }] =
       await Promise.all([

@@ -120,14 +120,27 @@ export async function fetchResultadosDia(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const matches: any[] = json.matches ?? [];
 
-  return matches.map((m) => ({
-    fixtureId: m.id,
-    homeTeam: m.homeTeam.name,
-    awayTeam: m.awayTeam.name,
-    homeGoals: m.score.fullTime.home ?? 0,
-    awayGoals: m.score.fullTime.away ?? 0,
-    date: m.utcDate,
-  }));
+  console.log(url);
+  console.log(matches);
+  if (matches.length > 0) {
+    console.log(matches[0].score);
+  }
+
+  return matches
+    .filter(
+      (m) =>
+        m.status === "FINISHED" &&
+        m.score?.fullTime?.home != null &&
+        m.score?.fullTime?.away != null,
+    )
+    .map((m) => ({
+      fixtureId: m.id,
+      homeTeam: m.homeTeam.name,
+      awayTeam: m.awayTeam.name,
+      homeGoals: m.score.fullTime.home,
+      awayGoals: m.score.fullTime.away,
+      date: m.utcDate,
+    }));
 }
 
 export async function fetchConfrontosMataMata(): Promise<

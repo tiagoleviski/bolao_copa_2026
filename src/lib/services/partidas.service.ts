@@ -1,10 +1,10 @@
 import "server-only";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { calcularPontosPartida } from "@/lib/scoring";
 
 export async function getPartidasComTimes() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("partidas")
     .select(
@@ -16,7 +16,7 @@ export async function getPartidasComTimes() {
 }
 
 export async function getPartidasFinalizadas() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("partidas")
     .select("id, gols_a, gols_b, status")
@@ -30,7 +30,7 @@ export async function atualizarResultadoPartida(
   golsA: number,
   golsB: number,
 ) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { error: updateError } = await supabase
     .from("partidas")

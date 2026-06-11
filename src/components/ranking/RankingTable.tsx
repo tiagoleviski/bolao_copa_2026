@@ -64,10 +64,16 @@ export function RankingTable({ entries, userId }: RankingTableProps) {
                 )}
               </p>
               <div className="flex gap-3 mt-0.5">
-                <PointsBadge label="Palpites" value={entry.pontos_palpites} />
-                <PointsBadge label="Grupos" value={entry.pontos_grupo} />
                 <PointsBadge
-                  label="Artilheiro"
+                  label="Pontos de Palpites"
+                  value={entry.pontos_palpites}
+                />
+                <PointsBadge
+                  label="Pontos de Grupos"
+                  value={entry.pontos_grupo}
+                />
+                <PointsBadge
+                  label="Pontos de Artilheiro"
                   value={entry.pontos_artilheiro}
                 />
                 <PointsBadge label="Pódio" value={entry.pontos_podio} />

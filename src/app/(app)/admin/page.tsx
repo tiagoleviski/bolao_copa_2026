@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAdminPartidas, useSyncResultados } from "@/hooks/useAdmin";
 import { ResultadoCard } from "@/components/admin/ResultadoCard";
+import { ResultadoForm } from "@/components/admin/ResultadoForm";
 import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import type { Partida } from "@/lib/types";
 
@@ -33,14 +33,6 @@ function handleSyncResult(res: any) {
 export default function AdminPage() {
   const { data: partidas, isPending } = useAdminPartidas();
   const sync = useSyncResultados();
-
-  useEffect(() => {
-    sync.mutate(undefined, {
-      onSuccess: handleSyncResult,
-      onError: () => toast.error("Erro ao sincronizar resultados"),
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   if (isPending) return <PageSkeleton blocks={4} blockHeight="h-48" />;
 
@@ -87,9 +79,15 @@ export default function AdminPage() {
             {dia}
           </h2>
           <div className="space-y-2">
-            {porDia.get(dia)!.map((partida) => (
-              <ResultadoCard key={partida.id} partida={partida} />
-            ))}
+            {porDia
+              .get(dia)!
+              .map((partida) =>
+                partida.status === "finalizado" ? (
+                  <ResultadoCard key={partida.id} partida={partida} />
+                ) : (
+                  <ResultadoForm key={partida.id} partida={partida} />
+                ),
+              )}
           </div>
         </div>
       ))}
