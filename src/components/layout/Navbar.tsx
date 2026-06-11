@@ -54,6 +54,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
     { href: "/artilheiro", label: "Artilheiro" },
     // { href: "/grupos", label: "Grupos" },
     { href: "/ranking", label: "Ranking" },
+    { href: "/simulador", label: "Simulador" },
     { href: "/auditoria", label: "Auditoria" },
     { href: "/regras", label: "Regras" },
     ...(isAdmin
