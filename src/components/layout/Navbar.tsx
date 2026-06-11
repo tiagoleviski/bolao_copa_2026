@@ -52,7 +52,7 @@ export function Navbar({ nomeUsuario, emailUsuario, isAdmin }: NavbarProps) {
     { href: "/palpites", label: "Palpites" },
     { href: "/chaveamento", label: "Chaveamento" },
     { href: "/artilheiro", label: "Artilheiro" },
-    { href: "/grupos", label: "Grupos" },
+    // { href: "/grupos", label: "Grupos" },
     { href: "/ranking", label: "Ranking" },
     { href: "/auditoria", label: "Auditoria" },
     { href: "/regras", label: "Regras" },
