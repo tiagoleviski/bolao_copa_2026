@@ -45,7 +45,7 @@ export function GruposSection({ grupos, perfis }: GruposSectionProps) {
   return (
     <div className="space-y-2">
       <h2 className="font-display text-2xl text-white">GRUPOS</h2>
-      <div className="max-h-[600px] overflow-y-auto pr-1 grid grid-cols-1 lg:grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
         {gruposComDados.map((grupo) => (
           <GrupoCard
             key={grupo}
@@ -85,15 +85,14 @@ function GrupoCard({
       <h3 className="font-display text-lg text-foreground/70 mb-2">
         Grupo {grupo}
       </h3>
-      <div className="overflow-x-auto">
+      <div className="max-h-[480px] overflow-y-auto overflow-x-auto">
         <table className="w-full text-sm">
-          <thead>
+          <thead className="sticky top-0 bg-background/80 backdrop-blur-sm z-10">
             <tr className="text-muted-foreground text-xs border-b border-white/5">
               <th className="text-left py-1 pr-2 font-normal">Participante</th>
               <th className="text-center py-1 px-1 font-normal">1º</th>
               <th className="text-center py-1 px-1 font-normal">2º</th>
               <th className="text-center py-1 px-1 font-normal">3º</th>
-              <th className="text-center py-1 px-1 font-normal">4º</th>
             </tr>
           </thead>
           <tbody>
@@ -110,8 +109,8 @@ function GrupoCard({
                       {perfisMap.get(userId) ?? "?"}
                     </span>
                   </td>
-                  {[1, 2, 3, 4].map((pos) => {
-                    const p = byPos.get(pos as 1 | 2 | 3 | 4);
+                  {[1, 2, 3].map((pos) => {
+                    const p = byPos.get(pos as 1 | 2 | 3);
                     return (
                       <td key={pos} className="text-center py-1.5 px-1">
                         {p ? (
