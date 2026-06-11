@@ -45,7 +45,7 @@ export function GruposSection({ grupos, perfis }: GruposSectionProps) {
   return (
     <div className="space-y-2">
       <h2 className="font-display text-2xl text-white">GRUPOS</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+      <div className="max-h-[600px] overflow-y-auto pr-1 grid grid-cols-1 lg:grid-cols-2 gap-2">
         {gruposComDados.map((grupo) => (
           <GrupoCard
             key={grupo}

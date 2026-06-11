@@ -50,7 +50,7 @@ export function ArtilheiroSection({
   return (
     <div className="space-y-2">
       <h2 className="font-display text-2xl text-white">ARTILHEIRO</h2>
-      <div className="glass rounded-xl p-3 sm:p-4">
+      <div className="glass rounded-xl p-3 sm:p-4 max-h-[600px] overflow-y-auto">
         <div className="space-y-1.5">
           {apostasOrdenadas.map((a) => (
             <div

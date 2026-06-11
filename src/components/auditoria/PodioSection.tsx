@@ -60,7 +60,7 @@ export function PodioSection({ podio, perfis }: PodioSectionProps) {
   return (
     <div className="space-y-2">
       <h2 className="font-display text-2xl text-white">PÓDIO</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+      <div className="max-h-[600px] overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {usuarios.map(([userId, apostas]) => {
           const sorted = [...apostas].sort((a, b) => a.posicao - b.posicao);
           return (

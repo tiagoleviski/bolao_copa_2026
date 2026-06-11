@@ -57,21 +57,23 @@ export function PalpitesSection({ palpites, perfis }: PalpitesSectionProps) {
     <div className="space-y-4">
       <h2 className="font-display text-2xl text-white">PALPITES</h2>
 
-      {ordemDias.map((dia) => (
-        <div key={dia} className="space-y-2">
-          <h3 className="font-display text-lg text-foreground/50 uppercase tracking-wider px-1">
-            {dia}
-          </h3>
-          {porDia.get(dia)!.map(({ partida, apostas }) => (
-            <PartidaAuditoriaCard
-              key={partida.id}
-              partida={partida}
-              apostas={apostas}
-              perfisMap={perfisMap}
-            />
-          ))}
-        </div>
-      ))}
+      <div className="max-h-[600px] overflow-y-auto space-y-2 pr-1">
+        {ordemDias.map((dia) => (
+          <div key={dia} className="space-y-2">
+            <h3 className="font-display text-lg text-foreground/50 uppercase tracking-wider px-1">
+              {dia}
+            </h3>
+            {porDia.get(dia)!.map(({ partida, apostas }) => (
+              <PartidaAuditoriaCard
+                key={partida.id}
+                partida={partida}
+                apostas={apostas}
+                perfisMap={perfisMap}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
