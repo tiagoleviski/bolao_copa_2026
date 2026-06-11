@@ -34,6 +34,18 @@ export default function RegrasPage() {
         </div>
 
         <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-white">Mata-mata</h3>
+          <p className="text-sm text-muted-foreground">
+            Nos jogos eliminatórios, vale apenas o{" "}
+            <span className="text-white font-semibold">
+              placar do tempo regulamentar (90 minutos)
+            </span>
+            . Gols marcados na prorrogação e pênaltis não são considerados para
+            a pontuação do palpite.
+          </p>
+        </div>
+
+        <div className="space-y-2">
           <h3 className="text-sm font-semibold text-white">Exemplo</h3>
           <p className="text-sm text-muted-foreground">
             O jogo terminou Brasil 2x1 Alemanha. Quem palpitou{" "}
