@@ -41,7 +41,7 @@ export default function SimuladorPage() {
   );
 
   if (isPending || !data || !resultado) {
-    return <PageSkeleton blocks={3} blockHeight="h-48" />;
+    return <PageSkeleton blocks={3} blockHeight="h-48" maxWidth="max-w-2xl" />;
   }
 
   const meuId = currentUser?.id ?? null;
@@ -63,7 +63,7 @@ export default function SimuladorPage() {
     selecoesGrupos > 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-2xl">
       <div>
         <h1 className="font-display text-4xl text-white">SIMULADOR</h1>
         <p className="text-muted-foreground text-sm mt-1">
@@ -72,7 +72,7 @@ export default function SimuladorPage() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6 items-start">
+      <div className="space-y-6">
         <div className="space-y-6">
           <PartidaSection data={data} cenario={cenario} setCenario={setCenario} />
 
