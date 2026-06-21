@@ -99,11 +99,8 @@ export function PartidaCard({
       <div className="flex items-center gap-2 sm:gap-4">
         {/* Team A */}
         <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
-          <span className="text-sm font-medium text-right truncate hidden sm:block">
+          <span className="text-sm font-medium text-right sm:truncate">
             {nomeA}
-          </span>
-          <span className="text-sm font-medium text-right truncate sm:hidden max-w-[72px]">
-            {nomeA.split(" ")[0]}
           </span>
           {bandA && <FlagImage src={bandA} alt={nomeA} size={36} />}
         </div>
@@ -126,12 +123,7 @@ export function PartidaCard({
         {/* Team B */}
         <div className="flex flex-1 items-center justify-start gap-2 min-w-0">
           {bandB && <FlagImage src={bandB} alt={nomeB} size={36} />}
-          <span className="text-sm font-medium truncate hidden sm:block">
-            {nomeB}
-          </span>
-          <span className="text-sm font-medium truncate sm:hidden max-w-[72px]">
-            {nomeB.split(" ")[0]}
-          </span>
+          <span className="text-sm font-medium sm:truncate">{nomeB}</span>
         </div>
       </div>
 

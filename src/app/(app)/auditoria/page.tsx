@@ -41,6 +41,8 @@ export default function AuditoriaPage() {
         </p>
       </div>
 
+      <PalpitesSection palpites={palpites} perfis={perfis} />
+
       {prazoPrevisoesEncerrado && podio !== null ? (
         <PodioSection podio={podio} perfis={perfis} />
       ) : (
@@ -58,8 +60,6 @@ export default function AuditoriaPage() {
       ) : (
         <LockedSection titulo="ARTILHEIRO" prazo={prazoFormatado} />
       )}
-
-      <PalpitesSection palpites={palpites} perfis={perfis} />
     </div>
   );
 }

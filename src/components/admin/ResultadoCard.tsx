@@ -34,11 +34,8 @@ export function ResultadoCard({ partida }: ResultadoCardProps) {
               size={28}
             />
           )}
-          <span className="text-sm font-medium text-right truncate hidden sm:block">
+          <span className="text-sm font-medium text-right sm:truncate">
             {nomeA}
-          </span>
-          <span className="text-sm font-medium text-right truncate sm:hidden max-w-[72px]">
-            {nomeA.split(" ")[0]}
           </span>
         </div>
 
@@ -60,12 +57,7 @@ export function ResultadoCard({ partida }: ResultadoCardProps) {
               size={28}
             />
           )}
-          <span className="text-sm font-medium truncate hidden sm:block">
-            {nomeB}
-          </span>
-          <span className="text-sm font-medium truncate sm:hidden max-w-[72px]">
-            {nomeB.split(" ")[0]}
-          </span>
+          <span className="text-sm font-medium sm:truncate">{nomeB}</span>
         </div>
       </div>
     </div>

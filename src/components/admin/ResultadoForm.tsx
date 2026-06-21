@@ -48,8 +48,8 @@ export function ResultadoForm({ partida }: ResultadoFormProps) {
         )}
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex flex-1 items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
           {partida.time_a?.bandeira_url && (
             <FlagImage
               src={partida.time_a.bandeira_url}
@@ -84,7 +84,7 @@ export function ResultadoForm({ partida }: ResultadoFormProps) {
           />
         </div>
 
-        <div className="flex flex-1 items-center gap-2">
+        <div className="flex flex-1 items-center gap-2 min-w-0">
           {partida.time_b?.bandeira_url && (
             <FlagImage
               src={partida.time_b.bandeira_url}
@@ -98,7 +98,7 @@ export function ResultadoForm({ partida }: ResultadoFormProps) {
         <button
           type="submit"
           disabled={atualizarResultado.isPending}
-          className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-[#004b87] text-white text-xs font-semibold cursor-pointer
+          className="w-full sm:w-auto sm:flex-shrink-0 px-3 py-1.5 rounded-lg bg-[#004b87] text-white text-xs font-semibold cursor-pointer
             hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {atualizarResultado.isPending ? "..." : "Salvar"}

@@ -2,8 +2,7 @@
 
 import { toast } from "sonner";
 import { useAdminPartidas, useSyncResultados } from "@/hooks/useAdmin";
-import { ResultadoCard } from "@/components/admin/ResultadoCard";
-import { ResultadoForm } from "@/components/admin/ResultadoForm";
+import { DiaResultados } from "@/components/admin/DiaResultados";
 import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import type { Partida } from "@/lib/types";
 
@@ -47,6 +46,8 @@ export default function AdminPage() {
     porDia.get(dia)!.push(p);
   }
 
+  const hojeChave = chaveData(new Date().toISOString());
+
   return (
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
@@ -74,22 +75,12 @@ export default function AdminPage() {
       </div>
 
       {ordemDias.map((dia) => (
-        <div key={dia} className="space-y-2">
-          <h2 className="font-display text-xl text-foreground/50 uppercase tracking-wider px-1">
-            {dia}
-          </h2>
-          <div className="space-y-2">
-            {porDia
-              .get(dia)!
-              .map((partida) =>
-                partida.status === "finalizado" ? (
-                  <ResultadoCard key={partida.id} partida={partida} />
-                ) : (
-                  <ResultadoForm key={partida.id} partida={partida} />
-                ),
-              )}
-          </div>
-        </div>
+        <DiaResultados
+          key={dia}
+          dia={dia}
+          isHoje={dia === hojeChave}
+          partidas={porDia.get(dia)!}
+        />
       ))}
 
       {ordemDias.length === 0 && (
