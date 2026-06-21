@@ -11,23 +11,6 @@ export interface ExternalResult {
   date: string;
 }
 
-export interface ExternalKnockoutMatch {
-  fixtureId: number;
-  stage: string;
-  utcDate: string;
-  homeTeam: string;
-  awayTeam: string;
-}
-
-export const API_STAGE_TO_RODADA: Record<string, number> = {
-  LAST_32: 4,
-  LAST_16: 5,
-  QUARTER_FINALS: 6,
-  SEMI_FINALS: 7,
-  THIRD_PLACE: 8,
-  FINAL: 9,
-};
-
 // Mapeamento dos nomes usados pela football-data.org → nomes no banco (português)
 export const API_TEAM_NAME_MAP: Record<string, string> = {
   // América do Sul
@@ -140,36 +123,5 @@ export async function fetchResultadosDia(
       homeGoals: m.score.fullTime.home,
       awayGoals: m.score.fullTime.away,
       date: m.utcDate,
-    }));
-}
-
-export async function fetchConfrontosMataMata(): Promise<
-  ExternalKnockoutMatch[]
-> {
-  const apiKey = process.env.FOOTBALL_DATA_API_KEY;
-  if (!apiKey) throw new Error("FOOTBALL_DATA_API_KEY não configurada");
-
-  const url =
-    "https://api.football-data.org/v4/competitions/WC/matches?stage=LAST_32,LAST_16,QUARTER_FINALS,SEMI_FINALS,THIRD_PLACE,FINAL";
-  const res = await fetch(url, {
-    headers: { "X-Auth-Token": apiKey },
-    next: { revalidate: 0 },
-  });
-
-  if (!res.ok)
-    throw new Error(`football-data.org erro (mata-mata): ${res.status}`);
-
-  const json = await res.json();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const matches: any[] = json.matches ?? [];
-
-  return matches
-    .filter((m) => m.homeTeam?.name && m.awayTeam?.name)
-    .map((m) => ({
-      fixtureId: m.id,
-      stage: m.stage,
-      utcDate: m.utcDate,
-      homeTeam: m.homeTeam.name,
-      awayTeam: m.awayTeam.name,
     }));
 }
