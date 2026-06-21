@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api/client";
-import type { Partida } from "@/lib/types";
+import type { Partida, Pais } from "@/lib/types";
 
 interface Perfil {
   id: string;
@@ -34,6 +34,32 @@ export function useAtualizarResultado() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "partidas"] });
       qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
+  });
+}
+
+export function useAdminPaises() {
+  return useQuery({
+    queryKey: ["admin", "paises"],
+    queryFn: () => apiClient.get<Pais[]>("/admin/paises").then((r) => r.data),
+  });
+}
+
+export function useAtualizarTimes() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      partidaId: number;
+      timeAId: number | null;
+      timeBId: number | null;
+    }) =>
+      apiClient.patch(`/admin/partidas/${payload.partidaId}/times`, {
+        timeAId: payload.timeAId,
+        timeBId: payload.timeBId,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "partidas"] });
+      qc.invalidateQueries({ queryKey: ["grupos"] });
     },
   });
 }

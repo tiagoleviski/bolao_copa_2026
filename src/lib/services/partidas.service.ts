@@ -15,6 +15,39 @@ export async function getPartidasComTimes() {
   return data;
 }
 
+export async function getPaises() {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("paises")
+    .select("id, nome, grupo, bandeira_url")
+    .order("nome");
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function atualizarTimesPartida(
+  partidaId: number,
+  timeAId: number | null,
+  timeBId: number | null,
+) {
+  const supabase = createAdminClient();
+
+  const { data: partida, error: fetchError } = await supabase
+    .from("partidas")
+    .select("rodada")
+    .eq("id", partidaId)
+    .single();
+  if (fetchError) throw new Error(fetchError.message);
+  if (!partida || partida.rodada < 4)
+    throw new Error("Só é possível editar os times de partidas do mata-mata.");
+
+  const { error: updateError } = await supabase
+    .from("partidas")
+    .update({ time_a_id: timeAId, time_b_id: timeBId })
+    .eq("id", partidaId);
+  if (updateError) throw new Error(updateError.message);
+}
+
 export async function getPartidasFinalizadas() {
   const supabase = createAdminClient();
   const { data, error } = await supabase
