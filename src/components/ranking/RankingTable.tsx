@@ -39,6 +39,10 @@ export function RankingTable({ entries, userId }: RankingTableProps) {
                   {entry.posicao}
                 </span>
               )}
+              <TrendBadge
+                posicao={entry.posicao}
+                posicaoAnterior={entry.posicao_anterior}
+              />
             </div>
 
             {/* Avatar */}
@@ -63,20 +67,19 @@ export function RankingTable({ entries, userId }: RankingTableProps) {
                   </span>
                 )}
               </p>
-              <div className="flex gap-3 mt-0.5">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 mt-0.5">
+                <PointsBadge label="Palpites" value={entry.pontos_palpites} />
+                <PointsBadge label="Grupos" value={entry.pontos_grupo} />
                 <PointsBadge
-                  label="Pontos de Palpites"
-                  value={entry.pontos_palpites}
-                />
-                <PointsBadge
-                  label="Pontos de Grupos"
-                  value={entry.pontos_grupo}
-                />
-                <PointsBadge
-                  label="Pontos de Artilheiro"
+                  label="Artilheiro"
                   value={entry.pontos_artilheiro}
                 />
                 <PointsBadge label="Pódio" value={entry.pontos_podio} />
+                {entry.cravadas > 0 && (
+                  <span className="text-xs text-amber-400/80">
+                    {entry.cravadas} cravada{entry.cravadas !== 1 ? "s" : ""}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -101,4 +104,19 @@ function PointsBadge({ label, value }: { label: string; value: number }) {
       {label}: <span className="text-foreground">{value}</span>
     </span>
   );
+}
+
+function TrendBadge({
+  posicao,
+  posicaoAnterior,
+}: {
+  posicao: number;
+  posicaoAnterior: number | null;
+}) {
+  if (posicaoAnterior === null) return null;
+  if (posicaoAnterior > posicao)
+    return <div className="text-xs text-green-400">▲</div>;
+  if (posicaoAnterior < posicao)
+    return <div className="text-xs text-red-400">▼</div>;
+  return <div className="text-xs text-muted-foreground">=</div>;
 }

@@ -26,6 +26,7 @@ export async function GET() {
       podioOficial,
       previsoesGrupo,
       posicaoOficialGrupo,
+      snapshotMap,
     } = await getRankingData();
 
     const ranking = calcularRanking(
@@ -37,6 +38,7 @@ export async function GET() {
       podioOficial as PodioOficial[],
       previsoesGrupo as PrevisaoGrupo[],
       posicaoOficialGrupo as PosicaoOficialGrupo[],
+      snapshotMap,
     );
 
     return NextResponse.json({ ranking, totalPartidasFinalizadas });

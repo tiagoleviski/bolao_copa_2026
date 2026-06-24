@@ -79,7 +79,9 @@ export interface RankingEntry {
   pontos_artilheiro: number;
   pontos_podio: number;
   pontos_grupo: number;
+  cravadas: number;
   posicao: number;
+  posicao_anterior: number | null;
 }
 
 export interface ClassificacaoEquipe {

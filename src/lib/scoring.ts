@@ -100,7 +100,13 @@ export function calcularPontosGrupo(
     const oficial = oficialMap.get(prev.pais_id);
     if (!oficial) continue;
 
-    if (prev.posicao === oficial.posicao) {
+    // Para o 3º lugar, exige que o status de avanço também coincida —
+    // prever 3º avançando quando o time não avançou não vale posição exata.
+    const posicaoExata =
+      prev.posicao === oficial.posicao &&
+      (prev.posicao !== 3 || prev.terceiro_avanca === oficial.terceiro_avancou);
+
+    if (posicaoExata) {
       pontos += PONTUACAO_GRUPO.POSICAO_EXATA;
     } else if (
       avancou(prev.posicao, prev.terceiro_avanca) &&
@@ -122,6 +128,7 @@ export function calcularRanking(
   podioOficial: PodioOficial[] = [],
   previsoesGrupo: PrevisaoGrupo[] = [],
   posicaoOficialGrupo: PosicaoOficialGrupo[] = [],
+  snapshotMap: Map<string, number> = new Map(),
 ): RankingEntry[] {
   const apostasMap = new Map<string, Aposta[]>();
   for (const aposta of apostas) {
@@ -155,6 +162,9 @@ export function calcularRanking(
       (acc, a) => acc + (a.pontos_total ?? 0),
       0,
     );
+    const cravadas = minhasApostas.filter(
+      (a) => (a.pontos_placar ?? 0) > 0,
+    ).length;
 
     const minhaApostaArtilheiro = artilheiroMap.get(perfil.id) ?? null;
     const pontos_artilheiro = calcularPontosArtilheiro(
@@ -178,13 +188,17 @@ export function calcularRanking(
       pontos_artilheiro,
       pontos_podio,
       pontos_grupo,
+      cravadas,
       pontos_total:
         pontos_palpites + pontos_artilheiro + pontos_podio + pontos_grupo,
       posicao: 0,
+      posicao_anterior: snapshotMap.get(perfil.id) ?? null,
     };
   });
 
-  entries.sort((a, b) => b.pontos_total - a.pontos_total);
+  entries.sort(
+    (a, b) => b.pontos_total - a.pontos_total || b.cravadas - a.cravadas,
+  );
   entries.forEach((e, i) => (e.posicao = i + 1));
 
   return entries;

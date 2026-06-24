@@ -306,18 +306,36 @@ describe("calcularPontosGrupo", () => {
     const oficiais: PosicaoOficialGrupo[] = [
       { id: 1, pais_id: 1, posicao: 3, terceiro_avancou: true },
     ];
-    // Posição exata (3 === 3) → 2 pts
+    expect(calcularPontosGrupo(previsoes, oficiais)).toBe(0);
+  });
+
+  it("retorna 0 pts se previu 3º avançando mas oficialmente 3º não avançou", () => {
+    const previsoes: PrevisaoGrupo[] = [
+      { id: 1, user_id: "u1", pais_id: 1, posicao: 3, terceiro_avanca: true },
+    ];
+    const oficiais: PosicaoOficialGrupo[] = [
+      { id: 1, pais_id: 1, posicao: 3, terceiro_avancou: false },
+    ];
+    expect(calcularPontosGrupo(previsoes, oficiais)).toBe(0);
+  });
+
+  it("retorna 2 pts se previu 3º avançando e oficialmente 3º avançou", () => {
+    const previsoes: PrevisaoGrupo[] = [
+      { id: 1, user_id: "u1", pais_id: 1, posicao: 3, terceiro_avanca: true },
+    ];
+    const oficiais: PosicaoOficialGrupo[] = [
+      { id: 1, pais_id: 1, posicao: 3, terceiro_avancou: true },
+    ];
     expect(calcularPontosGrupo(previsoes, oficiais)).toBe(2);
   });
 
-  it("retorna 0 pts se previu 4º e oficialmente 4º", () => {
+  it("retorna 2 pts se previu 4º e oficialmente 4º", () => {
     const previsoes: PrevisaoGrupo[] = [
       { id: 1, user_id: "u1", pais_id: 1, posicao: 4, terceiro_avanca: false },
     ];
     const oficiais: PosicaoOficialGrupo[] = [
       { id: 1, pais_id: 1, posicao: 4, terceiro_avancou: false },
     ];
-    // Posição exata → 2 pts
     expect(calcularPontosGrupo(previsoes, oficiais)).toBe(2);
   });
 
@@ -411,5 +429,51 @@ describe("calcularRanking", () => {
   it("inclui pontos_grupo no RankingEntry", () => {
     const ranking = calcularRanking(perfis, apostas, [], null);
     expect(ranking[0]).toHaveProperty("pontos_grupo");
+  });
+
+  it("conta cravadas (pontos_placar > 0) por usuário", () => {
+    const apostasComCravada: Aposta[] = [
+      { user_id: "u1", partida_id: 1, pontos_placar: 3, pontos_total: 3 },
+      { user_id: "u1", partida_id: 2, pontos_placar: 0, pontos_total: 1 },
+      { user_id: "u2", partida_id: 1, pontos_placar: 3, pontos_total: 3 },
+      { user_id: "u2", partida_id: 2, pontos_placar: 3, pontos_total: 3 },
+    ] as Aposta[];
+    const ranking = calcularRanking(perfis, apostasComCravada, [], null);
+    const alice = ranking.find((r) => r.user_id === "u1")!;
+    const bob = ranking.find((r) => r.user_id === "u2")!;
+    expect(alice.cravadas).toBe(1);
+    expect(bob.cravadas).toBe(2);
+  });
+
+  it("usa cravadas como critério de desempate", () => {
+    const apostasEmpate: Aposta[] = [
+      { user_id: "u1", partida_id: 1, pontos_placar: 3, pontos_total: 3 },
+      { user_id: "u2", partida_id: 1, pontos_placar: 0, pontos_total: 3 },
+    ] as Aposta[];
+    const ranking = calcularRanking(perfis, apostasEmpate, [], null);
+    expect(ranking[0].user_id).toBe("u1");
+    expect(ranking[1].user_id).toBe("u2");
+  });
+
+  it("retorna posicao_anterior do snapshot quando fornecido", () => {
+    const snapshot = new Map([["u1", 3]]);
+    const ranking = calcularRanking(
+      perfis,
+      apostas,
+      [],
+      null,
+      [],
+      [],
+      [],
+      [],
+      snapshot,
+    );
+    const alice = ranking.find((r) => r.user_id === "u1")!;
+    expect(alice.posicao_anterior).toBe(3);
+  });
+
+  it("retorna posicao_anterior null quando não há snapshot", () => {
+    const ranking = calcularRanking(perfis, apostas, [], null);
+    expect(ranking[0].posicao_anterior).toBeNull();
   });
 });

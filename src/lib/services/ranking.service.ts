@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchAllRows } from "@/lib/supabase/fetch-all";
+import { getSnapshotMap } from "./ranking-snapshot.service";
 import type {
   ApostaPodio,
   PodioOficial,
@@ -26,6 +27,7 @@ export async function getRankingData() {
     podioOficial,
     previsoesGrupo,
     posicaoOficialGrupo,
+    snapshotMap,
   ] = await Promise.all([
     fetchAllRows((f, t) =>
       supabase
@@ -63,6 +65,7 @@ export async function getRankingData() {
     fetchAllRows((f, t) =>
       supabase.from("posicao_oficial_grupo").select("*").range(f, t),
     ),
+    getSnapshotMap(),
   ]);
 
   return {
@@ -75,5 +78,6 @@ export async function getRankingData() {
     podioOficial: podioOficial as PodioOficial[],
     previsoesGrupo: previsoesGrupo as PrevisaoGrupo[],
     posicaoOficialGrupo: posicaoOficialGrupo as PosicaoOficialGrupo[],
+    snapshotMap,
   };
 }

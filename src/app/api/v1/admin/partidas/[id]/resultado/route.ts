@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/guards";
 import { handleApiError } from "@/lib/api/error-handler";
 import { atualizarResultadoPartida } from "@/lib/services/partidas.service";
+import { captureRankingSnapshot } from "@/lib/services/ranking-snapshot.service";
 
 const postSchema = z.object({
   golsA: z.number().int().min(0).max(99),
@@ -22,6 +23,7 @@ export async function POST(
     const parsed = postSchema.safeParse(await req.json().catch(() => null));
     if (!parsed.success)
       return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
+    await captureRankingSnapshot().catch(() => {});
     await atualizarResultadoPartida(
       partidaId,
       parsed.data.golsA,
