@@ -68,13 +68,22 @@ export function RankingTable({ entries, userId }: RankingTableProps) {
                 )}
               </p>
               <div className="flex flex-wrap gap-x-3 gap-y-1 mt-0.5">
-                <PointsBadge label="Palpites" value={entry.pontos_palpites} />
-                <PointsBadge label="Grupos" value={entry.pontos_grupo} />
                 <PointsBadge
-                  label="Artilheiro"
+                  label="Pontos de Palpites"
+                  value={entry.pontos_palpites}
+                />
+                <PointsBadge
+                  label="Pontos de Grupos"
+                  value={entry.pontos_grupo}
+                />
+                <PointsBadge
+                  label="Pontos de Artilheiro"
                   value={entry.pontos_artilheiro}
                 />
-                <PointsBadge label="Pódio" value={entry.pontos_podio} />
+                <PointsBadge
+                  label="Pontos de Pódio"
+                  value={entry.pontos_podio}
+                />
                 {entry.cravadas > 0 && (
                   <span className="text-xs text-amber-400/80">
                     {entry.cravadas} cravada{entry.cravadas !== 1 ? "s" : ""}
