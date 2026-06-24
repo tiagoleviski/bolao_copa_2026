@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { AdminTabs } from "@/components/admin/AdminTabs";
 
 export default async function AdminLayout({
   children,
@@ -20,5 +21,10 @@ export default async function AdminLayout({
 
   if (perfil?.role !== "admin") redirect("/palpites");
 
-  return <>{children}</>;
+  return (
+    <>
+      <AdminTabs />
+      {children}
+    </>
+  );
 }

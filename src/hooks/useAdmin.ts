@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api/client";
-import type { Partida, Pais } from "@/lib/types";
+import type { Partida, Pais, PosicaoOficialGrupo } from "@/lib/types";
 
 interface Perfil {
   id: string;
@@ -98,6 +98,33 @@ export function useDeletarUsuario() {
     mutationFn: (userId: string) =>
       apiClient.delete(`/admin/usuarios/${userId}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "usuarios"] }),
+  });
+}
+
+export function usePosicoesOficiaisGrupo() {
+  return useQuery({
+    queryKey: ["admin", "posicoes-grupo"],
+    queryFn: () =>
+      apiClient
+        .get<PosicaoOficialGrupo[]>("/admin/posicoes-grupo")
+        .then((r) => r.data),
+  });
+}
+
+export function useSalvarPosicoesOficiaisGrupo() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (
+      posicoes: Array<{
+        pais_id: number;
+        posicao: 1 | 2 | 3 | 4;
+        terceiro_avancou: boolean;
+      }>,
+    ) => apiClient.put("/admin/posicoes-grupo", { posicoes }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "posicoes-grupo"] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
   });
 }
 
