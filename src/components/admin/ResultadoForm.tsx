@@ -227,7 +227,9 @@ export function ResultadoForm({ partida }: ResultadoFormProps) {
 
         <button
           type="submit"
-          disabled={atualizarResultado.isPending}
+          disabled={
+            atualizarResultado.isPending || atualizarResultado.isSuccess
+          }
           className="w-full sm:w-auto sm:flex-shrink-0 px-3 py-1.5 rounded-lg bg-[#004b87] text-white text-xs font-semibold cursor-pointer
             hover:opacity-90 transition-opacity disabled:opacity-50"
         >
