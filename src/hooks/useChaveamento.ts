@@ -2,11 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api/client";
-import type { Pais, PrevisaoGrupo } from "@/lib/types";
+import type { Pais, PosicaoOficialGrupo, PrevisaoGrupo } from "@/lib/types";
 
 interface ChaveamentoData {
   paises: Pais[];
   previsoesGrupo: PrevisaoGrupo[];
+  posicoesOficiais: PosicaoOficialGrupo[];
 }
 
 export function useChaveamento() {

@@ -4,6 +4,7 @@ import {
   calcularPontosArtilheiro,
   calcularPontosPodio,
   calcularPontosGrupo,
+  calcularPontoPrevisaoGrupo,
   calcularRanking,
 } from "@/lib/scoring";
 import type {
@@ -364,6 +365,99 @@ describe("calcularPontosGrupo", () => {
       { id: 1, user_id: "u1", pais_id: 1, posicao: 1, terceiro_avanca: false },
     ];
     expect(calcularPontosGrupo(previsoes, [])).toBe(0);
+  });
+});
+
+// ─── calcularPontoPrevisaoGrupo (detalhe por palpite) ────────────────────────
+
+describe("calcularPontoPrevisaoGrupo", () => {
+  it("status 'exata' (+2) quando a posição bate", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 1, terceiro_avanca: false },
+        { posicao: 1, terceiro_avancou: false },
+        true,
+      ),
+    ).toEqual({ pontos: 2, status: "exata" });
+  });
+
+  it("status 'passou' (+1) quando ambos avançaram em posições diferentes", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 1, terceiro_avanca: false },
+        { posicao: 2, terceiro_avancou: false },
+        true,
+      ),
+    ).toEqual({ pontos: 1, status: "passou" });
+  });
+
+  it("status 'errou' (0) quando previu avanço mas o país não avançou", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 1, terceiro_avanca: false },
+        { posicao: 4, terceiro_avancou: false },
+        true,
+      ),
+    ).toEqual({ pontos: 0, status: "errou" });
+  });
+
+  it("status 'errou' (0) no grupo decidido quando não há entrada oficial (país eliminado)", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 2, terceiro_avanca: false },
+        undefined,
+        true,
+      ),
+    ).toEqual({ pontos: 0, status: "errou" });
+  });
+
+  it("status 'pendente' (0) quando o grupo ainda não foi decidido", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 1, terceiro_avanca: false },
+        undefined,
+        false,
+      ),
+    ).toEqual({ pontos: 0, status: "pendente" });
+  });
+
+  it("3º previsto avançando que oficialmente não avançou → 'errou'", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 3, terceiro_avanca: true },
+        { posicao: 3, terceiro_avancou: false },
+        true,
+      ),
+    ).toEqual({ pontos: 0, status: "errou" });
+  });
+
+  it("3º previsto avançando e oficialmente avançou → 'exata' (+2)", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 3, terceiro_avanca: true },
+        { posicao: 3, terceiro_avancou: true },
+        true,
+      ),
+    ).toEqual({ pontos: 2, status: "exata" });
+  });
+
+  it("subtotal de um grupo bate com a soma do helper agregado", () => {
+    const previsoes: PrevisaoGrupo[] = [
+      { id: 1, user_id: "u1", pais_id: 1, posicao: 1, terceiro_avanca: false },
+      { id: 2, user_id: "u1", pais_id: 2, posicao: 2, terceiro_avanca: false },
+    ];
+    const oficiais: PosicaoOficialGrupo[] = [
+      { id: 1, pais_id: 1, posicao: 1, terceiro_avancou: false }, // exata +2
+      { id: 2, pais_id: 2, posicao: 1, terceiro_avancou: false }, // passou +1
+    ];
+    const oficialMap = new Map(oficiais.map((o) => [o.pais_id, o]));
+    const subtotal = previsoes.reduce(
+      (acc, p) =>
+        acc +
+        calcularPontoPrevisaoGrupo(p, oficialMap.get(p.pais_id), true).pontos,
+      0,
+    );
+    expect(subtotal).toBe(calcularPontosGrupo(previsoes, oficiais));
   });
 });
 

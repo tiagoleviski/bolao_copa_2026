@@ -87,6 +87,45 @@ function avancou(posicao: number, terceiroAvanca: boolean): boolean {
   return posicao <= 2 || (posicao === 3 && terceiroAvanca);
 }
 
+export type StatusPrevisaoGrupo = "exata" | "passou" | "errou" | "pendente";
+
+export interface PontoPrevisaoGrupo {
+  pontos: number;
+  status: StatusPrevisaoGrupo;
+}
+
+/**
+ * Pontuação de uma única previsão de grupo (1º/2º/3º de um país), dado o
+ * resultado oficial daquele país e se o grupo já foi decidido.
+ *
+ * - `grupoDecidido = false` → "pendente" (resultado oficial ainda não lançado)
+ * - país sem entrada oficial num grupo já decidido → não avançou → "errou"
+ */
+export function calcularPontoPrevisaoGrupo(
+  previsao: Pick<PrevisaoGrupo, "posicao" | "terceiro_avanca">,
+  oficial: Pick<PosicaoOficialGrupo, "posicao" | "terceiro_avancou"> | undefined,
+  grupoDecidido: boolean,
+): PontoPrevisaoGrupo {
+  if (!grupoDecidido) return { pontos: 0, status: "pendente" };
+  if (!oficial) return { pontos: 0, status: "errou" };
+
+  const posicaoExata =
+    previsao.posicao === oficial.posicao &&
+    (previsao.posicao !== 3 ||
+      previsao.terceiro_avanca === oficial.terceiro_avancou);
+
+  if (posicaoExata) {
+    return { pontos: PONTUACAO_GRUPO.POSICAO_EXATA, status: "exata" };
+  }
+  if (
+    avancou(previsao.posicao, previsao.terceiro_avanca) &&
+    avancou(oficial.posicao, oficial.terceiro_avancou)
+  ) {
+    return { pontos: PONTUACAO_GRUPO.TIME_PASSOU, status: "passou" };
+  }
+  return { pontos: 0, status: "errou" };
+}
+
 export function calcularPontosGrupo(
   previsoes: PrevisaoGrupo[],
   oficiais: PosicaoOficialGrupo[],

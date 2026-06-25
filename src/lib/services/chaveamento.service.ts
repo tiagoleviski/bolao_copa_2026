@@ -7,9 +7,10 @@ import type { PosicaoOficialGrupo, PrevisaoGrupo } from "@/lib/types";
 export async function getChaveamentoData(userId: string) {
   const supabase = await createClient();
 
-  const [paisesRes, gruposRes] = await Promise.all([
+  const [paisesRes, gruposRes, oficiaisRes] = await Promise.all([
     supabase.from("paises").select("*").order("grupo").order("nome"),
     supabase.from("previsao_grupo").select("*").eq("user_id", userId),
+    supabase.from("posicao_oficial_grupo").select("*"),
   ]);
 
   if (paisesRes.error) throw new Error(paisesRes.error.message);
@@ -17,6 +18,7 @@ export async function getChaveamentoData(userId: string) {
   return {
     paises: paisesRes.data ?? [],
     previsoesGrupo: (gruposRes.data ?? []) as PrevisaoGrupo[],
+    posicoesOficiais: (oficiaisRes.data ?? []) as PosicaoOficialGrupo[],
   };
 }
 

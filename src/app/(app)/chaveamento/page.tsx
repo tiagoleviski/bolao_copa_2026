@@ -11,6 +11,7 @@ import { GruposPanel } from "@/components/chaveamento/GruposPanel";
 import { PodioPanel } from "@/components/chaveamento/PodioPanel";
 import { PageSkeleton } from "@/components/shared/PageSkeleton";
 import { GRUPOS, PRAZO_PREVISOES } from "@/lib/constants";
+import { calcularPontosGrupo } from "@/lib/scoring";
 
 export default function ChaveamentoPage() {
   const { data, isPending } = useChaveamento();
@@ -36,8 +37,13 @@ export default function ChaveamentoPage() {
 
   if (isPending || !data) return <PageSkeleton blocks={3} blockHeight="h-48" />;
 
-  const { paises } = data;
+  const { paises, posicoesOficiais } = data;
   const prazoEncerrado = new Date() > PRAZO_PREVISOES;
+  const temResultados = posicoesOficiais.length > 0;
+  const pontosGrupoTotal = calcularPontosGrupo(
+    data.previsoesGrupo,
+    posicoesOficiais,
+  );
 
   // ─── Métricas derivadas ───────────────────────────────────────────────────
 
@@ -112,6 +118,22 @@ export default function ChaveamentoPage() {
             ⏱ Prazo encerrado — previsões bloqueadas
           </p>
         )}
+        {temResultados && (
+          <div className="mt-3 inline-flex items-center gap-2 rounded-xl bg-purple-500/15 border border-purple-400/40 px-3 py-1.5">
+            <span className="text-sm text-purple-200">
+              Seus pontos de grupo até agora:
+            </span>
+            <span className="font-display text-xl text-purple-100 leading-none">
+              {pontosGrupoTotal}
+            </span>
+          </div>
+        )}
+        {temResultados && (
+          <p className="text-muted-foreground text-xs mt-2">
+            Tonalidade forte = quem realmente passou de fase · anel verde = você
+            acertou a posição
+          </p>
+        )}
       </div>
 
       {/* Progresso */}
@@ -142,6 +164,7 @@ export default function ChaveamentoPage() {
         previsoes={previsoes}
         prazoEncerrado={prazoEncerrado}
         terceirosAvancando={terceirosAvancando}
+        posicoesOficiais={posicoesOficiais}
         onToggle={handleToggle}
       />
 
