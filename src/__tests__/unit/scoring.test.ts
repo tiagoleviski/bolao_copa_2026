@@ -507,6 +507,30 @@ describe("calcularPontoPrevisaoGrupo", () => {
     ).toEqual({ pontos: 1, status: "passou" });
   });
 
+  it("zera o palpite errado assim que o grupo é resolvido, sem esperar os 8 terceiros", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 1, terceiro_avanca: false },
+        undefined,
+        true,
+        false, // 8 terceiros globais ainda não definidos
+        true, // mas este grupo já está totalmente resolvido
+      ),
+    ).toEqual({ pontos: 0, status: "errou" });
+  });
+
+  it("sem grupo resolvido e sem os 8 terceiros, o palpite errado segue 'pendente'", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 1, terceiro_avanca: false },
+        undefined,
+        true,
+        false,
+        false,
+      ),
+    ).toEqual({ pontos: 0, status: "pendente" });
+  });
+
   it("subtotal de um grupo bate com a soma do helper agregado", () => {
     const previsoes: PrevisaoGrupo[] = [
       { id: 1, user_id: "u1", pais_id: 1, posicao: 1, terceiro_avanca: false },

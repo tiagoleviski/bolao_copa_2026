@@ -61,10 +61,14 @@ export function GrupoCard({
   const grupoDecidido = oficiaisDoGrupo.length > 0;
   const oficialPorPais = new Map(oficiaisDoGrupo.map((o) => [o.pais_id, o]));
 
-  // Os 8 melhores terceiros estão definidos? (palpite de 3º só zera depois disso)
+  // Os 8 melhores terceiros (globais) estão definidos?
   const terceirosDefinidos =
     posicoesOficiais.filter((o) => o.posicao === 3 && o.terceiro_avancou)
       .length >= 8;
+  // Este grupo já está totalmente resolvido? (o 3º colocado dele foi definido,
+  // com a flag de avanço). Nesse caso os palpites errados deste grupo já podem
+  // zerar, sem esperar os 8 terceiros globais.
+  const grupoResolvido = oficiaisDoGrupo.some((o) => o.posicao === 3);
 
   const detalhePorPais = new Map(
     previsoes.map((p) => [
@@ -74,6 +78,7 @@ export function GrupoCard({
         oficialPorPais.get(p.pais_id),
         grupoDecidido,
         terceirosDefinidos,
+        grupoResolvido,
       ),
     ]),
   );

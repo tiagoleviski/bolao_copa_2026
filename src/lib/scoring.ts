@@ -96,27 +96,28 @@ export interface PontoPrevisaoGrupo {
 
 /**
  * Pontuação de uma única previsão de grupo (1º/2º/3º de um país), dado o
- * resultado oficial daquele país, se o grupo já foi decidido e se os 8
- * melhores terceiros já foram definidos.
+ * resultado oficial daquele país e o estado da apuração.
  *
  * - `grupoDecidido = false` → "pendente" (resultado oficial ainda não lançado)
- * - país sem entrada oficial e `terceirosDefinidos = false` → "pendente"
- *   (ainda pode avançar como melhor terceiro)
- * - país sem entrada oficial com os 8 terceiros já definidos → "errou"
+ * - país sem entrada oficial, grupo não resolvido e 8 terceiros não definidos
+ *   → "pendente" (o time ainda pode avançar como melhor terceiro)
+ * - país sem entrada oficial, mas o grupo já está totalmente resolvido
+ *   (`grupoResolvido = true`) OU os 8 terceiros já foram definidos → "errou"
  */
 export function calcularPontoPrevisaoGrupo(
   previsao: Pick<PrevisaoGrupo, "posicao" | "terceiro_avanca">,
   oficial: Pick<PosicaoOficialGrupo, "posicao" | "terceiro_avancou"> | undefined,
   grupoDecidido: boolean,
   terceirosDefinidos = true,
+  grupoResolvido = false,
 ): PontoPrevisaoGrupo {
   if (!grupoDecidido) return { pontos: 0, status: "pendente" };
-  // Um palpite só pode ZERAR depois que os 8 melhores terceiros forem
-  // definidos. Enquanto não forem, um time que não ficou em 1º/2º do seu grupo
-  // ainda pode avançar como melhor terceiro e render +1 — então qualquer
-  // palpite (1º, 2º ou 3º) cujo time ainda não foi confirmado avançando fica
-  // pendente, não errado.
-  if (!oficial && !terceirosDefinidos) {
+  // Um palpite só pode ZERAR quando o não-avanço do time é definitivo. Isso
+  // vale quando o grupo já está totalmente resolvido (o 3º colocado dele foi
+  // definido) OU quando os 8 melhores terceiros globais já foram definidos.
+  // Antes disso, um time fora do 1º/2º ainda pode subir como melhor terceiro
+  // e render +1, então o palpite fica pendente, não errado.
+  if (!oficial && !terceirosDefinidos && !grupoResolvido) {
     return { pontos: 0, status: "pendente" };
   }
   if (!oficial) return { pontos: 0, status: "errou" };
