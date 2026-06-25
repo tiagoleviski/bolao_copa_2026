@@ -51,8 +51,8 @@ function TimeSelect({ partida, lado, paises, align }: TimeSelectProps) {
     atualizarTimes.mutate(
       {
         partidaId: partida.id,
-        timeAId: lado === "a" ? novoId : (partida.time_b_id ?? null),
-        timeBId: lado === "b" ? novoId : (partida.time_a_id ?? null),
+        timeAId: lado === "a" ? novoId : (partida.time_a_id ?? null),
+        timeBId: lado === "b" ? novoId : (partida.time_b_id ?? null),
       },
       {
         onSuccess: () => toast.success("Confronto atualizado!"),
