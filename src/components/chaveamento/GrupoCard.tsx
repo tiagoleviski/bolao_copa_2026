@@ -61,10 +61,20 @@ export function GrupoCard({
   const grupoDecidido = oficiaisDoGrupo.length > 0;
   const oficialPorPais = new Map(oficiaisDoGrupo.map((o) => [o.pais_id, o]));
 
+  // Os 8 melhores terceiros estão definidos? (palpite de 3º só zera depois disso)
+  const terceirosDefinidos =
+    posicoesOficiais.filter((o) => o.posicao === 3 && o.terceiro_avancou)
+      .length >= 8;
+
   const detalhePorPais = new Map(
     previsoes.map((p) => [
       p.pais_id,
-      calcularPontoPrevisaoGrupo(p, oficialPorPais.get(p.pais_id), grupoDecidido),
+      calcularPontoPrevisaoGrupo(
+        p,
+        oficialPorPais.get(p.pais_id),
+        grupoDecidido,
+        terceirosDefinidos,
+      ),
     ]),
   );
   const subtotalGrupo = [...detalhePorPais.values()].reduce(
@@ -148,13 +158,11 @@ export function GrupoCard({
                   const isPick = prev?.posicao === pos;
                   const isGabarito = posicaoGabarito === pos;
                   const acerto = isPick && isGabarito;
-                  const estilo = acerto
-                    ? `${POSICAO_GABARITO[pos]} ring-2 ring-green-400/80`
-                    : isGabarito
-                      ? POSICAO_GABARITO[pos]
-                      : isPick
-                        ? POSICAO_CORES[pos]
-                        : `${POSICAO_INATIVO}${prazoEncerrado ? " opacity-60" : ""}`;
+                  const estilo = isGabarito
+                    ? POSICAO_GABARITO[pos]
+                    : isPick
+                      ? POSICAO_CORES[pos]
+                      : `${POSICAO_INATIVO}${prazoEncerrado ? " opacity-60" : ""}`;
                   return (
                     <button
                       key={pos}

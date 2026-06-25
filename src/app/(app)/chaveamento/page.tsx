@@ -130,8 +130,7 @@ export default function ChaveamentoPage() {
         )}
         {temResultados && (
           <p className="text-muted-foreground text-xs mt-2">
-            Tonalidade forte = quem realmente passou de fase · anel verde = você
-            acertou a posição
+            Tonalidade forte = quem realmente passou de fase
           </p>
         )}
       </div>

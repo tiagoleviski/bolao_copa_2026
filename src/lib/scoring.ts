@@ -105,8 +105,15 @@ export function calcularPontoPrevisaoGrupo(
   previsao: Pick<PrevisaoGrupo, "posicao" | "terceiro_avanca">,
   oficial: Pick<PosicaoOficialGrupo, "posicao" | "terceiro_avancou"> | undefined,
   grupoDecidido: boolean,
+  terceirosDefinidos = true,
 ): PontoPrevisaoGrupo {
   if (!grupoDecidido) return { pontos: 0, status: "pendente" };
+  // Um palpite de 3º lugar só pode zerar depois que os 8 melhores terceiros
+  // forem definidos — antes disso o avanço de um 3º colocado ainda é
+  // indeterminado (depende da comparação entre todos os grupos).
+  if (previsao.posicao === 3 && !oficial && !terceirosDefinidos) {
+    return { pontos: 0, status: "pendente" };
+  }
   if (!oficial) return { pontos: 0, status: "errou" };
 
   const posicaoExata =
