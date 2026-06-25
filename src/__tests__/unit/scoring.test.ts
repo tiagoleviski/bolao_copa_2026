@@ -474,7 +474,7 @@ describe("calcularPontoPrevisaoGrupo", () => {
     ).toEqual({ pontos: 1, status: "passou" });
   });
 
-  it("palpite de 1º/2º não é afetado pela regra dos terceiros (zera normalmente)", () => {
+  it("palpite de 1º/2º fica 'pendente' até os 8 terceiros (time pode avançar como 3º)", () => {
     expect(
       calcularPontoPrevisaoGrupo(
         { posicao: 1, terceiro_avanca: false },
@@ -482,7 +482,29 @@ describe("calcularPontoPrevisaoGrupo", () => {
         true,
         false,
       ),
+    ).toEqual({ pontos: 0, status: "pendente" });
+  });
+
+  it("palpite de 1º/2º vira 'errou' depois que os 8 terceiros foram definidos", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 2, terceiro_avanca: false },
+        undefined,
+        true,
+        true,
+      ),
     ).toEqual({ pontos: 0, status: "errou" });
+  });
+
+  it("palpite de 1º cujo time avançou como 3º pontua 'passou' (+1)", () => {
+    expect(
+      calcularPontoPrevisaoGrupo(
+        { posicao: 1, terceiro_avanca: false },
+        { posicao: 3, terceiro_avancou: true },
+        true,
+        true,
+      ),
+    ).toEqual({ pontos: 1, status: "passou" });
   });
 
   it("subtotal de um grupo bate com a soma do helper agregado", () => {

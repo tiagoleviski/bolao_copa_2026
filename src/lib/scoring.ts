@@ -96,10 +96,13 @@ export interface PontoPrevisaoGrupo {
 
 /**
  * Pontuação de uma única previsão de grupo (1º/2º/3º de um país), dado o
- * resultado oficial daquele país e se o grupo já foi decidido.
+ * resultado oficial daquele país, se o grupo já foi decidido e se os 8
+ * melhores terceiros já foram definidos.
  *
  * - `grupoDecidido = false` → "pendente" (resultado oficial ainda não lançado)
- * - país sem entrada oficial num grupo já decidido → não avançou → "errou"
+ * - país sem entrada oficial e `terceirosDefinidos = false` → "pendente"
+ *   (ainda pode avançar como melhor terceiro)
+ * - país sem entrada oficial com os 8 terceiros já definidos → "errou"
  */
 export function calcularPontoPrevisaoGrupo(
   previsao: Pick<PrevisaoGrupo, "posicao" | "terceiro_avanca">,
@@ -108,10 +111,12 @@ export function calcularPontoPrevisaoGrupo(
   terceirosDefinidos = true,
 ): PontoPrevisaoGrupo {
   if (!grupoDecidido) return { pontos: 0, status: "pendente" };
-  // Um palpite de 3º lugar só pode zerar depois que os 8 melhores terceiros
-  // forem definidos — antes disso o avanço de um 3º colocado ainda é
-  // indeterminado (depende da comparação entre todos os grupos).
-  if (previsao.posicao === 3 && !oficial && !terceirosDefinidos) {
+  // Um palpite só pode ZERAR depois que os 8 melhores terceiros forem
+  // definidos. Enquanto não forem, um time que não ficou em 1º/2º do seu grupo
+  // ainda pode avançar como melhor terceiro e render +1 — então qualquer
+  // palpite (1º, 2º ou 3º) cujo time ainda não foi confirmado avançando fica
+  // pendente, não errado.
+  if (!oficial && !terceirosDefinidos) {
     return { pontos: 0, status: "pendente" };
   }
   if (!oficial) return { pontos: 0, status: "errou" };
