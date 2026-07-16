@@ -21,7 +21,7 @@ export async function getRankingData() {
     perfis,
     apostas,
     apostasArtilheiro,
-    { data: artilheiroOficial },
+    artilheirosOficiais,
     partidas,
     apostasPodio,
     podioOficial,
@@ -43,9 +43,7 @@ export async function getRankingData() {
     supabase
       .from("artilheiro_oficial")
       .select("jogador_id")
-      .order("definido_em", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .then(({ data }) => data ?? []),
     fetchAllRows((f, t) =>
       supabase
         .from("partidas")
@@ -72,7 +70,7 @@ export async function getRankingData() {
     perfis,
     apostas,
     apostasArtilheiro,
-    artilheiroOficialId: artilheiroOficial?.jogador_id ?? null,
+    artilheiroOficialIds: artilheirosOficiais.map((a: { jogador_id: number }) => a.jogador_id),
     totalPartidasFinalizadas: partidas.length,
     apostasPodio: apostasPodio as ApostaPodio[],
     podioOficial: podioOficial as PodioOficial[],

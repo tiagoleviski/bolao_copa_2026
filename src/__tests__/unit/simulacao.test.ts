@@ -47,7 +47,7 @@ function baseData(overrides: Partial<SimuladorData> = {}): SimuladorData {
     ],
     previsoesGrupo: [],
     apostasArtilheiro: [{ id: 1, user_id: "u1", jogador_id: 55 }],
-    artilheiroOficialId: null,
+    artilheiroOficialIds: [],
     podioOficial: [],
     posicaoOficialGrupo: [],
     paises: [],

@@ -21,7 +21,7 @@ export async function captureRankingSnapshot(): Promise<void> {
     data.perfis as Perfil[],
     data.apostas as Aposta[],
     data.apostasArtilheiro as ApostaArtilheiro[],
-    data.artilheiroOficialId,
+    data.artilheiroOficialIds,
     data.apostasPodio as ApostaPodio[],
     data.podioOficial as PodioOficial[],
     data.previsoesGrupo as PrevisaoGrupo[],

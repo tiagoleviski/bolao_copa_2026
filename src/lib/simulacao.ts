@@ -50,7 +50,7 @@ export interface SimuladorData {
   apostasPodio: ApostaPodio[] | null;
   previsoesGrupo: PrevisaoGrupo[] | null;
   apostasArtilheiro: ApostaArtilheiro[] | null;
-  artilheiroOficialId: number | null;
+  artilheiroOficialIds: number[];
   podioOficial: PodioOficial[];
   posicaoOficialGrupo: PosicaoOficialGrupo[];
   paises: PaisSimulador[];
@@ -239,7 +239,7 @@ export function simularRanking(
     data.perfis,
     apostasSinteticas(data, null),
     artilheiroApostas,
-    data.artilheiroOficialId,
+    data.artilheiroOficialIds,
     podioApostas,
     data.podioOficial,
     grupoApostas,
@@ -250,7 +250,9 @@ export function simularRanking(
     data.perfis,
     apostasSinteticas(data, cenario),
     artilheiroApostas,
-    cenario.artilheiroJogadorId ?? data.artilheiroOficialId,
+    cenario.artilheiroJogadorId != null
+      ? [cenario.artilheiroJogadorId]
+      : data.artilheiroOficialIds,
     podioApostas,
     podioOficialSimulado(data, cenario),
     grupoApostas,

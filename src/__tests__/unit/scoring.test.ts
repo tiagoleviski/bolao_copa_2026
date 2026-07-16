@@ -122,6 +122,23 @@ describe("calcularPontosArtilheiro", () => {
   it("retorna 0 pts quando artilheiro oficial não foi definido", () => {
     expect(calcularPontosArtilheiro(aposta, null)).toBe(0);
   });
+
+  it("retorna 20 pts quando artilheiro empatado e aposta é um deles", () => {
+    expect(calcularPontosArtilheiro(aposta, [99, 50])).toBe(20);
+  });
+
+  it("retorna 20 pts quando artilheiro empatado e aposta é o segundo", () => {
+    const aposta2 = { user_id: "u2", jogador_id: 50 } as ApostaArtilheiro;
+    expect(calcularPontosArtilheiro(aposta2, [99, 50])).toBe(20);
+  });
+
+  it("retorna 0 pts quando artilheiro empatado e aposta não é nenhum", () => {
+    expect(calcularPontosArtilheiro(aposta, [50, 60])).toBe(0);
+  });
+
+  it("retorna 0 pts quando lista de artilheiros é vazia", () => {
+    expect(calcularPontosArtilheiro(aposta, [])).toBe(0);
+  });
 });
 
 // ─── calcularPontosPodio ─────────────────────────────────────────────────────

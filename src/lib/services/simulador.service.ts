@@ -47,7 +47,7 @@ export async function getSimuladorData(): Promise<SimuladorData> {
     jogadoresRaw,
     podioOficial,
     posicaoOficialGrupo,
-    { data: artilheiroOficial },
+    artilheiroOficial,
   ] = await Promise.all([
     fetchAllRows<{ id: string; nome_completo: string; email: string }>(
       (f, t) =>
@@ -106,9 +106,7 @@ export async function getSimuladorData(): Promise<SimuladorData> {
     supabase
       .from("artilheiro_oficial")
       .select("jogador_id")
-      .order("definido_em", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .then(({ data }) => data ?? []),
   ]);
 
   // Pódio/grupos/artilheiro: apostas só ficam visíveis após o prazo
@@ -234,7 +232,7 @@ export async function getSimuladorData(): Promise<SimuladorData> {
     apostasPodio,
     previsoesGrupo,
     apostasArtilheiro,
-    artilheiroOficialId: artilheiroOficial?.jogador_id ?? null,
+    artilheiroOficialIds: artilheiroOficial.map((a: { jogador_id: number }) => a.jogador_id),
     podioOficial,
     posicaoOficialGrupo,
     paises: paisesRaw.map((p) => ({

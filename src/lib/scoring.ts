@@ -77,10 +77,14 @@ export function calcularPontosPodio(
 
 export function calcularPontosArtilheiro(
   aposta: ApostaArtilheiro | null,
-  artilheiroOficialId: number | null,
+  artilheiroOficialIds: number | number[] | null,
 ): number {
-  if (!aposta || artilheiroOficialId === null) return 0;
-  return aposta.jogador_id === artilheiroOficialId ? PONTUACAO.ARTILHEIRO : 0;
+  if (!aposta || artilheiroOficialIds === null) return 0;
+  const ids = Array.isArray(artilheiroOficialIds)
+    ? artilheiroOficialIds
+    : [artilheiroOficialIds];
+  if (ids.length === 0) return 0;
+  return ids.includes(aposta.jogador_id) ? PONTUACAO.ARTILHEIRO : 0;
 }
 
 function avancou(posicao: number, terceiroAvanca: boolean): boolean {
@@ -175,7 +179,7 @@ export function calcularRanking(
   perfis: Perfil[],
   apostas: Aposta[],
   apostasArtilheiro: ApostaArtilheiro[],
-  artilheiroOficialId: number | null,
+  artilheiroOficialIds: number | number[] | null,
   apostasPodio: ApostaPodio[] = [],
   podioOficial: PodioOficial[] = [],
   previsoesGrupo: PrevisaoGrupo[] = [],
@@ -221,7 +225,7 @@ export function calcularRanking(
     const minhaApostaArtilheiro = artilheiroMap.get(perfil.id) ?? null;
     const pontos_artilheiro = calcularPontosArtilheiro(
       minhaApostaArtilheiro,
-      artilheiroOficialId,
+      artilheiroOficialIds,
     );
 
     const meuPodio = podioMap.get(perfil.id) ?? [];
