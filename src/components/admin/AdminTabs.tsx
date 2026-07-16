@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 const TABS = [
   { label: "Placar", href: "/admin" },
   { label: "Posição no Grupo", href: "/admin/posicoes-grupo" },
+  { label: "Pódio", href: "/admin/podio" },
+  { label: "Artilheiro", href: "/admin/artilheiro" },
 ];
 
 export function AdminTabs() {

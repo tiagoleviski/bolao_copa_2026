@@ -2,7 +2,13 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api/client";
-import type { Partida, Pais, PosicaoOficialGrupo } from "@/lib/types";
+import type {
+  Partida,
+  Pais,
+  PosicaoOficialGrupo,
+  PodioOficial,
+  Jogador,
+} from "@/lib/types";
 
 interface Perfil {
   id: string;
@@ -127,6 +133,62 @@ export function useSalvarPosicoesOficiaisGrupo() {
     },
   });
 }
+
+// ─── Pódio Oficial ──────────────────────────────────────────────────────────
+
+export function usePodioOficial() {
+  return useQuery({
+    queryKey: ["admin", "podio-oficial"],
+    queryFn: () =>
+      apiClient
+        .get<PodioOficial[]>("/admin/podio-oficial")
+        .then((r) => r.data),
+  });
+}
+
+export function useSalvarPodioOficial() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (
+      podio: Array<{ posicao: 1 | 2 | 3; pais_id: number }>,
+    ) => apiClient.put("/admin/podio-oficial", { podio }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "podio-oficial"] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
+  });
+}
+
+// ─── Artilheiro Oficial ─────────────────────────────────────────────────────
+
+interface ArtilheiroOficialData {
+  artilheiros: Array<{ id: number; jogador_id: number }>;
+  jogadores: Jogador[];
+}
+
+export function useArtilheiroOficial() {
+  return useQuery({
+    queryKey: ["admin", "artilheiro-oficial"],
+    queryFn: () =>
+      apiClient
+        .get<ArtilheiroOficialData>("/admin/artilheiro-oficial")
+        .then((r) => r.data),
+  });
+}
+
+export function useSalvarArtilheiroOficial() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (jogadorIds: number[]) =>
+      apiClient.put("/admin/artilheiro-oficial", { jogadorIds }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "artilheiro-oficial"] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
+  });
+}
+
+// ─── Sync ───────────────────────────────────────────────────────────────────
 
 export function useSyncResultados() {
   const qc = useQueryClient();
